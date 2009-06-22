@@ -28,6 +28,7 @@ public class ServiceTest extends SQLRepositoryTestCase {
         super.setUp();
         deployBundle(CORE_BUNDLE);
         deployBundle(SCHEMA_BUNDLE);
+        // deployBundle("org.nuxeo.runtime");
         deployBundle("org.nuxeo.ecm.platform.replication.exporter.api");
         deployBundle("org.nuxeo.ecm.platform.replication.exporter.core");
         openSession();
@@ -40,7 +41,6 @@ public class ServiceTest extends SQLRepositoryTestCase {
         folder = session.createDocument(folder);
         folder.setPropertyValue("dc:language", "en");
         folder = session.saveDocument(folder);
-
 
         DocumentModel tagRoot = session.createDocumentModel("/", "0002", "File");
         tagRoot.setPropertyValue("dc:title", "TAGROOT");
@@ -85,12 +85,14 @@ public class ServiceTest extends SQLRepositoryTestCase {
     }
 
     public void testService() throws Exception {
+//        Login Framework.getService(LoginComponent.class);
+//System.setSecurityManager(s)
+
         createDataWarehouse();
 
-        DocumentaryBaseExporterService srv = new DocumentaryBaseExpServiceImpl(
-                new File(System.getProperty("user.home"), "test.folder"));
+        DocumentaryBaseExporterService srv = new DocumentaryBaseExpServiceImpl();
 
-        srv.export(session, null, new File(System.getProperty("user.home"),
+        srv.export("test", null, new File(System.getProperty("user.home"),
                 "test.folder"), true, true, true);
     }
 }
