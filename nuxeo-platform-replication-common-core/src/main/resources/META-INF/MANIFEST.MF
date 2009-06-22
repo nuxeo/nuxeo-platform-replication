@@ -2,7 +2,4 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 1
 Bundle-Name: Nuxeo ECM Replication Common Core
 Bundle-SymbolicName: org.nuxeo.ecm.replication.common.core;singleton:=true
-Bundle-Category: stateless
-Require-Bundle: org.nuxeo.ecm.webapp.core
-Nuxeo-Component:
-Nuxeo-RequiredBy: org.nuxeo.ecm.war
+Export-Package: org.nuxeo.ecm.platform.replication.common.core
