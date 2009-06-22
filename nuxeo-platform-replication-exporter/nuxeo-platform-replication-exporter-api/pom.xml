@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<project>
+  <parent>
+    <artifactId>nuxeo-platform-replication-exporter</artifactId>
+    <groupId>org.nuxeo.ecm.platform</groupId>
+    <version>5.2.1-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>nuxeo-platform-replication-exporter-api
+  </artifactId>
+  <name>nuxeo-platform-replication-exporter-api</name>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.nuxeo.ecm.core</groupId>
+      <artifactId>nuxeo-core-api</artifactId>
+    </dependency>
+  </dependencies>
+</project>
