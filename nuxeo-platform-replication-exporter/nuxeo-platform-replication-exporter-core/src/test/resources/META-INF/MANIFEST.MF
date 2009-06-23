@@ -3,3 +3,4 @@ Bundle-ManifestVersion: 1
 Bundle-Name: Nuxeo Platform Replication
 Bundle-SymbolicName: org.nuxeo.ecm.platform.replication.exporter.core.test;singleton:=true
 Export-Package: org.nuxeo.ecm.platform.replication.exporter.core
+Require-Bundle: org.nuxeo.ecm.platform.replication.exporter.api

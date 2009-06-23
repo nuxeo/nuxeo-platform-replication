@@ -25,7 +25,7 @@ public class UnrestrictedExporter extends UnrestrictedSessionRunner {
                     false);
             // ((DocumentModelReader)reader).setInlineBlobs(true);
             DocumentWriter writer = new ReplicationWriter(new File(
-                    System.getProperty("user.home"), "test.folder"));
+                    System.getProperty("user.home"), "test.folder"), session);
 
             DocumentPipe pipe = new DocumentPipeImpl(10);
             pipe.setReader(reader);

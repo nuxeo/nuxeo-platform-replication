@@ -21,7 +21,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.nuxeo.ecm.core.api.ClientException;
-import org.nuxeo.ecm.platform.replication.exporter.api.DocumentaryBaseExporterService;
 
 /**
  * Implementation for export documentary base service.
@@ -29,8 +28,9 @@ import org.nuxeo.ecm.platform.replication.exporter.api.DocumentaryBaseExporterSe
  * @author cpriceputu
  *
  */
-public class DocumentaryBaseExpServiceImpl implements
-        DocumentaryBaseExporterService {
+public class DocumentaryBaseExpServiceImpl //extends ServiceMBeanSupport
+        implements DocumentaryBaseExpServiceImplMBean
+        {
     private static final Logger LOG = Logger.getLogger(DocumentaryBaseExpServiceImpl.class);
 
     public DocumentaryBaseExpServiceImpl() {

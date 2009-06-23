@@ -26,9 +26,11 @@ public class ServiceTest extends SQLRepositoryTestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
+
+        deployBundle("org.nuxeo.ecm.core.api");
         deployBundle(CORE_BUNDLE);
         deployBundle(SCHEMA_BUNDLE);
-        // deployBundle("org.nuxeo.runtime");
+        deployBundle("org.nuxeo.ecm.platform.versioning.api");
         deployBundle("org.nuxeo.ecm.platform.replication.exporter.api");
         deployBundle("org.nuxeo.ecm.platform.replication.exporter.core");
         openSession();
@@ -85,8 +87,8 @@ public class ServiceTest extends SQLRepositoryTestCase {
     }
 
     public void testService() throws Exception {
-//        Login Framework.getService(LoginComponent.class);
-//System.setSecurityManager(s)
+        // Login Framework.getService(LoginComponent.class);
+        // System.setSecurityManager(s)
 
         createDataWarehouse();
 

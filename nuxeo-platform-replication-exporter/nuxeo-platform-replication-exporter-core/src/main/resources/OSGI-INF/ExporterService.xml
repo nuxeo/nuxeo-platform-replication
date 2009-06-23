@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<component name="org.nuxeo.ecm.platform.replication.exporter.core.DocumentaryBaseExporterService">
+  <implementation
+    class="org.nuxeo.ecm.platform.replication.exporter.core.DocumentaryBaseExporterServiceImpl" />
+
+  <service>
+    <provide interface="org.nuxeo.ecm.platform.replication.exporter.core.DocumentaryBaseExporterService" />
+  </service>
+
+  <documentation>
+    To do
+  </documentation>
+</component>
