@@ -3,10 +3,12 @@ package org.nuxeo.ecm.platform;
 import java.io.File;
 
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.storage.sql.SQLRepositoryTestCase;
 import org.nuxeo.ecm.platform.replication.exporter.api.DocumentaryBaseExporterService;
+import org.nuxeo.ecm.platform.replication.exporter.api.StatusListener;
 import org.nuxeo.ecm.platform.replication.exporter.core.DocumentaryBaseExpServiceImpl;
 
 public class ServiceTest extends SQLRepositoryTestCase {
@@ -21,6 +23,7 @@ public class ServiceTest extends SQLRepositoryTestCase {
     private static final Logger LOG = Logger.getLogger(ServiceTest.class);
     static {
         BasicConfigurator.configure();
+        LOG.setLevel(Level.INFO);
     }
 
     @Override
@@ -93,6 +96,11 @@ public class ServiceTest extends SQLRepositoryTestCase {
         createDataWarehouse();
 
         DocumentaryBaseExporterService srv = new DocumentaryBaseExpServiceImpl();
+        srv.setListener(new StatusListener() {
+            public void onUpdateStatus(Object... params) {
+                LOG.info(params[0]);
+            }
+        });
 
         srv.export("test", null, new File(System.getProperty("user.home"),
                 "test.folder"), true, true, true);

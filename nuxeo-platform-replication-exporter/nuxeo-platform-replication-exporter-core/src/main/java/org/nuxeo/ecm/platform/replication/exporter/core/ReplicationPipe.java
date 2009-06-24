@@ -12,9 +12,12 @@ import org.nuxeo.ecm.core.io.DocumentTranslationMap;
 import org.nuxeo.ecm.core.io.ExportedDocument;
 import org.nuxeo.ecm.core.io.impl.DocumentPipeImpl;
 import org.nuxeo.ecm.core.io.impl.DocumentTranslationMapImpl;
+import org.nuxeo.ecm.platform.replication.exporter.api.StatusListener;
 
 public class ReplicationPipe extends DocumentPipeImpl {
     private static final Logger LOG = Logger.getLogger(ReplicationPipe.class);
+
+    private StatusListener listener = null;
 
     protected int pageSize = 0;
 
@@ -51,12 +54,21 @@ public class ReplicationPipe extends DocumentPipeImpl {
 
         List<DocumentTranslationMap> maps = new Vector<DocumentTranslationMap>();
         readAndWriteDocs(maps);
-        return DocumentTranslationMapImpl.merge(maps);
+
+        try {
+            DocumentTranslationMap map = DocumentTranslationMapImpl.merge(maps);
+            return map;
+        } catch (Exception e) {
+            LOG.warn(e);
+        }
+
+        return null;
     }
 
     protected void readAndWriteDocs(List<DocumentTranslationMap> maps)
             throws IOException, InterruptedException {
-        ExecutorService executor = Executors.newFixedThreadPool(pageSize);
+        ExecutorService executor = Executors.newFixedThreadPool(pageSize < 1 ? 1
+                : pageSize);
 
         if (pageSize == 0) {
             // handle single doc case
@@ -69,6 +81,9 @@ public class ReplicationPipe extends DocumentPipeImpl {
                         break;
                     }
                 }
+
+                Runner r = new Runner(this, doc, maps);
+                r.setListener(listener);
                 executor.execute(new Runner(this, doc, maps));
             }
 
@@ -82,22 +97,32 @@ public class ReplicationPipe extends DocumentPipeImpl {
                 if (docs == null) {
                     break;
                 }
-                executor.execute(new MultipleRunner(this, docs, maps));
+
+                Runner r = new MultipleRunner(this, docs, maps);
+                r.setListener(listener);
+                executor.execute(r);
             }
         }
 
         executor.shutdown();
-        boolean done = executor.awaitTermination(Long.MAX_VALUE,
-                TimeUnit.SECONDS);
+        boolean done = executor.awaitTermination(1, TimeUnit.SECONDS);
         while (!done) {
             if (!isRunning()) {
                 executor.shutdownNow();
                 break;
             }
-            done = executor.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
+            done = executor.awaitTermination(1, TimeUnit.SECONDS);
         }
 
         LOG.info("Done ...");
+    }
+
+    public void setListener(StatusListener listener) {
+        this.listener = listener;
+    }
+
+    public StatusListener getListener() {
+        return listener;
     }
 }
 
@@ -124,6 +149,7 @@ class MultipleRunner extends Runner {
     @Override
     public void run() {
         if (!getPipe().isRunning()) {
+            sendStatus(StatusListener.EXPORT_STOPPED);
             return;
         }
 
@@ -134,12 +160,17 @@ class MultipleRunner extends Runner {
                 if (map != null) {
                     getMaps().add(map);
                 }
+
+                sendStatus(StatusListener.DOC_WRITE_SUCCESS, docs);
             }
 
         } catch (Exception e) {
             LOG.error(e);
+            sendStatus(StatusListener.ERROR, e);
         }
+
     }
+
 }
 
 class Runner implements Runnable {
@@ -149,6 +180,8 @@ class Runner implements Runnable {
     private ExportedDocument doc = null;
 
     private List<DocumentTranslationMap> maps = null;
+
+    private StatusListener listener = null;
 
     private static final Logger LOG = Logger.getLogger(Runner.class);
 
@@ -161,6 +194,7 @@ class Runner implements Runnable {
 
     public void run() {
         if (!getPipe().isRunning()) {
+            sendStatus(StatusListener.EXPORT_STOPPED);
             return;
         }
 
@@ -168,8 +202,10 @@ class Runner implements Runnable {
             pipe.applyTransforms(doc);
             DocumentTranslationMap map = pipe.getWriter().write(doc);
             maps.add(map);
+            sendStatus(StatusListener.DOC_WRITE_SUCCESS, doc);
         } catch (Exception e) {
             LOG.error(e);
+            sendStatus(StatusListener.ERROR, e);
         }
     }
 
@@ -195,6 +231,20 @@ class Runner implements Runnable {
 
     public List<DocumentTranslationMap> getMaps() {
         return maps;
+    }
+
+    public void setListener(StatusListener listener) {
+        this.listener = listener;
+    }
+
+    public StatusListener getListener() {
+        return listener;
+    }
+
+    protected void sendStatus(Object... params) {
+        if (listener != null) {
+            listener.onUpdateStatus(params);
+        }
     }
 
 }

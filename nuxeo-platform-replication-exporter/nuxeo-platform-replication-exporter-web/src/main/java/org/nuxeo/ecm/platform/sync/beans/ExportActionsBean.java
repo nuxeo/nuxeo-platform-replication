@@ -31,8 +31,11 @@ import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.platform.relations.web.listener.RelationActions;
+import org.nuxeo.ecm.platform.replication.exporter.api.DocumentaryBaseExporterService;
+import org.nuxeo.ecm.platform.replication.exporter.api.StatusListener;
 import org.nuxeo.ecm.platform.ui.web.api.NavigationContext;
 import org.nuxeo.ecm.webapp.helpers.ResourcesAccessor;
+import org.nuxeo.runtime.api.Framework;
 
 /**
  *
@@ -41,7 +44,7 @@ import org.nuxeo.ecm.webapp.helpers.ResourcesAccessor;
  */
 @Scope(ScopeType.SESSION)
 @Name("exportActions")
-public class ExportActionsBean implements Serializable {
+public class ExportActionsBean implements Serializable, StatusListener {
 
     private static final Logger LOG = Logger.getLogger(ExportActionsBean.class);
 
@@ -62,9 +65,15 @@ public class ExportActionsBean implements Serializable {
     @In(create = true)
     protected transient ResourcesAccessor resourcesAccessor;
 
+    private DocumentaryBaseExporterService exportService = null;
+
+    private String repo;
+
+    private int fileCount = 0;
+
     @Create
     public void initialize() throws Exception {
-
+        exportService = Framework.getService(DocumentaryBaseExporterService.class);
     }
 
     public String doSynchronize() {
@@ -85,4 +94,20 @@ public class ExportActionsBean implements Serializable {
         return "home";
     }
 
+    public void onUpdateStatus(Object... params) {
+
+    }
+
+    public void setRepo(String repo) {
+        this.repo = repo;
+    }
+
+    public String getRepo() {
+        return repo;
+    }
+
+    public String startExport() {
+        fileCount = 0;
+        return goHome();
+    }
 }

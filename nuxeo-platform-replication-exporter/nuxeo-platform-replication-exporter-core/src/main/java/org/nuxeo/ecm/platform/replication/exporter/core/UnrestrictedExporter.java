@@ -8,8 +8,12 @@ import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.core.api.UnrestrictedSessionRunner;
 import org.nuxeo.ecm.core.io.DocumentWriter;
 import org.nuxeo.ecm.core.io.impl.plugins.DocumentTreeReader;
+import org.nuxeo.ecm.platform.replication.exporter.api.StatusListener;
 
 public class UnrestrictedExporter extends UnrestrictedSessionRunner {
+    private ReplicationPipe pipe = null;
+
+    private StatusListener listener = null;
 
     public UnrestrictedExporter(String repositoryName) {
         super(repositoryName);
@@ -25,14 +29,31 @@ public class UnrestrictedExporter extends UnrestrictedSessionRunner {
             DocumentWriter writer = new ReplicationWriter(new File(
                     System.getProperty("user.home"), "test.folder"), session);
 
-            ReplicationPipe pipe = new ReplicationPipe(10);
+            pipe = new ReplicationPipe(10);
             pipe.setReader(reader);
             pipe.setWriter(writer);
             pipe.run();
 
+            if (getListener() != null) {
+                getListener().onUpdateStatus(StatusListener.DONE);
+            }
+
         } catch (Exception e) {
             throw new ClientException(e);
         }
+    }
+
+    public void stop() {
+        if (pipe != null)
+            pipe.stop();
+    }
+
+    public void setListener(StatusListener listener) {
+        this.listener = listener;
+    }
+
+    public StatusListener getListener() {
+        return listener;
     }
 
 }

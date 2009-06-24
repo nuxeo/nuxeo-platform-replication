@@ -15,34 +15,15 @@
       <ui:include src="/incl/message_banner.xhtml"/>
       
       <h:panelGrid columns="2" styleClass="dataInput" columnClasses="labelColumn, fieldColumn">
-        <h:outputLabel for="clientIP" class="required" value="#{messages['label.sync.clientIP']}" />
+        <h:outputLabel for="repo" class="required" value="#{messages['label.sync.clientIP']}" />
         <h:panelGroup>
-          <h:inputText id="clientIP" value="#{syncActions.synchronizeDetails.host}" required="true" />
-          <h:message for="clientIP" />
-        </h:panelGroup>
-        <h:outputLabel for="clientPort" value="#{messages['label.sync.clientPort']}" />
-        <h:panelGroup>
-          <h:inputText id="clientPort" value="#{syncActions.synchronizeDetails.port}">
-            <f:converter converterId="javax.faces.Short" />
-          </h:inputText>
-          <h:message for="clientPort" />
-        </h:panelGroup>
-        <h:outputLabel for="username" class="required" value="#{messages['label.sync.username']}" />
-        <h:panelGroup>
-          <h:inputText id="username" value="#{syncActions.synchronizeDetails.username}" required="true" />
-          <h:message for="username" />
-        </h:panelGroup>        
-        <h:outputLabel for="password" class="required" value="#{messages['label.sync.password']}" />
-        <h:panelGroup>
-          <h:inputSecret id="password" value="#{syncActions.synchronizeDetails.password}" required="true" />
-          <h:message for="password" />
+          <h:inputText id="repo" value="#{exportActions.repo}" required="true" />
+          <h:message for="repo" />
         </h:panelGroup>
       </h:panelGrid>
       
       <h:panelGrid columns="1" styleClass="dataInput">
-        <h:commandLink value="#{messages['command.syncDocs']}" action="#{syncActions.doSynchronize}" />
-        <h:commandLink value="#{messages['command.syncVocabularies']}" action="#{syncActions.doSynchronizeVocabularies}" />
-        <h:commandLink value="#{messages['command.syncRelations']}" action="#{syncActions.doSynchronizeRelations}" />
+        <h:commandLink value="#{messages['command.syncDocs']}" action="#{exportActions.startExport}" />
       </h:panelGrid>
     </h:form>
     </div>

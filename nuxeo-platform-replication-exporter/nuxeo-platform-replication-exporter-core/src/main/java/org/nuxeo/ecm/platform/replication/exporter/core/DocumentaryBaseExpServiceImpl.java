@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.nuxeo.ecm.core.api.ClientException;
+import org.nuxeo.ecm.platform.replication.exporter.api.StatusListener;
 
 /**
  * Implementation for export documentary base service.
@@ -29,8 +30,14 @@ import org.nuxeo.ecm.core.api.ClientException;
  *
  */
 public class DocumentaryBaseExpServiceImpl // extends ServiceMBeanSupport
-        implements DocumentaryBaseExpServiceImplMBean {
+        implements DocumentaryBaseExpServiceImplMBean, Runnable {
     private static final Logger LOG = Logger.getLogger(DocumentaryBaseExpServiceImpl.class);
+
+    private String domain = null;
+
+    private UnrestrictedExporter exp = null;
+
+    private StatusListener listener = null;
 
     public DocumentaryBaseExpServiceImpl() {
 
@@ -39,8 +46,39 @@ public class DocumentaryBaseExpServiceImpl // extends ServiceMBeanSupport
     public void export(String domain, Map<String, Serializable> parameter,
             File path, boolean resume, boolean exportVersions,
             boolean exportProxies) throws ClientException {
-        UnrestrictedExporter exp = new UnrestrictedExporter(domain);
-        exp.runUnrestricted();
+        setDomain(domain);
+        // TODO add all stuff;
+
+        new Thread(this).start();
     }
 
+    public void run() {
+        stop();
+        try {
+            exp = new UnrestrictedExporter(domain);
+            exp.setListener(listener);
+            exp.runUnrestricted();
+        } catch (Exception e) {
+            LOG.error(e);
+        }
+    }
+
+    public void setDomain(String domain) {
+        this.domain = domain;
+    }
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public void stop() {
+        if (exp != null) {
+            exp.stop();
+            exp = null;
+        }
+    }
+
+    public void setListener(StatusListener listener) {
+        this.listener = listener;
+    }
 }

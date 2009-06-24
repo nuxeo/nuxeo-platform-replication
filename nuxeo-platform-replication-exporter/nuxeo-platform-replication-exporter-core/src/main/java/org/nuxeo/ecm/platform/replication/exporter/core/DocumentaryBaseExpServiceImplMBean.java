@@ -14,4 +14,5 @@ public interface DocumentaryBaseExpServiceImplMBean extends
             File path, boolean resume, boolean exportVersions,
             boolean exportProxies) throws ClientException;
 
+    public void stop();
 }
