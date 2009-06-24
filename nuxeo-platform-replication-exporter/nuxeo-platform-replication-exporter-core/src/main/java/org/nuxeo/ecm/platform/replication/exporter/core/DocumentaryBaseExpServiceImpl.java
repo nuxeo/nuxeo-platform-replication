@@ -28,9 +28,8 @@ import org.nuxeo.ecm.core.api.ClientException;
  * @author cpriceputu
  *
  */
-public class DocumentaryBaseExpServiceImpl //extends ServiceMBeanSupport
-        implements DocumentaryBaseExpServiceImplMBean
-        {
+public class DocumentaryBaseExpServiceImpl // extends ServiceMBeanSupport
+        implements DocumentaryBaseExpServiceImplMBean {
     private static final Logger LOG = Logger.getLogger(DocumentaryBaseExpServiceImpl.class);
 
     public DocumentaryBaseExpServiceImpl() {

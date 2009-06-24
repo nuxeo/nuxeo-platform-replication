@@ -6,9 +6,7 @@ import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.core.api.UnrestrictedSessionRunner;
-import org.nuxeo.ecm.core.io.DocumentPipe;
 import org.nuxeo.ecm.core.io.DocumentWriter;
-import org.nuxeo.ecm.core.io.impl.DocumentPipeImpl;
 import org.nuxeo.ecm.core.io.impl.plugins.DocumentTreeReader;
 
 public class UnrestrictedExporter extends UnrestrictedSessionRunner {
@@ -27,7 +25,7 @@ public class UnrestrictedExporter extends UnrestrictedSessionRunner {
             DocumentWriter writer = new ReplicationWriter(new File(
                     System.getProperty("user.home"), "test.folder"), session);
 
-            DocumentPipe pipe = new DocumentPipeImpl(10);
+            ReplicationPipe pipe = new ReplicationPipe(10);
             pipe.setReader(reader);
             pipe.setWriter(writer);
             pipe.run();
