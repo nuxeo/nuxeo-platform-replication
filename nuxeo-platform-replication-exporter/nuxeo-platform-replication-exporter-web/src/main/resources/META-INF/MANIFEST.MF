@@ -8,7 +8,6 @@ Bundle-Category: web
 Require-Bundle: org.nuxeo.ecm.core.schema,
  org.nuxeo.ecm.webapp.ui,
  org.nuxeo.theme.jsf,
- org.nuxeo.ecm.platform.web.common,
  org.nuxeo.ecm.webapp.core,
  org.nuxeo.ecm.platform.replication.exporter.core
 Nuxeo-Component: OSGI-INF/exp-client-actions-contrib.xml

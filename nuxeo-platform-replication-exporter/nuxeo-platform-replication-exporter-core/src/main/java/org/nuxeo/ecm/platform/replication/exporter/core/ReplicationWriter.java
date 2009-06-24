@@ -1,5 +1,7 @@
 package org.nuxeo.ecm.platform.replication.exporter.core;
 
+import static org.nuxeo.ecm.platform.replication.exporter.core.ReplicationConstants.*;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -62,30 +64,30 @@ public class ReplicationWriter extends XMLDirectoryWriter {
             DocumentModel version = documentManager.getSourceDocument(ref);
             DocumentModel sourceDocument = documentManager.getSourceDocument(version.getRef());
 
-            props.setProperty(CoreSession.IMPORT_PROXY_TARGET_ID,
+            props.setProperty(IMPORT_PROXY_TARGET_ID,
                     version.getId() == null ? "" : version.getId());
-            props.setProperty(CoreSession.IMPORT_PROXY_VERSIONABLE_ID,
+            props.setProperty(IMPORT_PROXY_VERSIONABLE_ID,
                     sourceDocument.getId() == null ? ""
                             : sourceDocument.getId());
         } else if (document.isVersion()) {
             DocumentModel sourceDocument = documentManager.getSourceDocument(ref);
 
-            props.setProperty(CoreSession.IMPORT_VERSION_VERSIONABLE_ID,
+            props.setProperty(IMPORT_VERSION_VERSIONABLE_ID,
                     sourceDocument.getId() == null ? ""
                             : sourceDocument.getId());
-            props.setProperty(CoreSession.IMPORT_VERSION_LABEL,
+            props.setProperty(IMPORT_VERSION_LABEL,
                     document.getVersionLabel() == null ? ""
                             : document.getVersionLabel());
 
             List<VersionModel> versions = documentManager.getVersionsForDocument(sourceDocument.getRef());
             for (VersionModel version : versions) {
                 // add version description
-                props.setProperty(CoreSession.IMPORT_VERSION_DESCRIPTION,
+                props.setProperty(IMPORT_VERSION_DESCRIPTION,
                         version.getDescription() == null ? ""
                                 : version.getDescription());
                 // add version creation date
                 props.setProperty(
-                        CoreSession.IMPORT_VERSION_CREATED,
+                        IMPORT_VERSION_CREATED,
                         new DateType().encode(version.getCreated()) == null ? ""
                                 : new DateType().encode(version.getCreated()));
             }
@@ -94,24 +96,24 @@ public class ReplicationWriter extends XMLDirectoryWriter {
             String minorVer = docVer.getMinorVersion().toString();
             String majorVer = docVer.getMajorVersion().toString();
 
-            props.setProperty(CoreSession.IMPORT_VERSION_MAJOR,
+            props.setProperty(IMPORT_VERSION_MAJOR,
                     majorVer == null ? "" : majorVer);
 
-            props.setProperty(CoreSession.IMPORT_VERSION_MINOR,
+            props.setProperty(IMPORT_VERSION_MINOR,
                     minorVer == null ? "" : minorVer);
         } else {
 
-            props.setProperty(CoreSession.IMPORT_LOCK,
+            props.setProperty(IMPORT_LOCK,
                     document.getLock() == null ? "" : document.getLock());
             if (document.isVersionable()) {
-                props.setProperty(CoreSession.IMPORT_CHECKED_IN,
+                props.setProperty(IMPORT_CHECKED_IN,
                         Boolean.FALSE.toString());
                 // add the id of the last version, which represents the base for
                 // the current state of the document
                 DocumentModel version = documentManager.getLastDocumentVersion(ref);
                 if ((version != null)
                         && version.getId().equals(document.getId())) {
-                    props.setProperty(CoreSession.IMPORT_BASE_VERSION_ID,
+                    props.setProperty(IMPORT_BASE_VERSION_ID,
                             version.getId() == null ? "" : version.getId());
                 }
                 VersioningDocument docVer = document.getAdapter(VersioningDocument.class);
@@ -119,20 +121,20 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                     String minorVer = docVer.getMinorVersion().toString();
                     String majorVer = docVer.getMajorVersion().toString();
                     // add major version
-                    props.setProperty(CoreSession.IMPORT_VERSION_MAJOR,
+                    props.setProperty(IMPORT_VERSION_MAJOR,
                             majorVer == null ? "" : majorVer);
                     // add minor version
-                    props.setProperty(CoreSession.IMPORT_VERSION_MINOR,
+                    props.setProperty(IMPORT_VERSION_MINOR,
                             minorVer == null ? "" : minorVer);
                 }
             }
 
         }
 
-        props.setProperty(CoreSession.IMPORT_LIFECYCLE_STATE,
+        props.setProperty(IMPORT_LIFECYCLE_STATE,
                 document.getCurrentLifeCycleState() == null ? ""
                         : document.getCurrentLifeCycleState());
-        props.setProperty(CoreSession.IMPORT_LIFECYCLE_POLICY,
+        props.setProperty(IMPORT_LIFECYCLE_POLICY,
                 document.getLifeCyclePolicy() == null ? ""
                         : document.getLifeCyclePolicy());
 

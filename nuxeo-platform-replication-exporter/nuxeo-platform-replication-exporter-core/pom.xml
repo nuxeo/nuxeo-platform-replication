@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <project>
   <parent>
-    <artifactId>nuxeo-platform-replication-exporter</artifactId>
+    <artifactId>nuxeo-platform-replication</artifactId>
     <groupId>org.nuxeo.ecm.platform</groupId>
-    <version>5.2.1-SNAPSHOT</version>
+    <version>5.1.6</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -12,10 +12,6 @@
   <name>nuxeo-platform-replication-exporter-core</name>
 
   <dependencies>
-    <dependency>
-      <groupId>org.nuxeo.runtime</groupId>
-      <artifactId>nuxeo-runtime-management</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.nuxeo.ecm.core</groupId>
       <artifactId>nuxeo-core-api</artifactId>
@@ -28,6 +24,28 @@
       <groupId>org.nuxeo.ecm.core</groupId>
       <artifactId>nuxeo-core-io</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.nuxeo.runtime</groupId>
+      <artifactId>nuxeo-runtime</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.nuxeo.ecm.core</groupId>
+      <artifactId>nuxeo-core-api</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.nuxeo.ecm.platform</groupId>
+      <artifactId>nuxeo-platform-replication-exporter-api
+      </artifactId>
+      <version>5.1.6</version>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+    </dependency>        
+       
+    <!-- Testing
+    
     <dependency>
       <groupId>org.nuxeo.ecm.platform</groupId>
       <artifactId>nuxeo-platform-versioning-api</artifactId>
@@ -43,14 +61,13 @@
       <artifactId>nuxeo-core-storage-sql-test</artifactId>
       <version>1.5.1-SNAPSHOT</version>
       <scope>test</scope>
-    </dependency>
-
-    <!-- Testing -->
+    </dependency>    
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
+    
     <dependency>
       <groupId>org.apache.derby</groupId>
       <artifactId>derbyclient</artifactId>
@@ -71,14 +88,8 @@
       <artifactId>nuxeo-platform-comment-core</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.nuxeo.runtime</groupId>
-      <artifactId>nuxeo-runtime</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.nuxeo.ecm.core</groupId>
-      <artifactId>nuxeo-core-api</artifactId>
-    </dependency>
+ -->    
+
 
     <!--  MBean Stuff -->
     <dependency>
@@ -98,11 +109,5 @@
       <artifactId>jbosssx</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>org.nuxeo.ecm.platform</groupId>
-      <artifactId>nuxeo-platform-replication-exporter-api
-      </artifactId>
-      <version>5.2.1-SNAPSHOT</version>
-    </dependency>
   </dependencies>
 </project>

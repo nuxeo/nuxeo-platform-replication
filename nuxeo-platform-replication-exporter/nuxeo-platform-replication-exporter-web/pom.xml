@@ -1,10 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
-    <artifactId>nuxeo-platform-replication-exporter
-    </artifactId>
+    <artifactId>nuxeo-platform-replication</artifactId>
     <groupId>org.nuxeo.ecm.platform</groupId>
-    <version>5.2.1-SNAPSHOT</version>
+    <version>5.1.6</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -27,11 +26,17 @@
     </dependency>
     <dependency>
       <groupId>org.nuxeo.ecm.platform</groupId>
-      <artifactId>nuxeo-platform-webapp-base</artifactId>
+      <artifactId>nuxeo-platform-webapp-core</artifactId>
+      <type>ejb</type>
     </dependency>
     <dependency>
       <groupId>org.nuxeo.ecm.platform</groupId>
+      <artifactId>nuxeo-platform-webapp</artifactId>
+    </dependency>    
+    <dependency>
+      <groupId>org.nuxeo.ecm.platform</groupId>
       <artifactId>nuxeo-platform-relations-web</artifactId>
+      <type>ejb</type>
     </dependency>
     <dependency>
       <groupId>org.jboss.seam</groupId>
@@ -45,6 +50,10 @@
       <groupId>javax.faces</groupId>
       <artifactId>jsf-api</artifactId>
     </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+    </dependency>      
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
