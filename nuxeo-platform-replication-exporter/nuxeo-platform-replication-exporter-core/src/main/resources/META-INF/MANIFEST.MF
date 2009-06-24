@@ -5,4 +5,4 @@ Bundle-SymbolicName: org.nuxeo.ecm.platform.replication.exporter.core;singleton:
 Export-Package: org.nuxeo.ecm.platform.replication.exporter.core
 Require-Bundle: org.nuxeo.ecm.platform.replication.exporter.api
 Nuxeo-Component: OSGI-INF/management-contrib.xml,
- ExporterService.xml
+ OSGI-INF/ExporterService.xml

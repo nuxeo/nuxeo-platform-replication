@@ -90,6 +90,10 @@ public class ReplicationPipe extends DocumentPipeImpl {
         boolean done = executor.awaitTermination(Long.MAX_VALUE,
                 TimeUnit.SECONDS);
         while (!done) {
+            if (!isRunning()) {
+                executor.shutdownNow();
+                break;
+            }
             done = executor.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
         }
 

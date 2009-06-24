@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<fragment>
+
+  <extension target="application#MODULE">
+    <module>
+      <java>${bundle.fileName}</java>
+    </module>
+  </extension>
+
+  <extension target="pages#PAGES">
+    <page view-id="/exp_admin.xhtml">
+      breadcrumb=command.exp_admin
+    </page>
+  </extension>
+
+  <extension target="faces-config#NAVIGATION">
+    <navigation-case>
+      <from-outcome>exp_admin</from-outcome>
+      <to-view-id>/exp_admin.xhtml</to-view-id>
+      <redirect />
+    </navigation-case>
+  </extension>
+
+  <install>
+    <!--  Unzip the war template -->
+    <unzip from="${bundle.fileName}" to="/">
+      <include>nuxeo.war/**</include>
+    </unzip>
+
+    <!--  create a temp dir -->
+    <!--  be sure no directory with that name exists -->
+    <delete path="nxexp.tmp" />
+    <mkdir path="nxexp.tmp" />
+
+    <unzip from="${bundle.fileName}" to="nxexp.tmp">
+      <include>OSGI-INF/l10n/**</include>
+    </unzip>
+
+    <append from="nxexp.tmp/OSGI-INF/l10n/messages.properties" to="nuxeo.war/WEB-INF/classes/messages.properties"
+      addNewLine="true" />
+    <append from="nxexp.tmp/OSGI-INF/l10n/messages_en.properties" to="nuxeo.war/WEB-INF/classes/messages_en.properties"
+      addNewLine="true" />
+    <append from="nxexp.tmp/OSGI-INF/l10n/messages_fr.properties" to="nuxeo.war/WEB-INF/classes/messages_fr.properties"
+      addNewLine="true" />
+
+    <delete path="nxexp.tmp" />
+  </install>
+
+</fragment>

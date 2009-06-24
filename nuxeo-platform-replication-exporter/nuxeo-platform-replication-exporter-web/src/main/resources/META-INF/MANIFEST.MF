@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 1
+Bundle-Name: Nuxeo Platform Replication Exporter Web
+Bundle-SymbolicName: org.nuxeo.ecm.platform.replication.exporter.web;singleton=true
+Bundle-Vendor: Nuxeo
+Bundle-Localization: plugin
+Bundle-Category: web
+Require-Bundle: org.nuxeo.ecm.core.schema,
+ org.nuxeo.ecm.webapp.ui,
+ org.nuxeo.theme.jsf,
+ org.nuxeo.ecm.platform.web.common,
+ org.nuxeo.ecm.webapp.core,
+ org.nuxeo.ecm.platform.replication.exporter.core
+Nuxeo-Component: OSGI-INF/exp-client-actions-contrib.xml
