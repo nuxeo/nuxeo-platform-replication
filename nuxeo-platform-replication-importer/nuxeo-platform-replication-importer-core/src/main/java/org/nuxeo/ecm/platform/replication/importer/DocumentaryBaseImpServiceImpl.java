@@ -15,6 +15,11 @@
 
 package org.nuxeo.ecm.platform.replication.importer;
 
+import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.DOCUMENTARY_BASE_LOCATION_NAME;
+import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.PROXIES_LOCATION_NAME;
+import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.USUAL_DOCUMENTS_LOCATION_NAME;
+import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.VERSIONS_LOCATION_NAME;
+
 import java.io.File;
 import java.io.Serializable;
 import java.util.Map;
@@ -25,7 +30,7 @@ import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.platform.importer.base.GenericMultiThreadedImporter;
 import org.nuxeo.ecm.platform.importer.executor.AbstractImporterExecutor;
-import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.*;
+import org.nuxeo.ecm.platform.replication.common.StatusListener;
 
 /**
  * Implementation for import documentary base service.
@@ -38,6 +43,8 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
     private static final Log log = LogFactory.getLog(DocumentaryBaseImpServiceImpl.class);
 
     protected CoreSession session;
+
+    private StatusListener listener;
 
     public void importDocuments(CoreSession session,
             Map<String, Serializable> parameter, File path, boolean resume,
@@ -58,6 +65,7 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
                 + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
                 + PROXIES_LOCATION_NAME);
         doSynchronImport(proxiesRoot, true);
+        listener.onUpdateStatus(StatusListener.DONE);
     }
 
     protected void doSynchronImport(File root, boolean importProxies)
@@ -66,7 +74,8 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
             ReplicationSourceNode sourceNode = new ReplicationSourceNode(root);
             GenericMultiThreadedImporter importer = new GenericMultiThreadedImporter(
                     sourceNode, "/", 10, 5, getLogger());
-            ReplicationDocumentModelFactory documentModelFactory = new ReplicationDocumentModelFactory(importProxies);
+            ReplicationDocumentModelFactory documentModelFactory = new ReplicationDocumentModelFactory(listener,
+                    importProxies);
             importer.setFactory(documentModelFactory);
             importer.setThreadPolicy(getThreadPolicy());
             doRun(importer, Boolean.TRUE);
@@ -84,6 +93,15 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
     @Override
     protected Log getJavaLogger() {
         return log;
+    }
+
+    public void setListener(StatusListener listener) {
+        this.listener = listener;
+    }
+
+    public void stop() {
+        // TODO Auto-generated method stub
+
     }
 
 }

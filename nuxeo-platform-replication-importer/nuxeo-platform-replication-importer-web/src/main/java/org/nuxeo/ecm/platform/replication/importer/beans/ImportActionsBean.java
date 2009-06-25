@@ -15,7 +15,9 @@
  *     Nuxeo - initial API and implementation
  *
  */
-package org.nuxeo.ecm.platform.sync.beans;
+package org.nuxeo.ecm.platform.replication.importer.beans;
+
+import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.GO_HOME;
 
 import java.io.File;
 import java.io.Serializable;
@@ -26,7 +28,6 @@ import org.jboss.seam.annotations.Create;
 import org.jboss.seam.annotations.In;
 import org.jboss.seam.annotations.Name;
 import org.jboss.seam.annotations.Scope;
-import org.jboss.seam.faces.FacesMessages;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
@@ -35,7 +36,6 @@ import org.nuxeo.ecm.core.io.ExportedDocument;
 import org.nuxeo.ecm.platform.replication.common.StatusListener;
 import org.nuxeo.ecm.platform.replication.importer.DocumentaryBaseImpServiceImpl;
 import org.nuxeo.ecm.platform.ui.web.api.NavigationContext;
-import org.nuxeo.ecm.webapp.helpers.ResourcesAccessor;
 import org.nuxeo.runtime.api.Framework;
 
 /**
@@ -59,24 +59,18 @@ public class ImportActionsBean implements Serializable, StatusListener {
     @In(create = true, required = false)
     private transient CoreSession documentManager;
 
-    @In(create = true, required = false)
-    protected transient FacesMessages facesMessages;
-
-    @In(create = true)
-    protected transient ResourcesAccessor resourcesAccessor;
-
     private DocumentaryBaseImpServiceImpl importService;
 
-    private int fileCount = 0;
+    private int fileCount;
 
-    private boolean done = false;
+    private boolean done;
 
-    private String path = null;
+    private String path;
 
     @Create
     public void initialize() throws Exception {
         importService = Framework.getService(DocumentaryBaseImpServiceImpl.class);
-        // importService.setListener(this);
+        importService.setListener(this);
     }
 
     private String goHome() {
@@ -89,19 +83,20 @@ public class ImportActionsBean implements Serializable, StatusListener {
         } catch (ClientException e) {
             e.printStackTrace();
         }
-        return "home";
+        return GO_HOME;
     }
 
     public String startImport() throws ClientException {
+        log.debug("Starting replicas import process...");
         setDone(false);
         setFileCount(0);
         importService.importDocuments(documentManager, null, new File(path),
                 true, true, true);
-        return null;
+        return goHome();
     }
 
     public void onUpdateStatus(Object... params) {
-        if ((Integer) params[0] == StatusListener.DOC_WRITE_SUCCESS) {
+        if ((Integer) params[0] == StatusListener.DOC_PROCESS_SUCCESS) {
             if (params[1] instanceof ExportedDocument[]) {
                 fileCount += ((ExportedDocument[]) params[1]).length;
             } else {

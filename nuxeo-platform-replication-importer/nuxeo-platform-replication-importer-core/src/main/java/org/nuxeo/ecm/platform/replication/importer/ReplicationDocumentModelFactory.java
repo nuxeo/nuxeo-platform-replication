@@ -15,7 +15,7 @@
 
 package org.nuxeo.ecm.platform.replication.importer;
 
-import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.*;
+import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.METADATA_FILE_NAME;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,6 +31,7 @@ import org.nuxeo.ecm.core.io.ExportedDocument;
 import org.nuxeo.ecm.core.io.impl.ExportedDocumentImpl;
 import org.nuxeo.ecm.platform.importer.factories.ImporterDocumentModelFactory;
 import org.nuxeo.ecm.platform.importer.source.SourceNode;
+import org.nuxeo.ecm.platform.replication.common.StatusListener;
 
 /**
  * Implements the document model factory as for replication needs. It core
@@ -52,7 +53,10 @@ public class ReplicationDocumentModelFactory implements
 
     protected boolean importProxies;
 
-    public ReplicationDocumentModelFactory(boolean importProxies) {
+    protected StatusListener listener;
+
+    public ReplicationDocumentModelFactory(StatusListener listener, boolean importProxies) {
+        this.listener = listener;
         this.importProxies = importProxies;
     }
 
@@ -92,9 +96,10 @@ public class ReplicationDocumentModelFactory implements
             // not to import
             return null;
         }
-        //create document
+        // create document
         DocumentModel documentModel = coreImportDocument(xdoc, properties);
-        //update document properties
+        sendStatus(StatusListener.DOC_PROCESS_SUCCESS, documentModel);
+        // update document properties
         return documentModel;
     }
 
@@ -123,6 +128,20 @@ public class ReplicationDocumentModelFactory implements
                     fileNode.getName() + METADATA_FILE_NAME));
         }
         return properties;
+    }
+
+    public void setListener(StatusListener listener) {
+        this.listener = listener;
+    }
+
+    public StatusListener getListener() {
+        return listener;
+    }
+
+    protected void sendStatus(Object... params) {
+        if (listener != null) {
+            listener.onUpdateStatus(params);
+        }
     }
 
 }

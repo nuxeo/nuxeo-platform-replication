@@ -107,7 +107,7 @@ public class ExportActionsBean implements Serializable, StatusListener {
     }
 
     public void onUpdateStatus(Object... params) {
-        if ((Integer) params[0] == StatusListener.DOC_WRITE_SUCCESS) {
+        if ((Integer) params[0] == StatusListener.DOC_PROCESS_SUCCESS) {
             if (params[1] instanceof ExportedDocument[]) {
                 fileCount += ((ExportedDocument[]) params[1]).length;
             } else {

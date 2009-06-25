@@ -35,5 +35,7 @@ public class ReplicationConstants {
     public static final String VERSIONS_LOCATION_NAME = "Versions";
 
     public static final String PROXIES_LOCATION_NAME = "Proxies";
+    
+    public static final String GO_HOME = "home";
 
 }
