@@ -15,7 +15,6 @@
 
 package org.nuxeo.ecm.platform.replication.importer;
 
-
 import java.io.File;
 import java.io.Serializable;
 import java.util.Map;
@@ -50,23 +49,25 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
         File usualDocumentsRoot = new File(path.getPath() + File.separator
                 + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
                 + USUAL_DOCUMENTS_LOCATION_NAME);
-        doSynchronImport(usualDocumentsRoot);
+        doSynchronImport(usualDocumentsRoot, false);
         File versionsRoot = new File(path.getPath() + File.separator
                 + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
                 + VERSIONS_LOCATION_NAME);
-        doSynchronImport(versionsRoot);
+        doSynchronImport(versionsRoot, false);
         File proxiesRoot = new File(path.getPath() + File.separator
                 + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
                 + PROXIES_LOCATION_NAME);
-        doSynchronImport(proxiesRoot);
+        doSynchronImport(proxiesRoot, true);
     }
 
-    protected void doSynchronImport(File root) throws ClientException {
+    protected void doSynchronImport(File root, boolean importProxies)
+            throws ClientException {
         try {
             ReplicationSourceNode sourceNode = new ReplicationSourceNode(root);
             GenericMultiThreadedImporter importer = new GenericMultiThreadedImporter(
                     sourceNode, "/", 10, 5, getLogger());
-            importer.setFactory(new ReplicationDocumentModelFactory());
+            ReplicationDocumentModelFactory documentModelFactory = new ReplicationDocumentModelFactory(importProxies);
+            importer.setFactory(documentModelFactory);
             importer.setThreadPolicy(getThreadPolicy());
             doRun(importer, Boolean.TRUE);
         } catch (Exception e) {

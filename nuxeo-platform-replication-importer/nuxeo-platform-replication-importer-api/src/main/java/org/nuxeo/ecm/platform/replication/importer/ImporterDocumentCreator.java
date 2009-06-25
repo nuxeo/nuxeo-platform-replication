@@ -15,11 +15,18 @@
 
 package org.nuxeo.ecm.platform.replication.importer;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.io.SAXReader;
 import org.nuxeo.common.utils.Path;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
@@ -80,6 +87,30 @@ public class ImporterDocumentCreator {
         }
 
     }
+
+    public static boolean isProxy(Properties properties) {
+        return properties.getProperty(CoreSession.IMPORT_PROXY_TARGET_ID) != null
+            && properties.getProperty(CoreSession.IMPORT_PROXY_VERSIONABLE_ID) != null;
+    }
+    
+    public static Document loadXML(File file) throws ClientException {
+        BufferedInputStream in = null;
+        try {
+            in = new BufferedInputStream(new FileInputStream(file));
+            return new SAXReader().read(in);
+        } catch (Exception e) {
+            throw new ClientException("Failed to read schemes for " + file.getPath());
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ioe) {
+                    //who cares?
+                }
+            }
+        }
+    }
+
 
     /**
      * Imports an usual document through core session.

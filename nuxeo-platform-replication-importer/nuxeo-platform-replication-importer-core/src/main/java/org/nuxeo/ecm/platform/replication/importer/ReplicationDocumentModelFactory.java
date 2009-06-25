@@ -14,8 +14,8 @@
  */
 
 package org.nuxeo.ecm.platform.replication.importer;
-import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.*;
 
+import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,11 +24,13 @@ import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
+import org.nuxeo.ecm.core.io.ExportedDocument;
+import org.nuxeo.ecm.core.io.impl.ExportedDocumentImpl;
 import org.nuxeo.ecm.platform.importer.factories.ImporterDocumentModelFactory;
 import org.nuxeo.ecm.platform.importer.source.SourceNode;
-
 
 /**
  * Implements the document model factory as for replication needs. It core
@@ -48,6 +50,12 @@ public class ReplicationDocumentModelFactory implements
 
     protected SourceNode fileNode;
 
+    protected boolean importProxies;
+
+    public ReplicationDocumentModelFactory(boolean importProxies) {
+        this.importProxies = importProxies;
+    }
+
     public DocumentModel createFolderishNode(CoreSession session,
             DocumentModel parent, SourceNode node) throws Exception {
         // TODO Auto-generated method stub
@@ -65,10 +73,40 @@ public class ReplicationDocumentModelFactory implements
         return false;
     }
 
-    // protected DocumentModel coreImportDocument() throws ClientException {
-    // ImporterDocumentCreator.importUsualDocument(
-    // session, type, id, name, parentPath, getPropertiesFile());
-    // }
+    protected DocumentModel importDocument() throws ClientException {
+        ExportedDocument xdoc = new ExportedDocumentImpl();
+        try {
+            xdoc.setDocument(ImporterDocumentCreator.loadXML(new File(
+                    fileNode.getName() + File.separator + "document.xml")));
+        } catch (ClientException ce) {
+            log.warn("Didn't find xml for" + fileNode.getName());
+            return null;
+        }
+        Properties properties = getPropertiesFile();
+        if (properties.isEmpty()) {
+            log.warn("Didn't find metadata for " + fileNode.getName());
+            return null;
+        }
+        boolean isProxy = ImporterDocumentCreator.isProxy(properties);
+        if ((importProxies && !isProxy) || (!importProxies && isProxy)) {
+            // not to import
+            return null;
+        }
+        //create document
+        DocumentModel documentModel = coreImportDocument(xdoc, properties);
+        //update document properties
+        return documentModel;
+    }
+
+    protected DocumentModel coreImportDocument(ExportedDocument doc,
+            Properties properties) throws ClientException {
+        // hack to obtain the name of the document: get the file path; later get
+        // the name
+        File currentDocumentFile = new File(fileNode.getName());
+        return ImporterDocumentCreator.importDocument(session, doc.getType(),
+                doc.getId(), currentDocumentFile.getName(),
+                parent.getPathAsString(), properties);
+    }
 
     /**
      * Utility method used to retrieve the .properties file from a source
