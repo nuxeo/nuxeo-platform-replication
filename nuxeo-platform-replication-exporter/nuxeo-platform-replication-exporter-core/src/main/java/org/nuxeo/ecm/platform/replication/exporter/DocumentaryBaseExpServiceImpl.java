@@ -13,7 +13,7 @@
  *
  */
 
-package org.nuxeo.ecm.platform.replication.exporter.core;
+package org.nuxeo.ecm.platform.replication.exporter;
 
 import java.io.File;
 import java.io.Serializable;

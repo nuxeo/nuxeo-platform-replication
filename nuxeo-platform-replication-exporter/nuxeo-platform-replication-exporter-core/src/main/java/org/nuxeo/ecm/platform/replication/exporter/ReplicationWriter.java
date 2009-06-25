@@ -1,12 +1,31 @@
-package org.nuxeo.ecm.platform.replication.exporter.core;
+/*
+ * (C) Copyright 2009 Nuxeo SAS (http://nuxeo.com/) and contributors.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Lesser General Public License
+ * (LGPL) version 2.1 which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/lgpl.html
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ */
+package org.nuxeo.ecm.platform.replication.exporter;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import org.dom4j.Document;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.XMLWriter;
+import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentException;
@@ -20,6 +39,11 @@ import org.nuxeo.ecm.core.io.ExportedDocument;
 import org.nuxeo.ecm.core.io.impl.plugins.XMLDirectoryWriter;
 import org.nuxeo.ecm.core.schema.types.primitives.DateType;
 
+/**
+ * Extends XMLDirectoryWriter to provide additional metadata .
+ * @author cpriceputu@nuxeo.com
+ *
+ */
 public class ReplicationWriter extends XMLDirectoryWriter {
     private static final Logger LOG = Logger.getLogger(ReplicationWriter.class);
 
@@ -33,14 +57,43 @@ public class ReplicationWriter extends XMLDirectoryWriter {
     @Override
     public DocumentTranslationMap write(ExportedDocument doc)
             throws IOException {
-        super.write(doc);
-        LOG.info(doc);
 
         try {
             DocumentModel document = session.getDocument(new IdRef(doc.getId()));
+            File parent = null;
+
+            if (!document.isVersion()) {
+                super.write(doc);
+                parent = new File(getDestination().toString(),
+                        doc.getPath().toString());
+            } else {
+                parent = new File(getDestination().toString(), "Versions");
+                parent = new File(parent, document.getId());
+                parent.mkdirs();
+
+                OutputFormat format = OutputFormat.createPrettyPrint();
+                XMLWriter writer = new XMLWriter(new FileOutputStream(new File(
+                        parent, "document.xml")), format);
+                writer.write(doc.getDocument());
+                writer.close();
+
+                Map<String, Blob> blobs = doc.getBlobs();
+                for (Map.Entry<String, Blob> entry : blobs.entrySet()) {
+                    entry.getValue().transferTo(
+                            new File(parent, entry.getKey()));
+                }
+
+                // write external documents
+                for (Map.Entry<String, Document> entry : doc.getDocuments().entrySet()) {
+
+                    writer = new XMLWriter(new FileOutputStream(new File(
+                            parent, entry.getKey() + ".xml")), format);
+                    writer.write(entry.getValue());
+                    writer.close();
+                }
+            }
+
             Properties metadata = getDocumentMetadata(session, document);
-            File parent = new File(getDestination().toString(),
-                    doc.getPath().toString());
 
             File metadataFile = new File(parent, "metadata.properties");
             metadata.store(new FileOutputStream(metadataFile),
@@ -48,6 +101,7 @@ public class ReplicationWriter extends XMLDirectoryWriter {
 
         } catch (Exception e) {
             LOG.error(e);
+            throw new IOException(e.getMessage());
         }
         return null;
     }

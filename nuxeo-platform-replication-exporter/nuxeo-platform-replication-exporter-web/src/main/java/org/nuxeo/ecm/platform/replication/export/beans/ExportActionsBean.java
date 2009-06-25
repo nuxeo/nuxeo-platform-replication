@@ -15,7 +15,7 @@
  *     Nuxeo - initial API and implementation
  *
  */
-package org.nuxeo.ecm.platform.sync.beans;
+package org.nuxeo.ecm.platform.replication.export.beans;
 
 import java.io.File;
 import java.io.Serializable;
@@ -34,15 +34,15 @@ import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.core.io.ExportedDocument;
 import org.nuxeo.ecm.platform.relations.web.listener.RelationActions;
 import org.nuxeo.ecm.platform.replication.common.StatusListener;
-import org.nuxeo.ecm.platform.replication.exporter.api.DocumentaryBaseExporterService;
+import org.nuxeo.ecm.platform.replication.exporter.DocumentaryBaseExporterService;
 import org.nuxeo.ecm.platform.ui.web.api.NavigationContext;
 import org.nuxeo.ecm.webapp.helpers.ResourcesAccessor;
 import org.nuxeo.runtime.api.Framework;
 
 /**
- * 
- * @author <a href="mailto:cbaican@nuxeo.com">Catalin Baican</a>
- * 
+ *Export action bean
+ * @author cpriceputu@nuxeo.com
+ *
  */
 @Scope(ScopeType.SESSION)
 @Name("exportActions")

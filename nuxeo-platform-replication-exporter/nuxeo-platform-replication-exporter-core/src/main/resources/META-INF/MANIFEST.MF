@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 1
 Bundle-Name: Nuxeo Platform Replication Exporter Core
 Bundle-SymbolicName: org.nuxeo.ecm.platform.replication.exporter.core;singleton:=true
-Export-Package: org.nuxeo.ecm.platform.replication.exporter.core
+Export-Package: org.nuxeo.ecm.platform.replication.exporter
 Require-Bundle: org.nuxeo.ecm.platform.replication.exporter.api
 Nuxeo-Component: OSGI-INF/management-contrib.xml,
  OSGI-INF/ExporterService.xml
