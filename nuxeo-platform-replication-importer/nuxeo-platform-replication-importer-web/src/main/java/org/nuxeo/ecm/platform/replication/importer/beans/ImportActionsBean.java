@@ -61,10 +61,13 @@ public class ImportActionsBean implements Serializable, StatusListener {
 
     private DocumentaryBaseImpServiceImpl importService;
 
+    // returns the number of imported documents
     private int fileCount;
 
+    // returns the replication import process status
     private boolean done;
 
+    // the path where the source of the replication status is located
     private String path;
 
     @Create
@@ -73,21 +76,14 @@ public class ImportActionsBean implements Serializable, StatusListener {
         importService.setListener(this);
     }
 
-    private String goHome() {
-
-        DocumentModel root;
-        try {
-            root = documentManager.getDocument(new PathRef("/"));
-            navigationContext.setCurrentDocument(root);
-            return navigationContext.navigateToDocument(root);
-        } catch (ClientException e) {
-            e.printStackTrace();
-        }
-        return GO_HOME;
-    }
-
+    /**
+     * Performs the replication import process.
+     * 
+     * @return
+     * @throws ClientException
+     */
     public String startImport() throws ClientException {
-        log.debug("Starting replicas import process...");
+        log.debug("Starting replication import process...");
         setDone(false);
         setFileCount(0);
         importService.importDocuments(documentManager, null, new File(path),
@@ -95,6 +91,9 @@ public class ImportActionsBean implements Serializable, StatusListener {
         return goHome();
     }
 
+    /**
+     * Updates the replication import process status.
+     */
     public void onUpdateStatus(Object... params) {
         if ((Integer) params[0] == StatusListener.DOC_PROCESS_SUCCESS) {
             if (params[1] instanceof ExportedDocument[]) {
@@ -107,6 +106,24 @@ public class ImportActionsBean implements Serializable, StatusListener {
             setDone(true);
         }
 
+    }
+
+    /**
+     * Utility method used to return the home path.
+     * 
+     * @return
+     */
+    private String goHome() {
+
+        DocumentModel root;
+        try {
+            root = documentManager.getDocument(new PathRef("/"));
+            navigationContext.setCurrentDocument(root);
+            return navigationContext.navigateToDocument(root);
+        } catch (ClientException e) {
+            e.printStackTrace();
+        }
+        return GO_HOME;
     }
 
     public void setPath(String path) {
