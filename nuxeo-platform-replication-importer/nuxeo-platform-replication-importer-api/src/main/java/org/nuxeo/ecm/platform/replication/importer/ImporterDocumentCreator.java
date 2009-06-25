@@ -18,12 +18,15 @@ package org.nuxeo.ecm.platform.replication.importer;
 import java.util.Collections;
 import java.util.Properties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.nuxeo.common.utils.Path;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.core.api.impl.DocumentModelImpl;
+import org.nuxeo.ecm.core.schema.types.primitives.DateType;
 
 /**
  * Core imports various types of documents. The document can't be updated, so it
@@ -34,21 +37,72 @@ import org.nuxeo.ecm.core.api.impl.DocumentModelImpl;
  */
 public class ImporterDocumentCreator {
 
+    private static final Log log = LogFactory.getLog(ImporterDocumentCreator.class);
+
     /**
-     * Imports the document through core session.
+     * Imports a document through core session.Depending on what properties are
+     * received, a proxy or version or normal document is further imported.
      * 
-     * @param session
-     * @param type
-     * @param id
-     * @param name
-     * @param parentPath
-     * @param properties
-     * @return
+     * @param session - the nuxeo core session used to import the document
+     * @param type - the type of the document that will be imported
+     * @param id - the uuid of the document that will be imported
+     * @param name - the name of the document that will be imported
+     * @param parentPath - the parent path of the document that will be imported
+     * @param properties - the properties file that will contain the information
+     *            needed to proceed properly the import
+     * @return the new imported document
+     * @throws ClientException
+     */
+    public static DocumentModel importDocument(CoreSession session,
+            String type, String id, String name, String parentPath,
+            Properties properties) throws ClientException {
+
+        if (properties == null) {
+            log.debug("The received .properties file cannot be NULL ...");
+            return null;
+        }
+
+        if (properties.getProperty(CoreSession.IMPORT_PROXY_TARGET_ID) != null
+                && properties.getProperty(CoreSession.IMPORT_PROXY_VERSIONABLE_ID) != null) {
+            // import a proxy document
+            return importProxyDocument(session, id, name, parentPath,
+                    properties);
+        } else if (properties.getProperty(CoreSession.IMPORT_VERSION_VERSIONABLE_ID) != null
+                && properties.getProperty(CoreSession.IMPORT_VERSION_MAJOR) != null
+                && properties.getProperty(CoreSession.IMPORT_VERSION_MINOR) != null) {
+            // import a version document
+            return importVersionDocument(session, type, id, name, parentPath,
+                    properties);
+        } else {
+            // import a normal document
+            return importUsualDocument(session, type, id, name, parentPath,
+                    properties);
+        }
+
+    }
+
+    /**
+     * Imports an usual document through core session.
+     * 
+     * @param session - the nuxeo core session used to import the document
+     * @param type - the type of the document that will be imported
+     * @param id - the uuid of the document that will be imported
+     * @param name - the name of the document that will be imported
+     * @param parentPath - the parent path of the document that will be imported
+     * @param properties - the properties file that will contain the information
+     *            needed to proceed properly the import
+     * @return the new imported document
      * @throws ClientException
      */
     public static DocumentModel importUsualDocument(CoreSession session,
             String type, String id, String name, String parentPath,
             Properties properties) throws ClientException {
+
+        if (properties == null) {
+            log.debug("The received .properties file cannot be NULL ...");
+            return null;
+        }
+
         DocumentModel document = new DocumentModelImpl((String) null, type, id,
                 new Path(name), null, null, new PathRef(parentPath), null,
                 null, null, session.getRepositoryName());
@@ -78,5 +132,99 @@ public class ImporterDocumentCreator {
         session.importDocuments(Collections.singletonList(document));
         session.save();
         return document;
+    }
+
+    /**
+     * Import a version document through the core session
+     * 
+     * @param session - the nuxeo core session used to import the document
+     * @param type - the type of the document that will be imported
+     * @param id - the uuid of the document that will be imported
+     * @param name - the name of the document that will be imported
+     * @param parentPath - the parent path of the document that will be imported
+     * @param properties - the properties file that will contain the information
+     *            needed to proceed properly the import
+     * @return the new imported document
+     * @throws ClientException
+     */
+    public static DocumentModel importVersionDocument(CoreSession session,
+            String type, String id, String name, String parentPath,
+            Properties properties) throws ClientException {
+
+        if (properties == null) {
+            log.debug("The received .properties file cannot be NULL ...");
+            return null;
+        }
+
+        DocumentModel document = new DocumentModelImpl((String) null, type, id,
+                new Path(name), null, null, null, null, null, null,
+                session.getRepositoryName());
+
+        document.putContextData(
+                CoreSession.IMPORT_VERSION_VERSIONABLE_ID,
+                properties.getProperty(CoreSession.IMPORT_VERSION_VERSIONABLE_ID));
+        String propertyValue = properties.getProperty(CoreSession.IMPORT_VERSION_LABEL);
+        if (propertyValue != null) {
+            document.putContextData(CoreSession.IMPORT_VERSION_LABEL,
+                    propertyValue);
+        }
+        propertyValue = properties.getProperty(CoreSession.IMPORT_VERSION_DESCRIPTION);
+        if (propertyValue != null) {
+            document.putContextData(CoreSession.IMPORT_VERSION_DESCRIPTION,
+                    propertyValue);
+        }
+        propertyValue = new DateType().encode(properties.getProperty(CoreSession.IMPORT_VERSION_CREATED));
+        if (propertyValue != null) {
+            document.putContextData(CoreSession.IMPORT_VERSION_CREATED,
+                    propertyValue);
+        }
+        document.putContextData(
+                CoreSession.IMPORT_VERSION_MAJOR,
+                Long.valueOf(properties.getProperty(CoreSession.IMPORT_VERSION_MAJOR)));
+        document.putContextData(
+                CoreSession.IMPORT_VERSION_MINOR,
+                Long.valueOf(properties.getProperty(CoreSession.IMPORT_VERSION_MINOR)));
+
+        session.importDocuments(Collections.singletonList(document));
+        session.save();
+        return document;
+
+    }
+
+    /**
+     * Import a proxy document through the core session.The proxy documents will
+     * have the type ecm:proxy
+     * 
+     * @param session - the nuxeo core session used to import the document
+     * @param id - the uuid of the document that will be imported
+     * @param name - the name of the document that will be imported
+     * @param parentPath - the parent path of the document that will be imported
+     * @param properties - the properties file that will contain the information
+     *            needed to proceed properly the import
+     * @return the new imported document
+     * @throws ClientException
+     */
+    public static DocumentModel importProxyDocument(CoreSession session,
+            String id, String name, String parentPath, Properties properties)
+            throws ClientException {
+
+        if (properties == null) {
+            log.debug("The received .properties file cannot be NULL ...");
+            return null;
+        }
+
+        DocumentModel document = new DocumentModelImpl((String) null,
+                CoreSession.IMPORT_PROXY_TYPE, id, new Path(name), null, null,
+                new PathRef(parentPath), null, null, null, null);
+
+        document.putContextData(CoreSession.IMPORT_PROXY_TARGET_ID,
+                properties.getProperty(CoreSession.IMPORT_PROXY_TARGET_ID));
+        document.putContextData(CoreSession.IMPORT_PROXY_VERSIONABLE_ID,
+                properties.getProperty(CoreSession.IMPORT_PROXY_VERSIONABLE_ID));
+
+        session.importDocuments(Collections.singletonList(document));
+        session.save();
+        return document;
+
     }
 }

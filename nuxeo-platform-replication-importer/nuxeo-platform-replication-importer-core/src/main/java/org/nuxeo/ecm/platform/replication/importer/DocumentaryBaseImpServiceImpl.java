@@ -15,6 +15,7 @@
 
 package org.nuxeo.ecm.platform.replication.importer;
 
+
 import java.io.File;
 import java.io.Serializable;
 import java.util.Map;
@@ -25,7 +26,7 @@ import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.platform.importer.base.GenericMultiThreadedImporter;
 import org.nuxeo.ecm.platform.importer.executor.AbstractImporterExecutor;
-import org.nuxeo.ecm.platform.replication.importer.DocumentaryBaseImporterService;
+import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.*;
 
 /**
  * Implementation for import documentary base service.
@@ -44,26 +45,34 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
             boolean exportVersions, boolean exportProxies)
             throws ClientException {
         this.session = session;
-        //we need to import the documentary base in order: usual documents, versions, proxies
-        File usualDocumentsRoot = new File(path.getPath() + File.separator + "Documentary Base" + File.separator + "Usual documents");
+        // we need to import the documentary base in order: usual documents,
+        // versions, proxies
+        File usualDocumentsRoot = new File(path.getPath() + File.separator
+                + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
+                + USUAL_DOCUMENTS_LOCATION_NAME);
         doSynchronImport(usualDocumentsRoot);
-        File versionsRoot = new File(path.getPath() + File.separator + "Documentary Base" + File.separator + "Versions");
+        File versionsRoot = new File(path.getPath() + File.separator
+                + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
+                + VERSIONS_LOCATION_NAME);
         doSynchronImport(versionsRoot);
-        File proxiesRoot = new File(path.getPath() + File.separator + "Documentary Base" + File.separator + "Proxies");
+        File proxiesRoot = new File(path.getPath() + File.separator
+                + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
+                + PROXIES_LOCATION_NAME);
         doSynchronImport(proxiesRoot);
     }
-    
+
     protected void doSynchronImport(File root) throws ClientException {
         try {
             ReplicationSourceNode sourceNode = new ReplicationSourceNode(root);
-            GenericMultiThreadedImporter importer = new GenericMultiThreadedImporter(sourceNode, "/", 10, 5, getLogger());
+            GenericMultiThreadedImporter importer = new GenericMultiThreadedImporter(
+                    sourceNode, "/", 10, 5, getLogger());
             importer.setFactory(new ReplicationDocumentModelFactory());
             importer.setThreadPolicy(getThreadPolicy());
             doRun(importer, Boolean.TRUE);
         } catch (Exception e) {
             throw new ClientException(e);
         }
-        
+
     }
 
     @Override
