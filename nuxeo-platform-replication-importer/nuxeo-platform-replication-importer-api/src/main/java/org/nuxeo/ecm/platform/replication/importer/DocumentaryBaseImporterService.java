@@ -51,9 +51,9 @@ public interface DocumentaryBaseImporterService {
 
     /**
      * Imports the documentary base.
-     * @param session
+     * @param session the unrestricted session
      * @param parameter
-     * @param path
+     * @param path the path to root directory of replication
      * @param resume
      * @param exportVersions
      * @param exportProxies

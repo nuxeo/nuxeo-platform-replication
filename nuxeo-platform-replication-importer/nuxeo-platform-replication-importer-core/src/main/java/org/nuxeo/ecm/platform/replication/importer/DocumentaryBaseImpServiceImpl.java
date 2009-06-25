@@ -43,11 +43,27 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
             Map<String, Serializable> parameter, File path, boolean resume,
             boolean exportVersions, boolean exportProxies)
             throws ClientException {
-
-//        GenericMultiThreadedImporter importer = new GenericMultiThreadedImporter(source, targetPath, batchSize, nbTheards, getLogger());
-//        importer.setFactory(getFactory());
-//        importer.setThreadPolicy(getThreadPolicy());
-//        doRun(importer, null);
+        this.session = session;
+        //we need to import the documentary base in order: usual documents, versions, proxies
+        File usualDocumentsRoot = new File(path.getPath() + File.separator + "Documentary Base" + File.separator + "Usual documents");
+        doSynchronImport(usualDocumentsRoot);
+        File versionsRoot = new File(path.getPath() + File.separator + "Documentary Base" + File.separator + "Versions");
+        doSynchronImport(versionsRoot);
+        File proxiesRoot = new File(path.getPath() + File.separator + "Documentary Base" + File.separator + "Proxies");
+        doSynchronImport(proxiesRoot);
+    }
+    
+    protected void doSynchronImport(File root) throws ClientException {
+        try {
+            ReplicationSourceNode sourceNode = new ReplicationSourceNode(root);
+            GenericMultiThreadedImporter importer = new GenericMultiThreadedImporter(sourceNode, "/", 10, 5, getLogger());
+            importer.setFactory(new ReplicationDocumentModelFactory());
+            importer.setThreadPolicy(getThreadPolicy());
+            doRun(importer, Boolean.TRUE);
+        } catch (Exception e) {
+            throw new ClientException(e);
+        }
+        
     }
 
     @Override
