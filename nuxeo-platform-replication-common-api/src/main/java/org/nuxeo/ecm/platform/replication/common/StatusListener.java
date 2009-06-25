@@ -1,4 +1,4 @@
-package org.nuxeo.ecm.platform.replication.exporter.api;
+package org.nuxeo.ecm.platform.replication.common;
 
 public interface StatusListener {
     public static final int OK = 0;

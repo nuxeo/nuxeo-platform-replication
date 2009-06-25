@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<component name="org.nuxeo.ecm.platform.replication.importer.core.DocumentaryBaseImporterService">
+  <implementation class="org.nuxeo.ecm.platform.replication.importer.DocumentaryBaseImpServiceImpl" />
+
+  <service>
+    <provide interface="org.nuxeo.ecm.platform.replication.importer.DocumentaryBaseImporterService" />
+  </service>
+
+  <documentation>
+    Importer service used in the process of replication to perform the import process of the documents.
+  </documentation>
+</component>

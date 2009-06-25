@@ -14,15 +14,6 @@
   <modules>
     <module>nuxeo-platform-replication-importer-api</module>
     <module>nuxeo-platform-replication-importer-core</module>
+    <module>nuxeo-platform-replication-importer-web</module>
   </modules>
-<dependencyManagement>
-  <dependencies>
-    <dependency>
-      <groupId>org.nuxeo.ecm.platform</groupId>
-      <artifactId>nuxeo-platform-replication-common-api</artifactId>
-      <version>5.2.1-SNAPSHOT</version>
-      <type>rar</type>
-    </dependency>
-  </dependencies>
-</dependencyManagement>
 </project>

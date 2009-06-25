@@ -8,7 +8,7 @@ import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.core.api.UnrestrictedSessionRunner;
 import org.nuxeo.ecm.core.io.DocumentWriter;
 import org.nuxeo.ecm.core.io.impl.plugins.DocumentTreeReader;
-import org.nuxeo.ecm.platform.replication.exporter.api.StatusListener;
+import org.nuxeo.ecm.platform.replication.common.StatusListener;
 
 public class UnrestrictedExporter extends UnrestrictedSessionRunner {
     private ReplicationPipe pipe = null;

@@ -21,7 +21,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.nuxeo.ecm.core.api.ClientException;
-import org.nuxeo.ecm.platform.replication.exporter.api.StatusListener;
+import org.nuxeo.ecm.platform.replication.common.StatusListener;
 
 /**
  * Implementation for export documentary base service.

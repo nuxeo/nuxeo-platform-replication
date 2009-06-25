@@ -32,23 +32,24 @@ import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.core.io.ExportedDocument;
-import org.nuxeo.ecm.platform.relations.web.listener.RelationActions;
 import org.nuxeo.ecm.platform.replication.common.StatusListener;
-import org.nuxeo.ecm.platform.replication.exporter.api.DocumentaryBaseExporterService;
+import org.nuxeo.ecm.platform.replication.importer.DocumentaryBaseImpServiceImpl;
 import org.nuxeo.ecm.platform.ui.web.api.NavigationContext;
 import org.nuxeo.ecm.webapp.helpers.ResourcesAccessor;
 import org.nuxeo.runtime.api.Framework;
 
 /**
+ * Seam component used to perform the import of documents in the process of
+ * replication.
  * 
- * @author <a href="mailto:cbaican@nuxeo.com">Catalin Baican</a>
+ * @author btatar
  * 
  */
 @Scope(ScopeType.SESSION)
-@Name("exportActions")
-public class ExportActionsBean implements Serializable, StatusListener {
+@Name("importActions")
+public class ImportActionsBean implements Serializable, StatusListener {
 
-    private static final Logger LOG = Logger.getLogger(ExportActionsBean.class);
+    private static final Logger log = Logger.getLogger(ImportActionsBean.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -59,17 +60,12 @@ public class ExportActionsBean implements Serializable, StatusListener {
     private transient CoreSession documentManager;
 
     @In(create = true, required = false)
-    private transient RelationActions relationActions;
-
-    @In(create = true, required = false)
     protected transient FacesMessages facesMessages;
 
     @In(create = true)
     protected transient ResourcesAccessor resourcesAccessor;
 
-    private DocumentaryBaseExporterService exportService = null;
-
-    private String repo;
+    private DocumentaryBaseImpServiceImpl importService;
 
     private int fileCount = 0;
 
@@ -79,8 +75,8 @@ public class ExportActionsBean implements Serializable, StatusListener {
 
     @Create
     public void initialize() throws Exception {
-        exportService = Framework.getService(DocumentaryBaseExporterService.class);
-        exportService.setListener(this);
+        importService = Framework.getService(DocumentaryBaseImpServiceImpl.class);
+        // importService.setListener(this);
     }
 
     private String goHome() {
@@ -96,13 +92,11 @@ public class ExportActionsBean implements Serializable, StatusListener {
         return "home";
     }
 
-    public String startExport() throws ClientException {
+    public String startImport() throws ClientException {
         setDone(false);
         setFileCount(0);
-
-        exportService.export(getRepo(), null, new File(getPath()), false,
-                false, false);
-
+        importService.importDocuments(documentManager, null, new File(path),
+                true, true, true);
         return null;
     }
 
@@ -118,14 +112,6 @@ public class ExportActionsBean implements Serializable, StatusListener {
             setDone(true);
         }
 
-    }
-
-    public void setRepo(String repo) {
-        this.repo = repo;
-    }
-
-    public String getRepo() {
-        return repo;
     }
 
     public void setPath(String path) {

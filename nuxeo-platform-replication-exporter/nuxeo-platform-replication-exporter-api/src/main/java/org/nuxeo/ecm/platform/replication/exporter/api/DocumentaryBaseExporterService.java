@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 import org.nuxeo.ecm.core.api.ClientException;
+import org.nuxeo.ecm.platform.replication.common.StatusListener;
 
 /**
  * The service which exports the documentary base. The system replication is

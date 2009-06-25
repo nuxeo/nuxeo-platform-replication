@@ -12,7 +12,7 @@ import org.nuxeo.ecm.core.io.DocumentTranslationMap;
 import org.nuxeo.ecm.core.io.ExportedDocument;
 import org.nuxeo.ecm.core.io.impl.DocumentPipeImpl;
 import org.nuxeo.ecm.core.io.impl.DocumentTranslationMapImpl;
-import org.nuxeo.ecm.platform.replication.exporter.api.StatusListener;
+import org.nuxeo.ecm.platform.replication.common.StatusListener;
 
 public class ReplicationPipe extends DocumentPipeImpl {
     private static final Logger LOG = Logger.getLogger(ReplicationPipe.class);
