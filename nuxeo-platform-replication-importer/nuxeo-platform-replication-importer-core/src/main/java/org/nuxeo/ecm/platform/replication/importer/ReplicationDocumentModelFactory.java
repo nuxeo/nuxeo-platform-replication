@@ -24,6 +24,7 @@ import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.dom4j.Document;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
@@ -55,9 +56,13 @@ public class ReplicationDocumentModelFactory implements
 
     protected StatusListener listener;
 
-    public ReplicationDocumentModelFactory(StatusListener listener, boolean importProxies) {
+    protected DocumentXmlTransformer xmlTransformer;
+
+    public ReplicationDocumentModelFactory(StatusListener listener,
+            boolean importProxies) {
         this.listener = listener;
         this.importProxies = importProxies;
+        xmlTransformer = null;
     }
 
     public DocumentModel createFolderishNode(CoreSession session,
@@ -95,6 +100,18 @@ public class ReplicationDocumentModelFactory implements
         if ((importProxies && !isProxy) || (!importProxies && isProxy)) {
             // not to import
             return null;
+        }
+        // offer a chance to transform the document properties
+        if (xmlTransformer != null) {
+            try {
+                Document transformedDocument = xmlTransformer.transform(xdoc.getDocument());
+                if (transformedDocument != null) {
+                    xdoc.setDocument(transformedDocument);
+                }
+            } catch (ClientException ce) {
+                // don't crash in customized code
+                log.warn("Transformation failed", ce);
+            }
         }
         // create document
         DocumentModel documentModel = coreImportDocument(xdoc, properties);
@@ -142,6 +159,10 @@ public class ReplicationDocumentModelFactory implements
         if (listener != null) {
             listener.onUpdateStatus(params);
         }
+    }
+
+    public void setDocumentXmlTransformer(DocumentXmlTransformer transformer) {
+        xmlTransformer = transformer;
     }
 
 }

@@ -45,6 +45,16 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
     protected CoreSession session;
 
     private StatusListener listener;
+    
+    private DocumentXmlTransformer xmlTransformer;
+
+    public DocumentXmlTransformer getXmlTransformer() {
+        return xmlTransformer;
+    }
+
+    public void setXmlTransformer(DocumentXmlTransformer xmlTransformer) {
+        this.xmlTransformer = xmlTransformer;
+    }
 
     public void importDocuments(CoreSession session,
             Map<String, Serializable> parameter, File path, boolean resume,
@@ -76,6 +86,8 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
                     sourceNode, "/", 10, 5, getLogger());
             ReplicationDocumentModelFactory documentModelFactory = new ReplicationDocumentModelFactory(listener,
                     importProxies);
+            //here is set the transformer
+            documentModelFactory.setDocumentXmlTransformer(xmlTransformer);
             importer.setFactory(documentModelFactory);
             importer.setThreadPolicy(getThreadPolicy());
             doRun(importer, Boolean.TRUE);

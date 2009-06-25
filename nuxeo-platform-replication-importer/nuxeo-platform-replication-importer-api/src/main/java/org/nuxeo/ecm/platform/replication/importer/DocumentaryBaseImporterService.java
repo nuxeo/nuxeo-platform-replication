@@ -63,7 +63,7 @@ public interface DocumentaryBaseImporterService {
      * @param exportProxies
      * @throws ClientException
      */
-    public void importDocuments(CoreSession session,
+    void importDocuments(CoreSession session,
             Map<String, Serializable> parameter, File path, boolean resume,
             boolean exportVersions, boolean exportProxies)
             throws ClientException;
@@ -71,12 +71,18 @@ public interface DocumentaryBaseImporterService {
     /**
      * Stops the process of import.
      */
-    public void stop();
+    void stop();
 
     /**
      * Sets the listener that will informs about the import process status.
      * 
      * @param listener
      */
-    public void setListener(StatusListener listener);
+    void setListener(StatusListener listener);
+    
+    /**
+     * Sets the transformer for exported document.
+     * @param xmlTransformer
+     */
+    void setXmlTransformer(DocumentXmlTransformer xmlTransformer);
 }
