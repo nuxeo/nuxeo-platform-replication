@@ -35,7 +35,7 @@
 
         <h:panelGrid columns="1" styleClass="dataInput">
           <a4j:commandLink id="expCmd" value="#{messages['command.exp_export']}"
-            action="#{exportActions.startExport}" rendered="#{not exportActions.done}"/>
+            action="#{exportActions.startExport}" rendered="#{not exportActions.done}" reRender="expCmd"/>
         </h:panelGrid>
 
         <a4j:poll id="refreshId" reRender="fileCount , expCmd" timeout="50000" interval="500" />
