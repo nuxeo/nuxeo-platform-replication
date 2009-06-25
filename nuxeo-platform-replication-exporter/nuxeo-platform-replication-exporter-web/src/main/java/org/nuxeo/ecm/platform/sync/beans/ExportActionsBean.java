@@ -17,6 +17,7 @@
  */
 package org.nuxeo.ecm.platform.sync.beans;
 
+import java.io.File;
 import java.io.Serializable;
 
 import org.apache.log4j.Logger;
@@ -30,6 +31,7 @@ import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.PathRef;
+import org.nuxeo.ecm.core.io.ExportedDocument;
 import org.nuxeo.ecm.platform.relations.web.listener.RelationActions;
 import org.nuxeo.ecm.platform.replication.exporter.api.DocumentaryBaseExporterService;
 import org.nuxeo.ecm.platform.replication.exporter.api.StatusListener;
@@ -71,14 +73,14 @@ public class ExportActionsBean implements Serializable, StatusListener {
 
     private int fileCount = 0;
 
+    private boolean done = false;
+
+    private String path = null;
+
     @Create
     public void initialize() throws Exception {
         exportService = Framework.getService(DocumentaryBaseExporterService.class);
-    }
-
-    public String doSynchronize() {
-
-        return goHome();
+        exportService.setListener(this);
     }
 
     private String goHome() {
@@ -94,7 +96,27 @@ public class ExportActionsBean implements Serializable, StatusListener {
         return "home";
     }
 
+    public String startExport() throws ClientException {
+        setDone(false);
+        setFileCount(0);
+
+        exportService.export(getRepo(), null, new File(getPath()), false,
+                false, false);
+
+        return null;
+    }
+
     public void onUpdateStatus(Object... params) {
+        if ((Integer) params[0] == StatusListener.DOC_WRITE_SUCCESS) {
+            if (params[1] instanceof ExportedDocument[]) {
+                fileCount += ((ExportedDocument[]) params[1]).length;
+            } else {
+                fileCount++;
+            }
+
+        } else if ((Integer) params[0] == StatusListener.DONE) {
+            setDone(true);
+        }
 
     }
 
@@ -106,8 +128,27 @@ public class ExportActionsBean implements Serializable, StatusListener {
         return repo;
     }
 
-    public String startExport() {
-        fileCount = 0;
-        return goHome();
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setFileCount(int fileCount) {
+        this.fileCount = fileCount;
+    }
+
+    public int getFileCount() {
+        return fileCount;
+    }
+
+    public boolean getDone() {
+        return done;
+    }
+
+    public void setDone(boolean done) {
+        this.done = done;
     }
 }

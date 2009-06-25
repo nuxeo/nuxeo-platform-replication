@@ -1,32 +1,47 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
                       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <nxthemes:composition xmlns="http://www.w3.org/1999/xhtml"
-  xmlns:nxthemes="http://nuxeo.org/nxthemes"
-  xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:f="http://java.sun.com/jsf/core"
-  xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:c="http://java.sun.com/jstl/core">
+  xmlns:nxthemes="http://nuxeo.org/nxthemes" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:c="http://java.sun.com/jstl/core" xmlns:a4j="https://ajax4jsf.dev.java.net/ajax">
 
-  <ui:define name="page title"><h:outputText value="#{messages['title.sync_admin']}" /></ui:define>
+  <ui:define name="page title">
+    <h:outputText value="#{messages['title.sync_admin']}" />
+  </ui:define>
 
   <ui:define name="body">
-    <div>
-    <h:form>
-      <ui:include src="/incl/message_banner.xhtml"/>
-      
-      <h:panelGrid columns="2" styleClass="dataInput" columnClasses="labelColumn, fieldColumn">
-        <h:outputLabel for="repo" class="required" value="#{messages['label.sync.clientIP']}" />
-        <h:panelGroup>
-          <h:inputText id="repo" value="#{exportActions.repo}" required="true" />
-          <h:message for="repo" />
-        </h:panelGroup>
-      </h:panelGrid>
-      
-      <h:panelGrid columns="1" styleClass="dataInput">
-        <h:commandLink value="#{messages['command.syncDocs']}" action="#{exportActions.startExport}" />
-      </h:panelGrid>
-    </h:form>
-    </div>
+    <a4j:region>
+      <div><h:form>
+        <ui:include src="/incl/message_banner.xhtml" />
+
+        <h:panelGrid id="fileCount" columns="2" styleClass="dataInput"
+          columnClasses="labelColumn, fieldColumn">
+          <h:outputLabel value="#{exportActions.fileCount} exported documents." />
+          <h:outputLabel value="Status Done: #{exportActions.done}" />
+        </h:panelGrid>
+
+        <h:panelGrid columns="2" styleClass="dataInput" columnClasses="labelColumn, fieldColumn">
+          <h:outputLabel for="repo" class="required" value="#{messages['label.exp.repo']}" />
+          <h:panelGroup>
+            <h:inputText id="repo" value="#{exportActions.repo}" required="true" />
+            <h:message for="repo" />
+          </h:panelGroup>
+          <h:outputLabel for="path" class="required" value="#{messages['label.exp.path']}" />
+          <h:panelGroup>
+            <h:inputText id="path" value="#{exportActions.path}" required="true" />
+            <h:message for="path" />
+          </h:panelGroup>
+        </h:panelGrid>
+
+        <h:panelGrid columns="1" styleClass="dataInput">
+          <a4j:commandLink id="expCmd" value="#{messages['command.exp_export']}"
+            action="#{exportActions.startExport}" rendered="#{not exportActions.done}"/>
+        </h:panelGrid>
+
+        <a4j:poll id="refreshId" reRender="fileCount , expCmd" timeout="50000" interval="500" />
+
+      </h:form></div>
+    </a4j:region>
   </ui:define>
 
 </nxthemes:composition>

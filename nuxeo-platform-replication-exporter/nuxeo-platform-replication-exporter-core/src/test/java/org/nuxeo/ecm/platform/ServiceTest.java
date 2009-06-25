@@ -104,6 +104,7 @@ public class ServiceTest extends SQLRepositoryTestCase {
 
         srv.export("test", null, new File(System.getProperty("user.home"),
                 "test.folder"), true, true, true);
+        //System.exit(0);
     }
 
     public static void main(String[] args) throws Exception {

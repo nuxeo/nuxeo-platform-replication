@@ -15,8 +15,11 @@ public class UnrestrictedExporter extends UnrestrictedSessionRunner {
 
     private StatusListener listener = null;
 
-    public UnrestrictedExporter(String repositoryName) {
+    private File path = null;
+
+    public UnrestrictedExporter(String repositoryName, File path) {
         super(repositoryName);
+        setPath(path);
     }
 
     @Override
@@ -26,10 +29,10 @@ public class UnrestrictedExporter extends UnrestrictedSessionRunner {
             DocumentTreeReader reader = new DocumentTreeReader(session, root,
                     false);
             // ((DocumentModelReader)reader).setInlineBlobs(true);
-            DocumentWriter writer = new ReplicationWriter(new File(
-                    System.getProperty("user.home"), "test.folder"), session);
+            DocumentWriter writer = new ReplicationWriter(path, session);
 
             pipe = new ReplicationPipe(10);
+            pipe.setListener(listener);
             pipe.setReader(reader);
             pipe.setWriter(writer);
             pipe.run();
@@ -54,6 +57,14 @@ public class UnrestrictedExporter extends UnrestrictedSessionRunner {
 
     public StatusListener getListener() {
         return listener;
+    }
+
+    public void setPath(File path) {
+        this.path = path;
+    }
+
+    public File getPath() {
+        return path;
     }
 
 }
