@@ -79,7 +79,7 @@ public class ImportActionsBean implements Serializable, StatusListener {
         setFileCount(0);
         Map<String, Serializable> options = new HashMap<String, Serializable>();
         options.put(REPLICATION_IMPORT_PATH, path);
-        options.put(IMPORT_LISTENER, this);
+//        options.put(IMPORT_LISTENER, this);
         fireEvent(START_REPLICATION_IMPORT_PROCESS, options);
         return null;
     }

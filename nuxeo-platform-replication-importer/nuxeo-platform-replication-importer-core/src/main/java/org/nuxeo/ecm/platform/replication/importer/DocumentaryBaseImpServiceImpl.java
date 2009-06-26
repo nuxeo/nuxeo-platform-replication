@@ -63,18 +63,16 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
         this.session = session;
         // we need to import the documentary base in order: usual documents,
         // versions, proxies
-        File usualDocumentsRoot = new File(path.getPath() + File.separator
-                + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
-                + USUAL_DOCUMENTS_LOCATION_NAME);
+        File usualDocumentsRoot = new File(path.getPath());
         doSynchronImport(usualDocumentsRoot, false);
-        File versionsRoot = new File(path.getPath() + File.separator
-                + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
-                + VERSIONS_LOCATION_NAME);
-        doSynchronImport(versionsRoot, false);
-        File proxiesRoot = new File(path.getPath() + File.separator
-                + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
-                + PROXIES_LOCATION_NAME);
-        doSynchronImport(proxiesRoot, true);
+//        File versionsRoot = new File(path.getPath() + File.separator
+//                + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
+//                + VERSIONS_LOCATION_NAME);
+//        doSynchronImport(versionsRoot, false);
+//        File proxiesRoot = new File(path.getPath() + File.separator
+//                + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
+//                + PROXIES_LOCATION_NAME);
+//        doSynchronImport(proxiesRoot, true);
         listener.onUpdateStatus(StatusListener.DONE);
     }
 

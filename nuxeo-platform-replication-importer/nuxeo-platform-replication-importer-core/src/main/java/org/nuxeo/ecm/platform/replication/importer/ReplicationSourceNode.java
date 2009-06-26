@@ -70,7 +70,7 @@ public class ReplicationSourceNode implements SourceNode {
         if (children == null) {
             getChildren();
         }
-        return children.isEmpty();
+        return !children.isEmpty();
     }
 
 }

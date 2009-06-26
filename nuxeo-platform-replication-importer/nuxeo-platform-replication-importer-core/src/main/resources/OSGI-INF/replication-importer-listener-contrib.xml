@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.platform.replication.importer.listeners">
+
+  <extension target="org.nuxeo.ecm.core.event.EventServiceComponent" point="listener">
+    <listener name="replicationImportListener" async="false" postCommit="false"
+      class="org.nuxeo.ecm.platform.replication.importer.listener.ReplicationImportListener" priority="140"/>
+    <documentation>
+      Replication importer listener: start the replication import process
+      @author btatar
+    </documentation>
+    
+  </extension>
+
+</component>
+

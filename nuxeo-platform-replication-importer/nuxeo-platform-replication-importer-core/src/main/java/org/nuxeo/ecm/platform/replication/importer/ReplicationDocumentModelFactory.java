@@ -90,7 +90,8 @@ public class ReplicationDocumentModelFactory implements
         return node.isFolderish();
     }
 
-    protected DocumentModel importDocument() throws ClientException, IOException {
+    protected DocumentModel importDocument() throws ClientException,
+            IOException {
 
         ExportedDocument xdoc = new ExportedDocumentImpl();
         try {
@@ -123,7 +124,13 @@ public class ReplicationDocumentModelFactory implements
             }
         }
         // create document
-        DocumentModel documentModel = coreImportDocument(xdoc, properties);
+        DocumentModel documentModel = null;
+        if (!xdoc.getType().equals("Root")) {
+            documentModel = coreImportDocument(xdoc, properties);
+        } else {
+            documentModel = session.getRootDocument();
+        }
+
         sendStatus(StatusListener.DOC_PROCESS_SUCCESS, documentModel);
         // update document properties, basicaly set up the blobs and update
         File[] blobFiles = new File(fileNode.getName()).listFiles(new FilenameFilter() {
@@ -133,16 +140,18 @@ public class ReplicationDocumentModelFactory implements
             }
 
         });
-        // set all the blobs
-        for (File blobFile : blobFiles) {
-            xdoc.putBlob(blobFile.getName(), new StreamingBlob(new FileSource(
-                    blobFile)));
+        if (blobFiles.length > 0) {
+            // set all the blobs
+            for (File blobFile : blobFiles) {
+                xdoc.putBlob(blobFile.getName(), new StreamingBlob(
+                        new FileSource(blobFile)));
 
+            }
+            // the document already exists so the parent path is not needed
+            // anymore...
+            DocumentWriter writer = new DocumentModelWriter(session, null, 1);
+            writer.write(xdoc);
         }
-        // the document already exists so the parent path is not needed
-        // anymore...
-        DocumentWriter writer = new DocumentModelWriter(session, null, 1);
-        writer.write(xdoc);
 
         return documentModel;
     }

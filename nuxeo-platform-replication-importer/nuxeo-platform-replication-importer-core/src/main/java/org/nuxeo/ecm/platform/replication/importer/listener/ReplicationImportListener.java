@@ -25,11 +25,12 @@ import java.io.File;
 
 import org.apache.log4j.Logger;
 import org.nuxeo.ecm.core.api.ClientException;
+import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.core.event.EventContext;
 import org.nuxeo.ecm.core.event.EventListener;
 import org.nuxeo.ecm.platform.replication.common.StatusListener;
-import org.nuxeo.ecm.platform.replication.importer.DocumentaryBaseImpServiceImpl;
+import org.nuxeo.ecm.platform.replication.importer.DocumentaryBaseImporterService;
 import org.nuxeo.runtime.api.Framework;
 
 /**
@@ -42,11 +43,11 @@ public class ReplicationImportListener implements EventListener {
 
     private static final Logger log = Logger.getLogger(ReplicationImportListener.class);
 
-    private DocumentaryBaseImpServiceImpl importService;
+    private DocumentaryBaseImporterService importService;
 
     public ReplicationImportListener() {
         try {
-            importService = Framework.getService(DocumentaryBaseImpServiceImpl.class);
+            importService = Framework.getService(DocumentaryBaseImporterService.class);
         } catch (Exception e) {
             log.debug("Could not initialize the import service ...");
         }
@@ -59,10 +60,13 @@ public class ReplicationImportListener implements EventListener {
             log.debug("Starting the replication import process ...");
             EventContext context = event.getContext();
             String path = (String) context.getProperty(REPLICATION_IMPORT_PATH);
+            CoreSession session = context.getCoreSession();
             StatusListener listener = (StatusListener) context.getProperty(IMPORT_LISTENER);
+            session.removeChildren(session.getRootDocument().getRef());
+            session.save();
             importService.setListener(listener);
-            importService.importDocuments(context.getCoreSession(), null,
-                    new File(path), true, true, true);
+            importService.importDocuments(session, null, new File(path), true,
+                    true, true);
         }
     }
 }
