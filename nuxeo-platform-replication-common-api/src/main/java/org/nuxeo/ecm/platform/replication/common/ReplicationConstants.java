@@ -28,6 +28,8 @@ public class ReplicationConstants {
 
     public static final String METADATA_FILE_NAME = "metadata.properties";
 
+    public static final String DOCUMENT_FILE_NAME = "document.xml";
+
     public static final String DOCUMENTARY_BASE_LOCATION_NAME = "Documentary Base";
 
     public static final String USUAL_DOCUMENTS_LOCATION_NAME = "Usual documents";
@@ -35,7 +37,13 @@ public class ReplicationConstants {
     public static final String VERSIONS_LOCATION_NAME = "Versions";
 
     public static final String PROXIES_LOCATION_NAME = "Proxies";
-    
+
     public static final String GO_HOME = "home";
+
+    public static final String START_REPLICATION_IMPORT_PROCESS = "StartReplicationImportProcess";
+
+    public static final String REPLICATION_IMPORT_PATH = "path";
+
+    public static final String IMPORT_LISTENER = "importListener";
 
 }

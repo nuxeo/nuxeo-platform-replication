@@ -19,6 +19,7 @@ import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.MET
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -28,11 +29,15 @@ import org.dom4j.Document;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
+import org.nuxeo.ecm.core.api.impl.blob.StreamingBlob;
+import org.nuxeo.ecm.core.io.DocumentWriter;
 import org.nuxeo.ecm.core.io.ExportedDocument;
 import org.nuxeo.ecm.core.io.impl.ExportedDocumentImpl;
+import org.nuxeo.ecm.core.io.impl.plugins.DocumentModelWriter;
 import org.nuxeo.ecm.platform.importer.factories.ImporterDocumentModelFactory;
 import org.nuxeo.ecm.platform.importer.source.SourceNode;
 import org.nuxeo.ecm.platform.replication.common.StatusListener;
+import org.nuxeo.runtime.services.streaming.FileSource;
 
 /**
  * Implements the document model factory as for replication needs. It core
@@ -67,22 +72,26 @@ public class ReplicationDocumentModelFactory implements
 
     public DocumentModel createFolderishNode(CoreSession session,
             DocumentModel parent, SourceNode node) throws Exception {
-        // TODO Auto-generated method stub
-        return null;
+        this.fileNode = node;
+        this.session = session;
+        this.parent = parent;
+        return importDocument();
     }
 
     public DocumentModel createLeafNode(CoreSession session,
             DocumentModel parent, SourceNode node) throws Exception {
-        // TODO Auto-generated method stub
-        return null;
+        this.fileNode = node;
+        this.session = session;
+        this.parent = parent;
+        return importDocument();
     }
 
     public boolean isTargetDocumentModelFolderish(SourceNode node) {
-        // TODO Auto-generated method stub
-        return false;
+        return node.isFolderish();
     }
 
-    protected DocumentModel importDocument() throws ClientException {
+    protected DocumentModel importDocument() throws ClientException, IOException {
+
         ExportedDocument xdoc = new ExportedDocumentImpl();
         try {
             xdoc.setDocument(ImporterDocumentCreator.loadXML(new File(
@@ -116,7 +125,25 @@ public class ReplicationDocumentModelFactory implements
         // create document
         DocumentModel documentModel = coreImportDocument(xdoc, properties);
         sendStatus(StatusListener.DOC_PROCESS_SUCCESS, documentModel);
-        // update document properties
+        // update document properties, basicaly set up the blobs and update
+        File[] blobFiles = new File(fileNode.getName()).listFiles(new FilenameFilter() {
+
+            public boolean accept(File dir, String name) {
+                return name.contains(".blob");
+            }
+
+        });
+        // set all the blobs
+        for (File blobFile : blobFiles) {
+            xdoc.putBlob(blobFile.getName(), new StreamingBlob(new FileSource(
+                    blobFile)));
+
+        }
+        // the document already exists so the parent path is not needed
+        // anymore...
+        DocumentWriter writer = new DocumentModelWriter(session, null, 1);
+        writer.write(xdoc);
+
         return documentModel;
     }
 

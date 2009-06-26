@@ -34,7 +34,10 @@ public class ReplicationSourceNode implements SourceNode {
 
     protected File file;
     
+    protected List<SourceNode> children;
+    
     public ReplicationSourceNode(File file) {
+        children = null;
         this.file = file;
     }
 
@@ -49,7 +52,7 @@ public class ReplicationSourceNode implements SourceNode {
 
     public List<SourceNode> getChildren() {
         //the documents are exported as folders, look if other folders under
-        List<SourceNode> children = new ArrayList<SourceNode>();
+        children = new ArrayList<SourceNode>();
         for (File child:file.listFiles()) {
             if (child.isDirectory()) {
                 children.add(new ReplicationSourceNode(child.getPath()));
@@ -63,8 +66,11 @@ public class ReplicationSourceNode implements SourceNode {
     }
 
     public boolean isFolderish() {
-        //not knowing a thing about
-        return false;
+        //in fact return if there are any children here
+        if (children == null) {
+            getChildren();
+        }
+        return children.isEmpty();
     }
 
 }

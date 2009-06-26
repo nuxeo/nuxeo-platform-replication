@@ -17,25 +17,27 @@
  */
 package org.nuxeo.ecm.platform.replication.importer.beans;
 
-import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.GO_HOME;
+import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.IMPORT_LISTENER;
+import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.REPLICATION_IMPORT_PATH;
+import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.START_REPLICATION_IMPORT_PROCESS;
 
-import java.io.File;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.jboss.seam.ScopeType;
-import org.jboss.seam.annotations.Create;
 import org.jboss.seam.annotations.In;
 import org.jboss.seam.annotations.Name;
 import org.jboss.seam.annotations.Scope;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.PathRef;
+import org.nuxeo.ecm.core.event.Event;
+import org.nuxeo.ecm.core.event.EventContext;
+import org.nuxeo.ecm.core.event.EventProducer;
+import org.nuxeo.ecm.core.event.impl.InlineEventContext;
 import org.nuxeo.ecm.core.io.ExportedDocument;
 import org.nuxeo.ecm.platform.replication.common.StatusListener;
-import org.nuxeo.ecm.platform.replication.importer.DocumentaryBaseImpServiceImpl;
-import org.nuxeo.ecm.platform.ui.web.api.NavigationContext;
 import org.nuxeo.runtime.api.Framework;
 
 /**
@@ -53,13 +55,8 @@ public class ImportActionsBean implements Serializable, StatusListener {
 
     private static final long serialVersionUID = 1L;
 
-    @In(create = true)
-    private transient NavigationContext navigationContext;
-
     @In(create = true, required = false)
     private transient CoreSession documentManager;
-
-    private DocumentaryBaseImpServiceImpl importService;
 
     // returns the number of imported documents
     private int fileCount;
@@ -70,25 +67,21 @@ public class ImportActionsBean implements Serializable, StatusListener {
     // the path where the source of the replication status is located
     private String path;
 
-    @Create
-    public void initialize() throws Exception {
-        importService = Framework.getService(DocumentaryBaseImpServiceImpl.class);
-        importService.setListener(this);
-    }
-
     /**
      * Performs the replication import process.
      * 
      * @return
      * @throws ClientException
      */
-    public String startImport() throws ClientException {
+    public String startImport() throws Exception {
         log.debug("Starting replication import process...");
         setDone(false);
         setFileCount(0);
-        importService.importDocuments(documentManager, null, new File(path),
-                true, true, true);
-        return goHome();
+        Map<String, Serializable> options = new HashMap<String, Serializable>();
+        options.put(REPLICATION_IMPORT_PATH, path);
+        options.put(IMPORT_LISTENER, this);
+        fireEvent(START_REPLICATION_IMPORT_PROCESS, options);
+        return null;
     }
 
     /**
@@ -108,22 +101,23 @@ public class ImportActionsBean implements Serializable, StatusListener {
 
     }
 
-    /**
-     * Utility method used to return the home path.
-     * 
-     * @return
-     */
-    private String goHome() {
+    private void fireEvent(String eventName, Map<String, Serializable> options)
+            throws Exception {
 
-        DocumentModel root;
-        try {
-            root = documentManager.getDocument(new PathRef("/"));
-            navigationContext.setCurrentDocument(root);
-            return navigationContext.navigateToDocument(root);
-        } catch (ClientException e) {
-            e.printStackTrace();
+        EventProducer producer = Framework.getService(EventProducer.class);
+
+        if (producer != null) {
+            EventContext context = new InlineEventContext(null, options);
+            context.setCoreSession(documentManager);
+            Event event = context.newEvent(eventName);
+            try {
+                event.setIsCommitEvent(true);
+                producer.fireEvent(event);
+            } catch (ClientException ce) {
+                log.error("EventProducer.fireEvent(event); FAILED", ce);
+                throw ce;
+            }
         }
-        return GO_HOME;
     }
 
     public void setPath(String path) {
