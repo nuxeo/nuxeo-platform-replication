@@ -41,6 +41,7 @@ import org.nuxeo.runtime.api.Framework;
 
 /**
  *Export action bean
+ *
  * @author cpriceputu@nuxeo.com
  *
  */
@@ -100,8 +101,8 @@ public class ExportActionsBean implements Serializable, StatusListener {
         setDone(false);
         setFileCount(0);
 
-        exportService.export(getRepo(), null, new File(getPath()), false,
-                false, false);
+        exportService.export(documentManager.getRepositoryName(), null,
+                new File(getPath()), false, false, false);
 
         return null;
     }

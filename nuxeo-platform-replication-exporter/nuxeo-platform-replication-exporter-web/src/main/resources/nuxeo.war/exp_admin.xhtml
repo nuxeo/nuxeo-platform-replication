@@ -20,12 +20,7 @@
           <h:outputLabel value="Status Done: #{exportActions.done}" />
         </h:panelGrid>
 
-        <h:panelGrid columns="2" styleClass="dataInput" columnClasses="labelColumn, fieldColumn">
-          <h:outputLabel for="repo" class="required" value="#{messages['label.exp.repo']}" />
-          <h:panelGroup>
-            <h:inputText id="repo" value="#{exportActions.repo}" required="true" />
-            <h:message for="repo" />
-          </h:panelGroup>
+        <h:panelGrid columns="1" styleClass="dataInput" columnClasses="labelColumn, fieldColumn">
           <h:outputLabel for="path" class="required" value="#{messages['label.exp.path']}" />
           <h:panelGroup>
             <h:inputText id="path" value="#{exportActions.path}" required="true" />
@@ -35,7 +30,7 @@
 
         <h:panelGrid columns="1" styleClass="dataInput">
           <a4j:commandLink id="expCmd" value="#{messages['command.exp_export']}"
-            action="#{exportActions.startExport}" rendered="#{not exportActions.done}" reRender="expCmd"/>
+            action="#{exportActions.startExport}" reRender="expCmd" />
         </h:panelGrid>
 
         <a4j:poll id="refreshId" reRender="fileCount , expCmd" timeout="50000" interval="500" />

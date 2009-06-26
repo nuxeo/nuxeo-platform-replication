@@ -38,9 +38,11 @@ import org.nuxeo.ecm.core.io.DocumentTranslationMap;
 import org.nuxeo.ecm.core.io.ExportedDocument;
 import org.nuxeo.ecm.core.io.impl.plugins.XMLDirectoryWriter;
 import org.nuxeo.ecm.core.schema.types.primitives.DateType;
+import org.nuxeo.ecm.platform.replication.common.ReplicationConstants;
 
 /**
  * Extends XMLDirectoryWriter to provide additional metadata .
+ *
  * @author cpriceputu@nuxeo.com
  *
  */
@@ -60,37 +62,39 @@ public class ReplicationWriter extends XMLDirectoryWriter {
 
         try {
             DocumentModel document = session.getDocument(new IdRef(doc.getId()));
-            File parent = null;
+            File parent = new File(getDestination().toString(),
+                    ReplicationConstants.DOCUMENTARY_BASE_LOCATION_NAME);
+            OutputFormat format = OutputFormat.createPrettyPrint();
 
             if (!document.isVersion()) {
-                super.write(doc);
-                parent = new File(getDestination().toString(),
-                        doc.getPath().toString());
+                parent = new File(parent,
+                        ReplicationConstants.USUAL_DOCUMENTS_LOCATION_NAME);
+                parent = new File(parent, doc.getPath().toString());
+                parent.mkdirs();
             } else {
-                parent = new File(getDestination().toString(), "Versions");
+                parent = new File(parent,
+                        ReplicationConstants.VERSIONS_LOCATION_NAME);
                 parent = new File(parent, document.getId());
                 parent.mkdirs();
+            }
 
-                OutputFormat format = OutputFormat.createPrettyPrint();
-                XMLWriter writer = new XMLWriter(new FileOutputStream(new File(
-                        parent, "document.xml")), format);
-                writer.write(doc.getDocument());
+            XMLWriter writer = new XMLWriter(new FileOutputStream(new File(
+                    parent, "document.xml")), format);
+            writer.write(doc.getDocument());
+            writer.close();
+
+            Map<String, Blob> blobs = doc.getBlobs();
+            for (Map.Entry<String, Blob> entry : blobs.entrySet()) {
+                entry.getValue().transferTo(new File(parent, entry.getKey()));
+            }
+
+            // write external documents
+            for (Map.Entry<String, Document> entry : doc.getDocuments().entrySet()) {
+
+                writer = new XMLWriter(new FileOutputStream(new File(parent,
+                        entry.getKey() + ".xml")), format);
+                writer.write(entry.getValue());
                 writer.close();
-
-                Map<String, Blob> blobs = doc.getBlobs();
-                for (Map.Entry<String, Blob> entry : blobs.entrySet()) {
-                    entry.getValue().transferTo(
-                            new File(parent, entry.getKey()));
-                }
-
-                // write external documents
-                for (Map.Entry<String, Document> entry : doc.getDocuments().entrySet()) {
-
-                    writer = new XMLWriter(new FileOutputStream(new File(
-                            parent, entry.getKey() + ".xml")), format);
-                    writer.write(entry.getValue());
-                    writer.close();
-                }
             }
 
             Properties metadata = getDocumentMetadata(session, document);
