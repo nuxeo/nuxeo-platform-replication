@@ -136,7 +136,7 @@ public class ImportActionsBean implements Serializable, StatusListener {
         return fileCount;
     }
 
-    public boolean getDone() {
+    public boolean isDone() {
         return done;
     }
 
