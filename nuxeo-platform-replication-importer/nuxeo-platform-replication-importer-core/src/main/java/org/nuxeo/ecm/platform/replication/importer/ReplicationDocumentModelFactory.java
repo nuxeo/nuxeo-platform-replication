@@ -42,9 +42,9 @@ import org.nuxeo.runtime.services.streaming.FileSource;
 /**
  * Implements the document model factory as for replication needs. It core
  * imports document and sets the document properties.
- * 
+ *
  * @author rux
- * 
+ *
  */
 public class ReplicationDocumentModelFactory implements
         ImporterDocumentModelFactory {
@@ -148,9 +148,15 @@ public class ReplicationDocumentModelFactory implements
 
             }
             // the document already exists so the parent path is not needed
-            // anymore...
-            DocumentWriter writer = new DocumentModelWriter(session, null, 1);
-            writer.write(xdoc);
+            // anymore... WRONG ==> NPE !!!
+            try {
+                DocumentWriter writer = new DocumentModelWriter(session, parent.getPathAsString(), 1);
+                writer.write(xdoc);
+            }
+            catch (NullPointerException e) {
+                boolean toto=true;
+                toto=true;
+            }
         }
 
         return documentModel;

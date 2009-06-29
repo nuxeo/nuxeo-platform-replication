@@ -16,7 +16,6 @@
 package org.nuxeo.ecm.platform.replication.importer;
 
 import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.DOCUMENTARY_BASE_LOCATION_NAME;
-import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.PROXIES_LOCATION_NAME;
 import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.USUAL_DOCUMENTS_LOCATION_NAME;
 import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.VERSIONS_LOCATION_NAME;
 
@@ -34,9 +33,9 @@ import org.nuxeo.ecm.platform.replication.common.StatusListener;
 
 /**
  * Implementation for import documentary base service.
- * 
+ *
  * @author rux
- * 
+ *
  */
 public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
         implements DocumentaryBaseImporterService {
@@ -45,7 +44,7 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
     protected CoreSession session;
 
     private StatusListener listener;
-    
+
     private DocumentXmlTransformer xmlTransformer;
 
     public DocumentXmlTransformer getXmlTransformer() {
@@ -70,12 +69,18 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
         File versionsRoot = new File(path.getPath() + File.separator
                 + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
                 + VERSIONS_LOCATION_NAME);
-        doSynchronImport(versionsRoot, false);
+        if (versionsRoot.exists()) {
+            doSynchronImport(versionsRoot, false);
+        }
         File proxiesRoot = new File(path.getPath() + File.separator
                 + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
                 + USUAL_DOCUMENTS_LOCATION_NAME);
-        doSynchronImport(proxiesRoot, true);
-        listener.onUpdateStatus(StatusListener.DONE);
+        if (proxiesRoot.exists()) {
+            doSynchronImport(proxiesRoot, true);
+        }
+        if (listener!=null) {
+            listener.onUpdateStatus(StatusListener.DONE);
+        }
     }
 
     protected void doSynchronImport(File root, boolean importProxies)
@@ -89,7 +94,7 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
             //here is set the transformer
             documentModelFactory.setDocumentXmlTransformer(xmlTransformer);
             importer.setFactory(documentModelFactory);
-            importer.setThreadPolicy(getThreadPolicy());
+            importer.setThreadPolicy(new MonoThreadPolicy());
             doRun(importer, Boolean.TRUE);
         } catch (Exception e) {
             throw new ClientException(e);
