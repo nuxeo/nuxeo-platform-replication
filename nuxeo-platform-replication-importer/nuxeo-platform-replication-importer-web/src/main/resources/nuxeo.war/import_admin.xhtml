@@ -25,6 +25,11 @@
             <h:message for="path" />
           </h:panelGroup>
         </h:panelGrid>
+        <h:panelGrid columns="2" styleClass="dataInput" columnClasses="labelColumn, fieldColumn">
+          <h:outputLabel for="path" class="required" value="#{messages['label.import.use.multi.thread']}" />
+          <h:selectBooleanCheckbox value="#{importActions.useMultiThread}"  />                     
+        </h:panelGrid>    
+            
         <h:panelGrid columns="1" styleClass="dataInput">
           <a4j:commandLink id="importCmd" value="#{messages['command.import_import']}"
             action="#{importActions.startImport}" />

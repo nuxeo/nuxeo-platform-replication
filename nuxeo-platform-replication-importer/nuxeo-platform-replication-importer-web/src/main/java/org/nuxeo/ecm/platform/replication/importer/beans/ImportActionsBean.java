@@ -17,16 +17,16 @@
  */
 package org.nuxeo.ecm.platform.replication.importer.beans;
 
-import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.IMPORT_LISTENER;
-import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.REPLICATION_IMPORT_PATH;
-import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.START_REPLICATION_IMPORT_PROCESS;
+import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.*;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.jboss.seam.ScopeType;
+import org.jboss.seam.annotations.Create;
 import org.jboss.seam.annotations.In;
 import org.jboss.seam.annotations.Name;
 import org.jboss.seam.annotations.Scope;
@@ -38,6 +38,7 @@ import org.nuxeo.ecm.core.event.EventProducer;
 import org.nuxeo.ecm.core.event.impl.InlineEventContext;
 import org.nuxeo.ecm.core.io.ExportedDocument;
 import org.nuxeo.ecm.platform.replication.common.StatusListener;
+import org.nuxeo.ecm.platform.replication.importer.DocumentaryBaseImporterService;
 import org.nuxeo.runtime.api.Framework;
 
 /**
@@ -67,6 +68,20 @@ public class ImportActionsBean implements Serializable, StatusListener {
     // the path where the source of the replication status is located
     private String path;
 
+    // used to specify whether multi thread is used
+    private boolean useMultiThread;
+
+    private DocumentaryBaseImporterService importService;
+
+    @Create
+    public void initialize() throws Exception {
+        try {
+            importService = Framework.getService(DocumentaryBaseImporterService.class);
+        } catch (Exception e) {
+            log.debug("Could not initialize the import service ...");
+        }
+    }
+
     /**
      * Performs the replication import process.
      * 
@@ -79,8 +94,11 @@ public class ImportActionsBean implements Serializable, StatusListener {
         setFileCount(0);
         Map<String, Serializable> options = new HashMap<String, Serializable>();
         options.put(REPLICATION_IMPORT_PATH, path);
-//        options.put(IMPORT_LISTENER, this);
-        fireEvent(START_REPLICATION_IMPORT_PROCESS, options);
+        options.put(REPLICATION_IMPORT_USE_MULTI_THREAD, useMultiThread);
+        // options.put(IMPORT_LISTENER, this);
+         fireEvent(START_REPLICATION_IMPORT_PROCESS, options);
+//        importService.importDocuments(documentManager, null, new File(path),
+//                true, true, true, useMultiThread);
         return null;
     }
 
@@ -112,6 +130,7 @@ public class ImportActionsBean implements Serializable, StatusListener {
             Event event = context.newEvent(eventName);
             try {
                 event.setIsCommitEvent(true);
+                event.setInline(true);
                 producer.fireEvent(event);
             } catch (ClientException ce) {
                 log.error("EventProducer.fireEvent(event); FAILED", ce);
@@ -142,5 +161,13 @@ public class ImportActionsBean implements Serializable, StatusListener {
 
     public void setDone(boolean done) {
         this.done = done;
+    }
+
+    public boolean isUseMultiThread() {
+        return useMultiThread;
+    }
+
+    public void setUseMultiThread(boolean useMultiThread) {
+        this.useMultiThread = useMultiThread;
     }
 }

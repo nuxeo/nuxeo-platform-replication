@@ -27,15 +27,19 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
+import org.nuxeo.ecm.core.event.EventServiceAdmin;
 import org.nuxeo.ecm.platform.importer.base.GenericMultiThreadedImporter;
 import org.nuxeo.ecm.platform.importer.executor.AbstractImporterExecutor;
+import org.nuxeo.ecm.platform.importer.filter.EventServiceConfiguratorFilter;
+import org.nuxeo.ecm.platform.importer.filter.ImporterFilter;
 import org.nuxeo.ecm.platform.replication.common.StatusListener;
+import org.nuxeo.runtime.api.Framework;
 
 /**
  * Implementation for import documentary base service.
- *
+ * 
  * @author rux
- *
+ * 
  */
 public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
         implements DocumentaryBaseImporterService {
@@ -57,44 +61,50 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
 
     public void importDocuments(CoreSession session,
             Map<String, Serializable> parameter, File path, boolean resume,
-            boolean exportVersions, boolean exportProxies)
-            throws ClientException {
-        this.session = session;
+            boolean exportVersions, boolean exportProxies,
+            boolean useMultiThread) throws ClientException {
+        this.session = session;        
         // we need to import the documentary base in order: usual documents,
         // versions, proxies
         File usualDocumentsRoot = new File(path.getPath() + File.separator
                 + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
                 + USUAL_DOCUMENTS_LOCATION_NAME);
-        doSynchronImport(usualDocumentsRoot, false);
+        doSynchronImport(usualDocumentsRoot, false, useMultiThread);
         File versionsRoot = new File(path.getPath() + File.separator
                 + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
                 + VERSIONS_LOCATION_NAME);
         if (versionsRoot.exists()) {
-            doSynchronImport(versionsRoot, false);
+            doSynchronImport(versionsRoot, false, useMultiThread);
         }
         File proxiesRoot = new File(path.getPath() + File.separator
                 + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
                 + USUAL_DOCUMENTS_LOCATION_NAME);
         if (proxiesRoot.exists()) {
-            doSynchronImport(proxiesRoot, true);
+            doSynchronImport(proxiesRoot, true, useMultiThread);
         }
-        if (listener!=null) {
+        if (listener != null) {
             listener.onUpdateStatus(StatusListener.DONE);
         }
     }
 
-    protected void doSynchronImport(File root, boolean importProxies)
-            throws ClientException {
+    protected void doSynchronImport(File root, boolean importProxies,
+            boolean useMultiThread) throws ClientException {
         try {
             ReplicationSourceNode sourceNode = new ReplicationSourceNode(root);
             GenericMultiThreadedImporter importer = new GenericMultiThreadedImporter(
                     sourceNode, "/", 10, 5, getLogger());
-            ReplicationDocumentModelFactory documentModelFactory = new ReplicationDocumentModelFactory(listener,
-                    importProxies);
-            //here is set the transformer
+            ReplicationDocumentModelFactory documentModelFactory = new ReplicationDocumentModelFactory(
+                    listener, importProxies);
+            // here is set the transformer
             documentModelFactory.setDocumentXmlTransformer(xmlTransformer);
             importer.setFactory(documentModelFactory);
-            importer.setThreadPolicy(new MonoThreadPolicy());
+            if (useMultiThread) {
+                importer.setThreadPolicy(getThreadPolicy());
+            } else {
+                importer.setThreadPolicy(new MonoThreadPolicy());
+            }
+            ImporterFilter filter = new EventServiceConfiguratorFilter(true, true, true, false);
+            importer.addFilter(filter);
             doRun(importer, Boolean.TRUE);
         } catch (Exception e) {
             throw new ClientException(e);
@@ -120,5 +130,4 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
         // TODO Auto-generated method stub
 
     }
-
 }

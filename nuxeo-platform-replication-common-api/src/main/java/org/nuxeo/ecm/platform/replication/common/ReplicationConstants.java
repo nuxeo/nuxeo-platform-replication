@@ -45,5 +45,7 @@ public class ReplicationConstants {
     public static final String REPLICATION_IMPORT_PATH = "path";
 
     public static final String IMPORT_LISTENER = "importListener";
+    
+    public static final String REPLICATION_IMPORT_USE_MULTI_THREAD = "useMultiThread";
 
 }

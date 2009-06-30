@@ -61,11 +61,12 @@ public interface DocumentaryBaseImporterService {
      * @param resume
      * @param exportVersions
      * @param exportProxies
+     * @param useMultiThread
      * @throws ClientException
      */
     void importDocuments(CoreSession session,
             Map<String, Serializable> parameter, File path, boolean resume,
-            boolean exportVersions, boolean exportProxies)
+            boolean exportVersions, boolean exportProxies, boolean useMultiThread)
             throws ClientException;
 
     /**

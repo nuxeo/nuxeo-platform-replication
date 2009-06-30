@@ -17,9 +17,7 @@
  */
 package org.nuxeo.ecm.platform.replication.importer.listener;
 
-import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.IMPORT_LISTENER;
-import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.REPLICATION_IMPORT_PATH;
-import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.START_REPLICATION_IMPORT_PROCESS;
+import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.*;
 
 import java.io.File;
 
@@ -60,13 +58,11 @@ public class ReplicationImportListener implements EventListener {
             log.debug("Starting the replication import process ...");
             EventContext context = event.getContext();
             String path = (String) context.getProperty(REPLICATION_IMPORT_PATH);
-            CoreSession session = context.getCoreSession();
+            boolean useMultiThread = (Boolean) context.getProperty(REPLICATION_IMPORT_USE_MULTI_THREAD);
             StatusListener listener = (StatusListener) context.getProperty(IMPORT_LISTENER);
-            session.removeChildren(session.getRootDocument().getRef());
-            session.save();
             importService.setListener(listener);
-            importService.importDocuments(session, null, new File(path), true,
-                    true, true);
+            importService.importDocuments(context.getCoreSession(), null, new File(path), true,
+                    true, true, useMultiThread);
         }
     }
 }

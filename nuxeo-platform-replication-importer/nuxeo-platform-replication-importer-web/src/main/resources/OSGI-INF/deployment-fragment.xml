@@ -32,7 +32,7 @@
     <delete path="nximport.tmp" />
     <mkdir path="nximport.tmp" />
 
-    <unzip from="${bundle.fileName}" to="nxexp.tmp">
+    <unzip from="${bundle.fileName}" to="nximport.tmp">
       <include>OSGI-INF/l10n/**</include>
     </unzip>
 

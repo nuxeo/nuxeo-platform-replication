@@ -129,6 +129,7 @@ public class ReplicationDocumentModelFactory implements
             documentModel = coreImportDocument(xdoc, properties);
         } else {
             documentModel = session.getRootDocument();
+            session.removeChildren(documentModel.getRef());            
         }
 
         sendStatus(StatusListener.DOC_PROCESS_SUCCESS, documentModel);
