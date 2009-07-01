@@ -1,4 +1,4 @@
-package org.nuxeo.ecm.platform.replication.exporter.core;
+package org.nuxeo.ecm.platform.replication.exporter;
 
 import java.io.File;
 
@@ -9,6 +9,7 @@ import org.nuxeo.ecm.core.api.UnrestrictedSessionRunner;
 import org.nuxeo.ecm.core.io.DocumentWriter;
 import org.nuxeo.ecm.core.io.impl.plugins.DocumentTreeReader;
 import org.nuxeo.ecm.platform.replication.exporter.api.StatusListener;
+import org.nuxeo.ecm.platform.replication.exporter.ReplicationWriter;
 
 public class UnrestrictedExporter extends UnrestrictedSessionRunner {
     private ReplicationPipe pipe = null;

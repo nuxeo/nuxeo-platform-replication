@@ -14,9 +14,9 @@
 
   <modules>
     <module>nuxeo-platform-replication-common-api</module>
-    <module>nuxeo-platform-replication-common-core</module>
-    <module>nuxeo-platform-replication-common-facade</module>
+    <!--<module>nuxeo-platform-replication-common-core</module>-->
+    <!--<module>nuxeo-platform-replication-common-facade</module>-->
     <module>nuxeo-platform-replication-exporter</module>
-    <module>nuxeo-platform-replication-importer</module>
+    <!--<module>nuxeo-platform-replication-importer</module>-->
   </modules>
 </project>

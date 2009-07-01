@@ -1,4 +1,4 @@
-package org.nuxeo.ecm.platform.replication.exporter.core;
+package org.nuxeo.ecm.platform.replication.exporter;
 
 import java.io.IOException;
 import java.util.List;
@@ -149,7 +149,7 @@ class MultipleRunner extends Runner {
     @Override
     public void run() {
         if (!getPipe().isRunning()) {
-            sendStatus(StatusListener.EXPORT_STOPPED);
+            sendStatus(StatusListener.PROCESS_STOPPED);
             return;
         }
 
@@ -161,7 +161,7 @@ class MultipleRunner extends Runner {
                     getMaps().add(map);
                 }
 
-                sendStatus(StatusListener.DOC_WRITE_SUCCESS, docs);
+                sendStatus(StatusListener.DOC_PROCESS_SUCCESS, docs);
             }
 
         } catch (Exception e) {
@@ -194,7 +194,7 @@ class Runner implements Runnable {
 
     public void run() {
         if (!getPipe().isRunning()) {
-            sendStatus(StatusListener.EXPORT_STOPPED);
+            sendStatus(StatusListener.PROCESS_STOPPED);
             return;
         }
 
@@ -202,7 +202,7 @@ class Runner implements Runnable {
             pipe.applyTransforms(doc);
             DocumentTranslationMap map = pipe.getWriter().write(doc);
             maps.add(map);
-            sendStatus(StatusListener.DOC_WRITE_SUCCESS, doc);
+            sendStatus(StatusListener.DOC_PROCESS_SUCCESS, doc);
         } catch (Exception e) {
             LOG.error(e);
             sendStatus(StatusListener.ERROR, e);
