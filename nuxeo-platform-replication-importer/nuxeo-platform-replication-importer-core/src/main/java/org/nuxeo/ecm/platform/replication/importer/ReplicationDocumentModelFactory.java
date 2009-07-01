@@ -21,16 +21,26 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
+import org.dom4j.Element;
+import org.nuxeo.common.utils.Path;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.impl.blob.StreamingBlob;
+import org.nuxeo.ecm.core.api.security.ACE;
+import org.nuxeo.ecm.core.api.security.ACL;
+import org.nuxeo.ecm.core.api.security.ACP;
+import org.nuxeo.ecm.core.api.security.impl.ACLImpl;
+import org.nuxeo.ecm.core.api.security.impl.ACPImpl;
 import org.nuxeo.ecm.core.io.DocumentWriter;
+import org.nuxeo.ecm.core.io.ExportConstants;
 import org.nuxeo.ecm.core.io.ExportedDocument;
 import org.nuxeo.ecm.core.io.impl.ExportedDocumentImpl;
 import org.nuxeo.ecm.core.io.impl.plugins.DocumentModelWriter;
@@ -42,9 +52,9 @@ import org.nuxeo.runtime.services.streaming.FileSource;
 /**
  * Implements the document model factory as for replication needs. It core
  * imports document and sets the document properties.
- *
+ * 
  * @author rux
- *
+ * 
  */
 public class ReplicationDocumentModelFactory implements
         ImporterDocumentModelFactory {
@@ -126,14 +136,26 @@ public class ReplicationDocumentModelFactory implements
         // create document
         DocumentModel documentModel = null;
         if (!xdoc.getType().equals("Root")) {
+            xdoc.setPath(new Path(new File(fileNode.getName()).getName()));
+            properties.put(CoreSession.IMPORT_LIFECYCLE_STATE,
+                    ((Element) xdoc.getDocument().selectNodes(
+                            "//system/lifecycle-state").get(0)).getText());
+            properties.put(CoreSession.IMPORT_LIFECYCLE_POLICY,
+                    ((Element) xdoc.getDocument().selectNodes(
+                            "//system/lifecycle-policy").get(0)).getText());
             documentModel = coreImportDocument(xdoc, properties);
+            loadSystemInfo(documentModel, xdoc.getDocument()); 
         } else {
             documentModel = session.getRootDocument();
-            session.removeChildren(documentModel.getRef());            
+            session.removeChildren(documentModel.getRef());
         }
 
         sendStatus(StatusListener.DOC_PROCESS_SUCCESS, documentModel);
         // update document properties, basicaly set up the blobs and update
+
+        DocumentWriter writer = new DocumentModelWriter(session,
+                parent.getPathAsString(), 1);
+
         File[] blobFiles = new File(fileNode.getName()).listFiles(new FilenameFilter() {
 
             public boolean accept(File dir, String name) {
@@ -146,19 +168,9 @@ public class ReplicationDocumentModelFactory implements
             for (File blobFile : blobFiles) {
                 xdoc.putBlob(blobFile.getName(), new StreamingBlob(
                         new FileSource(blobFile)));
-
-            }
-            // the document already exists so the parent path is not needed
-            // anymore... WRONG ==> NPE !!!
-            try {
-                DocumentWriter writer = new DocumentModelWriter(session, parent.getPathAsString(), 1);
-                writer.write(xdoc);
-            }
-            catch (NullPointerException e) {
-                boolean toto=true;
-                toto=true;
             }
         }
+        writer.write(xdoc);
 
         return documentModel;
     }
@@ -206,6 +218,45 @@ public class ReplicationDocumentModelFactory implements
 
     public void setDocumentXmlTransformer(DocumentXmlTransformer transformer) {
         xmlTransformer = transformer;
+    }
+
+    protected void loadSystemInfo(DocumentModel docModel, Document doc)
+            throws ClientException {
+        // how do I set the life cycle? would we set it?
+
+        // TODO import security
+        Element system = doc.getRootElement().element(
+                ExportConstants.SYSTEM_TAG);
+        Element accessControl = system.element(ExportConstants.ACCESS_CONTROL_TAG);
+        if (accessControl == null) {
+            return;
+        }
+        Iterator<Element> it = accessControl.elementIterator(ExportConstants.ACL_TAG);
+        while (it.hasNext()) {
+            Element element = it.next();
+            // import only the local acl
+            if (ACL.LOCAL_ACL.equals(element.attributeValue(ExportConstants.NAME_ATTR))) {
+                // this is the local ACL - import it
+                List<Element> entries = element.elements();
+                int size = entries.size();
+                if (size > 0) {
+                    ACP acp = new ACPImpl();
+                    ACL acl = new ACLImpl(ACL.LOCAL_ACL);
+                    acp.addACL(acl);
+                    for (int i = 0; i < size; i++) {
+                        Element el = entries.get(i);
+                        String username = el.attributeValue(ExportConstants.PRINCIPAL_ATTR);
+                        String permission = el.attributeValue(ExportConstants.PERMISSION_ATTR);
+                        String grant = el.attributeValue(ExportConstants.GRANT_ATTR);
+                        ACE ace = new ACE(username, permission,
+                                Boolean.parseBoolean(grant));
+                        acl.add(ace);
+                    }
+                    acp.addACL(acl);
+                    session.setACP(docModel.getRef(), acp, false);
+                }
+            }
+        }
     }
 
 }

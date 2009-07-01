@@ -73,7 +73,7 @@ public class TestImport extends SQLRepositoryTestCase {
         File archiveDir = getArchiveFile();
         assertTrue(archiveDir.exists());
         assertTrue(archiveDir.list().length>0);
-        importer.importDocuments(session, null, archiveDir, false, true, true);
+        importer.importDocuments(session, null, archiveDir, false, true, true, false);
 
         root = session.getRootDocument();
         assertNotNull(root);

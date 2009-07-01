@@ -35,6 +35,7 @@ import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.core.event.EventContext;
 import org.nuxeo.ecm.core.event.EventProducer;
+import org.nuxeo.ecm.core.event.impl.EventContextImpl;
 import org.nuxeo.ecm.core.event.impl.InlineEventContext;
 import org.nuxeo.ecm.core.io.ExportedDocument;
 import org.nuxeo.ecm.platform.replication.common.StatusListener;
@@ -96,9 +97,9 @@ public class ImportActionsBean implements Serializable, StatusListener {
         options.put(REPLICATION_IMPORT_PATH, path);
         options.put(REPLICATION_IMPORT_USE_MULTI_THREAD, useMultiThread);
         // options.put(IMPORT_LISTENER, this);
-         fireEvent(START_REPLICATION_IMPORT_PROCESS, options);
-//        importService.importDocuments(documentManager, null, new File(path),
-//                true, true, true, useMultiThread);
+//         fireEvent(START_REPLICATION_IMPORT_PROCESS, options);
+        importService.importDocuments(documentManager, null, new File(path),
+                true, true, true, useMultiThread);
         return null;
     }
 
@@ -125,7 +126,7 @@ public class ImportActionsBean implements Serializable, StatusListener {
         EventProducer producer = Framework.getService(EventProducer.class);
 
         if (producer != null) {
-            EventContext context = new InlineEventContext(null, options);
+            EventContext context = new EventContextImpl(null, options);
             context.setCoreSession(documentManager);
             Event event = context.newEvent(eventName);
             try {

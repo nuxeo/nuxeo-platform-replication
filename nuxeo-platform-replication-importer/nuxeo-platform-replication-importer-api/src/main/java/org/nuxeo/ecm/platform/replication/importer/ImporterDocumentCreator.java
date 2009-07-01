@@ -89,27 +89,27 @@ public class ImporterDocumentCreator {
 
     public static boolean isProxy(Properties properties) {
         return properties.getProperty(CoreSession.IMPORT_PROXY_TARGET_ID) != null
-            && properties.getProperty(CoreSession.IMPORT_PROXY_VERSIONABLE_ID) != null;
+                && properties.getProperty(CoreSession.IMPORT_PROXY_VERSIONABLE_ID) != null;
     }
-    
+
     public static Document loadXML(File file) throws ClientException {
         BufferedInputStream in = null;
         try {
             in = new BufferedInputStream(new FileInputStream(file));
             return new SAXReader().read(in);
         } catch (Exception e) {
-            throw new ClientException("Failed to read schemes for " + file.getPath());
+            throw new ClientException("Failed to read schemes for "
+                    + file.getPath());
         } finally {
             if (in != null) {
                 try {
                     in.close();
                 } catch (IOException ioe) {
-                    //who cares?
+                    // who cares?
                 }
             }
         }
     }
-
 
     /**
      * Imports an usual document through core session.
@@ -137,9 +137,11 @@ public class ImporterDocumentCreator {
                 new Path(name), null, null, new PathRef(parentPath), null,
                 null, null, session.getRepositoryName());
 
-        document.putContextData(CoreSession.IMPORT_LOCK,
-                properties.getProperty(CoreSession.IMPORT_LOCK));
-        String value = properties.getProperty(CoreSession.IMPORT_CHECKED_IN);
+        String value = properties.getProperty(CoreSession.IMPORT_LOCK);
+        if (value != null && !value.equals("")) {
+            document.putContextData(CoreSession.IMPORT_LOCK, value);
+        }
+        value = properties.getProperty(CoreSession.IMPORT_CHECKED_IN);
         if (value != null) {
             document.putContextData(CoreSession.IMPORT_CHECKED_IN, new Boolean(
                     value));
@@ -158,6 +160,12 @@ public class ImporterDocumentCreator {
             document.putContextData(CoreSession.IMPORT_VERSION_MINOR,
                     Long.valueOf(value));
         }
+
+        document.putContextData(CoreSession.IMPORT_LIFECYCLE_STATE,
+                properties.getProperty(CoreSession.IMPORT_LIFECYCLE_STATE));
+        document.putContextData(CoreSession.IMPORT_LIFECYCLE_POLICY,
+                properties.getProperty(CoreSession.IMPORT_LIFECYCLE_POLICY));
+
         document.setPathInfo(parentPath, name);
         session.importDocuments(Collections.singletonList(document));
         session.save();
@@ -214,6 +222,11 @@ public class ImporterDocumentCreator {
         document.putContextData(
                 CoreSession.IMPORT_VERSION_MINOR,
                 Long.valueOf(properties.getProperty(CoreSession.IMPORT_VERSION_MINOR)));
+
+        document.putContextData(CoreSession.IMPORT_LIFECYCLE_STATE,
+                properties.getProperty(CoreSession.IMPORT_LIFECYCLE_STATE));
+        document.putContextData(CoreSession.IMPORT_LIFECYCLE_POLICY,
+                properties.getProperty(CoreSession.IMPORT_LIFECYCLE_POLICY));
 
         session.importDocuments(Collections.singletonList(document));
         session.save();
