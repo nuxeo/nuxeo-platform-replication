@@ -17,12 +17,8 @@
  */
 package org.nuxeo.ecm.platform.replication.importer.beans;
 
-import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.*;
-
 import java.io.File;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.jboss.seam.ScopeType;
@@ -32,11 +28,6 @@ import org.jboss.seam.annotations.Name;
 import org.jboss.seam.annotations.Scope;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.event.Event;
-import org.nuxeo.ecm.core.event.EventContext;
-import org.nuxeo.ecm.core.event.EventProducer;
-import org.nuxeo.ecm.core.event.impl.EventContextImpl;
-import org.nuxeo.ecm.core.event.impl.InlineEventContext;
 import org.nuxeo.ecm.core.io.ExportedDocument;
 import org.nuxeo.ecm.platform.replication.common.StatusListener;
 import org.nuxeo.ecm.platform.replication.importer.DocumentaryBaseImporterService;
@@ -78,6 +69,7 @@ public class ImportActionsBean implements Serializable, StatusListener {
     public void initialize() throws Exception {
         try {
             importService = Framework.getService(DocumentaryBaseImporterService.class);
+            importService.setListener(this);
         } catch (Exception e) {
             log.debug("Could not initialize the import service ...");
         }
@@ -93,11 +85,6 @@ public class ImportActionsBean implements Serializable, StatusListener {
         log.debug("Starting replication import process...");
         setDone(false);
         setFileCount(0);
-        Map<String, Serializable> options = new HashMap<String, Serializable>();
-        options.put(REPLICATION_IMPORT_PATH, path);
-        options.put(REPLICATION_IMPORT_USE_MULTI_THREAD, useMultiThread);
-        // options.put(IMPORT_LISTENER, this);
-//         fireEvent(START_REPLICATION_IMPORT_PROCESS, options);
         importService.importDocuments(documentManager, null, new File(path),
                 true, true, true, useMultiThread);
         return null;
@@ -118,26 +105,6 @@ public class ImportActionsBean implements Serializable, StatusListener {
             setDone(true);
         }
 
-    }
-
-    private void fireEvent(String eventName, Map<String, Serializable> options)
-            throws Exception {
-
-        EventProducer producer = Framework.getService(EventProducer.class);
-
-        if (producer != null) {
-            EventContext context = new EventContextImpl(null, options);
-            context.setCoreSession(documentManager);
-            Event event = context.newEvent(eventName);
-            try {
-                event.setIsCommitEvent(true);
-                event.setInline(true);
-                producer.fireEvent(event);
-            } catch (ClientException ce) {
-                log.error("EventProducer.fireEvent(event); FAILED", ce);
-                throw ce;
-            }
-        }
     }
 
     public void setPath(String path) {
