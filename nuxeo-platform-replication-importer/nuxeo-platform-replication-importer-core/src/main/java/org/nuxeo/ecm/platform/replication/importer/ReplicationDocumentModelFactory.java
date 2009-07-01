@@ -182,7 +182,7 @@ public class ReplicationDocumentModelFactory implements
         File currentDocumentFile = new File(fileNode.getName());
         return ImporterDocumentCreator.importDocument(session, doc.getType(),
                 doc.getId(), currentDocumentFile.getName(),
-                parent.getPathAsString(), properties);
+                parent != null ? parent.getPathAsString() : null, properties);
     }
 
     /**

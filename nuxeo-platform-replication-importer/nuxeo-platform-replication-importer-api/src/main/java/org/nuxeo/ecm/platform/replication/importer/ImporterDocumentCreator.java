@@ -77,7 +77,7 @@ public class ImporterDocumentCreator {
                 && properties.getProperty(CoreSession.IMPORT_VERSION_MAJOR) != null
                 && properties.getProperty(CoreSession.IMPORT_VERSION_MINOR) != null) {
             // import a version document
-            return importVersionDocument(session, type, id, name, parentPath,
+            return importVersionDocument(session, type, id, name,
                     properties);
         } else {
             // import a normal document
@@ -186,7 +186,7 @@ public class ImporterDocumentCreator {
      * @throws ClientException
      */
     public static DocumentModel importVersionDocument(CoreSession session,
-            String type, String id, String name, String parentPath,
+            String type, String id, String name,
             Properties properties) throws ClientException {
 
         if (properties == null) {
