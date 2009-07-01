@@ -60,53 +60,53 @@ public class ReplicationWriter extends XMLDirectoryWriter {
     public DocumentTranslationMap write(ExportedDocument doc)
             throws IOException {
 
-//        try {
-//            DocumentModel document = session.getDocument(new IdRef(doc.getId()));
-//            File parent = new File(getDestination().toString(),
-//                    DOCUMENTARY_BASE_LOCATION_NAME);
-//            OutputFormat format = OutputFormat.createPrettyPrint();
-//
-//            if (!document.isVersion()) {
-//                parent = new File(parent,
-//                        USUAL_DOCUMENTS_LOCATION_NAME);
-//                parent = new File(parent, doc.getPath().toString());
-//                parent.mkdirs();
-//            } else {
-//                parent = new File(parent,
-//                        VERSIONS_LOCATION_NAME);
-//                parent = new File(parent, document.getId());
-//                parent.mkdirs();
-//            }
-//
-//            XMLWriter writer = new XMLWriter(new FileOutputStream(new File(
-//                    parent, "document.xml")), format);
-//            writer.write(doc.getDocument());
-//            writer.close();
-//
-//            Map<String, Blob> blobs = doc.getBlobs();
-//            for (Map.Entry<String, Blob> entry : blobs.entrySet()) {
-//                entry.getValue().transferTo(new File(parent, entry.getKey()));
-//            }
-//
-//            // write external documents
-//            for (Map.Entry<String, Document> entry : doc.getDocuments().entrySet()) {
-//
-//                writer = new XMLWriter(new FileOutputStream(new File(parent,
-//                        entry.getKey() + ".xml")), format);
-//                writer.write(entry.getValue());
-//                writer.close();
-//            }
-//
-//            Properties metadata = getDocumentMetadata(session, document);
-//
-//            File metadataFile = new File(parent, "metadata.properties");
-//            metadata.store(new FileOutputStream(metadataFile),
-//                    "Document Metadata");
-//
-//        } catch (Exception e) {
-//            LOG.error(e);
-//            throw new IOException(e.getMessage());
-//        }
+        try {
+            DocumentModel document = session.getDocument(new IdRef(doc.getId()));
+            File parent = new File(getDestination().toString(),
+                    DOCUMENTARY_BASE_LOCATION_NAME);
+            OutputFormat format = OutputFormat.createPrettyPrint();
+
+            if (!document.isVersion()) {
+                parent = new File(parent,
+                        USUAL_DOCUMENTS_LOCATION_NAME);
+                parent = new File(parent, doc.getPath().toString());
+                parent.mkdirs();
+            } else {
+                parent = new File(parent,
+                        VERSIONS_LOCATION_NAME);
+                parent = new File(parent, document.getId());
+                parent.mkdirs();
+            }
+
+            XMLWriter writer = new XMLWriter(new FileOutputStream(new File(
+                    parent, "document.xml")), format);
+            writer.write(doc.getDocument());
+            writer.close();
+
+            Map<String, Blob> blobs = doc.getBlobs();
+            for (Map.Entry<String, Blob> entry : blobs.entrySet()) {
+                entry.getValue().transferTo(new File(parent, entry.getKey()));
+            }
+
+            // write external documents
+            for (Map.Entry<String, Document> entry : doc.getDocuments().entrySet()) {
+
+                writer = new XMLWriter(new FileOutputStream(new File(parent,
+                        entry.getKey() + ".xml")), format);
+                writer.write(entry.getValue());
+                writer.close();
+            }
+
+            Properties metadata = getDocumentMetadata(session, document);
+
+            File metadataFile = new File(parent, "metadata.properties");
+            metadata.store(new FileOutputStream(metadataFile),
+                    "Document Metadata");
+
+        } catch (Exception e) {
+            LOG.error(e);
+            throw new IOException(e.getMessage());
+        }
         return null;
     }
 
