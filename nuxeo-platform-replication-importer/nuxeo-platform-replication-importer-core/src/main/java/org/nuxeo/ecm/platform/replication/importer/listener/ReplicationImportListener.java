@@ -33,9 +33,9 @@ import org.nuxeo.runtime.api.Framework;
 
 /**
  * Listener used to start the replication import process asynchronous.
- * 
+ *
  * @author btatar
- * 
+ *
  */
 public class ReplicationImportListener implements EventListener {
 
@@ -61,7 +61,7 @@ public class ReplicationImportListener implements EventListener {
             boolean useMultiThread = (Boolean) context.getProperty(REPLICATION_IMPORT_USE_MULTI_THREAD);
             StatusListener listener = (StatusListener) context.getProperty(IMPORT_LISTENER);
             importService.setListener(listener);
-            importService.importDocuments(context.getCoreSession(), null, new File(path), true,
+            importService.importDocuments(null, new File(path), true,
                     true, true, useMultiThread);
         }
     }

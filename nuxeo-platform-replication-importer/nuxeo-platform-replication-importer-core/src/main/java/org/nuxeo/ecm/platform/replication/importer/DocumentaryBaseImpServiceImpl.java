@@ -27,11 +27,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
+import org.nuxeo.ecm.core.event.EventServiceAdmin;
 import org.nuxeo.ecm.platform.importer.base.GenericMultiThreadedImporter;
 import org.nuxeo.ecm.platform.importer.executor.AbstractImporterExecutor;
 import org.nuxeo.ecm.platform.importer.filter.EventServiceConfiguratorFilter;
 import org.nuxeo.ecm.platform.importer.filter.ImporterFilter;
 import org.nuxeo.ecm.platform.replication.common.StatusListener;
+import org.nuxeo.runtime.api.Framework;
 
 /**
  * Implementation for import documentary base service.
@@ -42,8 +44,6 @@ import org.nuxeo.ecm.platform.replication.common.StatusListener;
 public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
         implements DocumentaryBaseImporterService {
     private static final Log log = LogFactory.getLog(DocumentaryBaseImpServiceImpl.class);
-
-    protected CoreSession session;
 
     private StatusListener listener;
 
@@ -57,23 +57,24 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
         this.xmlTransformer = xmlTransformer;
     }
 
-    public void importDocuments(CoreSession session,
-            Map<String, Serializable> parameter, File path, boolean resume,
+    public void importDocuments(Map<String, Serializable> parameter, File path, boolean resume,
             boolean exportVersions, boolean exportProxies,
             boolean useMultiThread) throws ClientException {
-        this.session = session;
+        //this.session = session;
         // we need to import the documentary base in order: usual documents,
         // versions, proxies
         File usualDocumentsRoot = new File(path.getPath() + File.separator
                 + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
                 + USUAL_DOCUMENTS_LOCATION_NAME);
         doSynchronImport(usualDocumentsRoot, false, useMultiThread);
+
         File versionsRoot = new File(path.getPath() + File.separator
                 + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
                 + VERSIONS_LOCATION_NAME);
         if (versionsRoot.exists()) {
             doSynchronImport(versionsRoot, false, useMultiThread);
         }
+
         File proxiesRoot = new File(path.getPath() + File.separator
                 + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
                 + USUAL_DOCUMENTS_LOCATION_NAME);
@@ -107,12 +108,6 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
         } catch (Exception e) {
             throw new ClientException(e);
         }
-
-    }
-
-    @Override
-    protected CoreSession getCoreSession() {
-        return session;
     }
 
     @Override

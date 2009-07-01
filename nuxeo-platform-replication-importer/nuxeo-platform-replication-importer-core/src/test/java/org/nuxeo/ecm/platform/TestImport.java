@@ -10,7 +10,6 @@ import java.util.zip.ZipFile;
 
 import org.nuxeo.common.utils.FileUtils;
 import org.nuxeo.common.utils.Path;
-import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentModelList;
 import org.nuxeo.ecm.core.api.IdRef;
@@ -73,8 +72,7 @@ public class TestImport extends SQLRepositoryTestCase {
         File archiveDir = getArchiveFile();
         assertTrue(archiveDir.exists());
         assertTrue(archiveDir.list().length>0);
-        importer.importDocuments(session, null, archiveDir, false, true, true, false);
-
+        importer.importDocuments(null, archiveDir, false, true, true, false);
         root = session.getRootDocument();
         assertNotNull(root);
 
@@ -93,6 +91,21 @@ public class TestImport extends SQLRepositoryTestCase {
         children = session.getChildren(root.getRef());
         assertEquals(1,children.size());
         session.hasChildren(new IdRef("c114da8f-cb7c-424d-9419-3f483db2390a"));
+
+    }
+
+
+    public void testDoubleImport() throws Exception {
+
+        testImport();
+        DocumentaryBaseImporterService importer = Framework.getLocalService(DocumentaryBaseImporterService.class);
+        assertNotNull(importer);
+
+        File archiveDir = getArchiveFile();
+        assertTrue(archiveDir.exists());
+        assertTrue(archiveDir.list().length>0);
+        importer.importDocuments(null, archiveDir, false, true, true, false);
+        session.getRootDocument();
 
     }
 

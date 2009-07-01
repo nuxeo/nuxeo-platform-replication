@@ -26,8 +26,7 @@
     </dependency>
     <dependency>
       <groupId>org.nuxeo.ecm.platform</groupId>
-      <artifactId>nuxeo-platform-replication-importer-api
-      </artifactId>
+      <artifactId>nuxeo-platform-replication-importer-api</artifactId>
       <version>5.2.1-SNAPSHOT</version>
     </dependency>
     <dependency>
@@ -40,6 +39,11 @@
       <artifactId>dom4j</artifactId>
     </dependency>
     <dependency>
+      <groupId>jaxen</groupId>
+      <artifactId>jaxen</artifactId>
+      <version>1.1-beta-6</version>
+    </dependency>
+    <dependency>
       <groupId>org.nuxeo.ecm.platform</groupId>
       <artifactId>nuxeo-platform-replication-common-api</artifactId>
       <version>5.2.1-SNAPSHOT</version>
@@ -48,7 +52,6 @@
       <groupId>org.nuxeo.ecm.core</groupId>
       <artifactId>nuxeo-core-storage-sql-test</artifactId>
       <version>1.5.1-SNAPSHOT</version>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>

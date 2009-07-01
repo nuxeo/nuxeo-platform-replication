@@ -30,9 +30,12 @@ import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.nuxeo.common.utils.Path;
+import org.nuxeo.ecm.core.NXCore;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
+import org.nuxeo.ecm.core.api.DocumentModelList;
+import org.nuxeo.ecm.core.api.DocumentRef;
 import org.nuxeo.ecm.core.api.impl.blob.StreamingBlob;
 import org.nuxeo.ecm.core.api.security.ACE;
 import org.nuxeo.ecm.core.api.security.ACL;
@@ -44,6 +47,10 @@ import org.nuxeo.ecm.core.io.ExportConstants;
 import org.nuxeo.ecm.core.io.ExportedDocument;
 import org.nuxeo.ecm.core.io.impl.ExportedDocumentImpl;
 import org.nuxeo.ecm.core.io.impl.plugins.DocumentModelWriter;
+import org.nuxeo.ecm.core.model.NoSuchRepositoryException;
+import org.nuxeo.ecm.core.model.Repository;
+import org.nuxeo.ecm.core.storage.sql.RepositoryManagement;
+import org.nuxeo.ecm.platform.importer.base.TxHelper;
 import org.nuxeo.ecm.platform.importer.factories.ImporterDocumentModelFactory;
 import org.nuxeo.ecm.platform.importer.source.SourceNode;
 import org.nuxeo.ecm.platform.replication.common.StatusListener;
@@ -52,9 +59,9 @@ import org.nuxeo.runtime.services.streaming.FileSource;
 /**
  * Implements the document model factory as for replication needs. It core
  * imports document and sets the document properties.
- * 
+ *
  * @author rux
- * 
+ *
  */
 public class ReplicationDocumentModelFactory implements
         ImporterDocumentModelFactory {
@@ -85,6 +92,7 @@ public class ReplicationDocumentModelFactory implements
         this.fileNode = node;
         this.session = session;
         this.parent = parent;
+        log.info("importing folder " + node.getName());
         return importDocument();
     }
 
@@ -93,11 +101,58 @@ public class ReplicationDocumentModelFactory implements
         this.fileNode = node;
         this.session = session;
         this.parent = parent;
+        log.info("importing leaf " + node.getName());
         return importDocument();
     }
 
     public boolean isTargetDocumentModelFolderish(SourceNode node) {
         return node.isFolderish();
+    }
+
+    protected void removeChildrenDepthFirst(DocumentRef ref) throws ClientException {
+        DocumentModelList children = session.getChildren(ref);
+        for (DocumentModel child : children) {
+            removeChildrenDepthFirst(child.getRef());
+            session.removeDocument(child.getRef());
+        }
+    }
+
+    protected void removeChildrenLowLevel(DocumentRef ref) throws ClientException {
+        session.removeChildren(ref);
+        session.save();
+        log.info("cleaned up Root before the import begins");
+        TxHelper txHelper = new TxHelper();
+        txHelper.grabCurrentTransaction(null);
+        txHelper.commitOrRollbackTransaction();
+        log.info("commited transaction before fushing cache");
+        try {
+            Repository repository = NXCore.getRepository(session.getRepositoryName());
+            if (repository instanceof RepositoryManagement) {
+                RepositoryManagement sqlRepoMng = (RepositoryManagement) repository;
+                sqlRepoMng.clearCaches();
+            } else {
+                log.error("Can not clear cache since this is not a VCS repo");
+                throw new ClientException("Can only import in a VCS repository");
+            }
+        } catch (NoSuchRepositoryException e) {
+            log.warn("Error clearing SQL repo caches (may be normal in non JEE environment)", e);
+        }
+        log.info("starts new transaction");
+        txHelper.beginNewTransaction();
+    }
+
+
+    protected DocumentModel cleanUpRoot() throws ClientException {
+        DocumentModel root = session.getRootDocument();
+        removeChildrenDepthFirst(root.getRef());
+        session.save();
+        TxHelper txHelper = new TxHelper();
+        txHelper.grabCurrentTransaction(null);
+        txHelper.commitOrRollbackTransaction();
+        log.info("starts new transaction");
+        txHelper.beginNewTransaction();
+        //removeChildrenLowLevel(root.getRef());
+        return root;
     }
 
     protected DocumentModel importDocument() throws ClientException,
@@ -144,10 +199,13 @@ public class ReplicationDocumentModelFactory implements
                     ((Element) xdoc.getDocument().selectNodes(
                             "//system/lifecycle-policy").get(0)).getText());
             documentModel = coreImportDocument(xdoc, properties);
-            loadSystemInfo(documentModel, xdoc.getDocument()); 
+            loadSystemInfo(documentModel, xdoc.getDocument());
         } else {
-            documentModel = session.getRootDocument();
-            session.removeChildren(documentModel.getRef());
+            if (importProxies) {
+                return session.getRootDocument();
+            } else {
+                return cleanUpRoot();
+            }
         }
 
         sendStatus(StatusListener.DOC_PROCESS_SUCCESS, documentModel);

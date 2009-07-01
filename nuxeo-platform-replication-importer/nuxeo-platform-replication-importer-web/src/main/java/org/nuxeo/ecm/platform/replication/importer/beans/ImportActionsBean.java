@@ -17,6 +17,7 @@
  */
 package org.nuxeo.ecm.platform.replication.importer.beans;
 
+import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.REPLICATION_IMPORT_USE_MULTI_THREAD;
 import java.io.File;
 import java.io.Serializable;
 
@@ -36,9 +37,9 @@ import org.nuxeo.runtime.api.Framework;
 /**
  * Seam component used to perform the import of documents in the process of
  * replication.
- * 
+ *
  * @author btatar
- * 
+ *
  */
 @Scope(ScopeType.SESSION)
 @Name("importActions")
@@ -77,7 +78,7 @@ public class ImportActionsBean implements Serializable, StatusListener {
 
     /**
      * Performs the replication import process.
-     * 
+     *
      * @return
      * @throws ClientException
      */
@@ -85,7 +86,7 @@ public class ImportActionsBean implements Serializable, StatusListener {
         log.debug("Starting replication import process...");
         setDone(false);
         setFileCount(0);
-        importService.importDocuments(documentManager, null, new File(path),
+        importService.importDocuments(null, new File(path),
                 true, true, true, useMultiThread);
         return null;
     }
