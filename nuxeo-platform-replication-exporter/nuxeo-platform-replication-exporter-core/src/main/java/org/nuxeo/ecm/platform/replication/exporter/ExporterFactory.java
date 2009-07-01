@@ -14,19 +14,26 @@
  */
 package org.nuxeo.ecm.platform.replication.exporter;
 
+import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.management.AbstractResourceFactory;
 import org.nuxeo.runtime.management.ObjectNameFactory;
 
 /**
  * Required for MBean
+ *
  * @author cpriceputu@nuxeo.com
  *
  */
 public class ExporterFactory extends AbstractResourceFactory {
 
     public void registerResources() {
-        DocumentaryBaseExpServiceImpl instance = new DocumentaryBaseExpServiceImpl();
-        service.registerResource("Exporter",
+        DocumentaryBaseExporterService instance = null;
+        try {
+            instance = Framework.getService(DocumentaryBaseExporterService.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        service.registerResource("ExporterService",
                 ObjectNameFactory.formatQualifiedName("ExporterService"),
                 DocumentaryBaseExpServiceImplMBean.class, instance);
     }
