@@ -13,13 +13,14 @@
  *
  */
 
-package org.nuxeo.ecm.platform.replication.exporter.api;
+package org.nuxeo.ecm.platform.replication.exporter;
 
 import java.io.File;
 import java.io.Serializable;
 import java.util.Map;
 
 import org.nuxeo.ecm.core.api.ClientException;
+import org.nuxeo.ecm.platform.replication.common.StatusListener;
 
 /**
  * The service which exports the documentary base. The system replication is
@@ -64,7 +65,14 @@ public interface DocumentaryBaseExporterService {
             File path, boolean resume, boolean exportVersions,
             boolean exportProxies) throws ClientException;
 
+    /**
+     * Stops the export
+     */
     public void stop();
 
+    /**
+     * Sets a listener that receives misc events
+     * @param listener
+     */
     public void setListener(StatusListener listener);
 }

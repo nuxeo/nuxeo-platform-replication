@@ -21,7 +21,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.nuxeo.ecm.core.api.ClientException;
-import org.nuxeo.ecm.platform.replication.exporter.api.StatusListener;
+import org.nuxeo.ecm.platform.replication.common.StatusListener;
 
 /**
  * Implementation for export documentary base service.
@@ -39,6 +39,8 @@ public class DocumentaryBaseExpServiceImpl // extends ServiceMBeanSupport
 
     private StatusListener listener = null;
 
+    private File path = null;
+
     public DocumentaryBaseExpServiceImpl() {
 
     }
@@ -47,6 +49,7 @@ public class DocumentaryBaseExpServiceImpl // extends ServiceMBeanSupport
             File path, boolean resume, boolean exportVersions,
             boolean exportProxies) throws ClientException {
         setDomain(domain);
+        setPath(path);
         // TODO add all stuff;
 
         new Thread(this).start();
@@ -55,7 +58,7 @@ public class DocumentaryBaseExpServiceImpl // extends ServiceMBeanSupport
     public void run() {
         stop();
         try {
-            exp = new UnrestrictedExporter(domain);
+            exp = new UnrestrictedExporter(domain, getPath());
             exp.setListener(listener);
             exp.runUnrestricted();
         } catch (Exception e) {
@@ -80,5 +83,13 @@ public class DocumentaryBaseExpServiceImpl // extends ServiceMBeanSupport
 
     public void setListener(StatusListener listener) {
         this.listener = listener;
+    }
+
+    public void setPath(File path) {
+        this.path = path;
+    }
+
+    public File getPath() {
+        return path;
     }
 }

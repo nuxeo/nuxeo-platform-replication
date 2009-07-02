@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 1
 Bundle-Name: Nuxeo Platform Replication Exporter API
 Bundle-SymbolicName: org.nuxeo.ecm.platform.replication.exporter.api;singleton:=true
-Export-Package: org.nuxeo.ecm.platform.replication.exporter.api
+Export-Package: org.nuxeo.ecm.platform.replication.exporter
 Require-Bundle: org.nuxeo.ecm.core.api,
  org.nuxeo.ecm.core,
  org.nuxeo.ecm.core.schema,

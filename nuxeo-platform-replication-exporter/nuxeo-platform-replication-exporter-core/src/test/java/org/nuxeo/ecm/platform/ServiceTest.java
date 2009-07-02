@@ -7,9 +7,9 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.storage.sql.SQLRepositoryTestCase;
+import org.nuxeo.ecm.platform.replication.common.StatusListener;
 import org.nuxeo.ecm.platform.replication.exporter.DocumentaryBaseExpServiceImpl;
-import org.nuxeo.ecm.platform.replication.exporter.api.DocumentaryBaseExporterService;
-import org.nuxeo.ecm.platform.replication.exporter.api.StatusListener;
+import org.nuxeo.ecm.platform.replication.exporter.DocumentaryBaseExporterService;
 
 public class ServiceTest extends SQLRepositoryTestCase {
     public static final String SCHEMA_BUNDLE = "org.nuxeo.ecm.core.schema";
@@ -104,6 +104,7 @@ public class ServiceTest extends SQLRepositoryTestCase {
 
         srv.export("test", null, new File(System.getProperty("user.home"),
                 "test.folder"), true, true, true);
+        //System.exit(0);
     }
 
     public static void main(String[] args) throws Exception {

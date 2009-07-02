@@ -27,12 +27,7 @@
     <dependency>
       <groupId>org.nuxeo.runtime</groupId>
       <artifactId>nuxeo-runtime</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.nuxeo.ecm.core</groupId>
-      <artifactId>nuxeo-core-api</artifactId>
-    </dependency>
-    
+    </dependency>     
     <dependency>
       <groupId>org.nuxeo.ecm.platform</groupId>
       <artifactId>nuxeo-platform-replication-exporter-api
@@ -41,21 +36,18 @@
     </dependency>
     <dependency>
       <groupId>org.nuxeo.ecm.platform</groupId>
-      <artifactId>nuxeo-platform-replication-common-api
-      </artifactId>
+      <artifactId>nuxeo-platform-replication-common-api</artifactId>
       <version>5.1.6</version>
-    </dependency>    
+    </dependency>   
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
-    </dependency>   
+    </dependency>     
     <dependency>
       <groupId>dom4j</groupId>
       <artifactId>dom4j</artifactId>
-    </dependency>         
-       
-    <!-- Testing
-    
+    </dependency> 
+    <!--      
     <dependency>
       <groupId>org.nuxeo.ecm.platform</groupId>
       <artifactId>nuxeo-platform-versioning-api</artifactId>
@@ -98,8 +90,8 @@
       <artifactId>nuxeo-platform-comment-core</artifactId>
       <scope>test</scope>
     </dependency>
- -->    
-
+    -->
+    
 
     <!--  MBean Stuff -->
     <dependency>

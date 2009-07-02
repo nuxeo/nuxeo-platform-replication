@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2009 Nuxeo SAS (http://nuxeo.com/) and contributors.
+ * (C) Copyright 2009 Nuxeo SA (http://nuxeo.com/) and contributors.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Lesser General Public License
@@ -12,10 +12,11 @@
  * Lesser General Public License for more details.
  *
  */
+
 package org.nuxeo.ecm.platform.replication.common;
 
 /**
- * Utility class used for constants.
+ * Utility class used for registering constants.
  * 
  * @author btatar
  * 
@@ -23,9 +24,8 @@ package org.nuxeo.ecm.platform.replication.common;
 public class ReplicationConstants {
 
     private ReplicationConstants() {
-
     }
-    
+
     public static final String METADATA_FILE_NAME = "metadata.properties";
 
     public static final String DOCUMENT_FILE_NAME = "document.xml";
@@ -44,7 +44,9 @@ public class ReplicationConstants {
 
     public static final String REPLICATION_IMPORT_PATH = "path";
 
-    public static final String IMPORT_LISTENER = "importListener";    
+    public static final String IMPORT_LISTENER = "importListener";
+
+    public static final String REPLICATION_IMPORT_USE_MULTI_THREAD = "useMultiThread";
 
     // used to pass properties to importDocument
     public static final String IMPORT_VERSION_VERSIONABLE_ID = "ecm:versionableId";
