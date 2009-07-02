@@ -6,6 +6,7 @@ import java.util.Iterator;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
+import org.nuxeo.ecm.core.api.DocumentModelList;
 import org.nuxeo.ecm.core.io.ExportedDocument;
 import org.nuxeo.ecm.core.io.impl.ExportedDocumentImpl;
 import org.nuxeo.ecm.core.io.impl.plugins.DocumentModelReader;
@@ -16,7 +17,9 @@ public class ReplicationReader extends DocumentModelReader {
 
     protected ReplicationReader(CoreSession session) throws ClientException {
         super(session);
-        iterator = session.query("SELECT * FROM Document").iterator();
+        DocumentModelList list = session.query("SELECT * FROM Document");
+        list.add(session.getRootDocument());
+        iterator = list.iterator();
     }
 
     @Override
