@@ -17,15 +17,14 @@ package org.nuxeo.ecm.platform.replication.exporter;
 import java.io.File;
 
 import org.nuxeo.ecm.core.api.ClientException;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.core.api.UnrestrictedSessionRunner;
+import org.nuxeo.ecm.core.io.DocumentReader;
 import org.nuxeo.ecm.core.io.DocumentWriter;
-import org.nuxeo.ecm.core.io.impl.plugins.DocumentTreeReader;
 import org.nuxeo.ecm.platform.replication.common.StatusListener;
 
 /**
  * Used to run as system.
+ *
  * @author cpriceputu@nuxeo.com
  *
  */
@@ -44,10 +43,8 @@ public class UnrestrictedExporter extends UnrestrictedSessionRunner {
     @Override
     public void run() throws ClientException {
         try {
-            DocumentModel root = session.getDocument(new PathRef("/"));
-            DocumentTreeReader reader = new DocumentTreeReader(session, root,
-                    false);
-            // ((DocumentModelReader)reader).setInlineBlobs(true);
+
+            DocumentReader reader = new ReplicationReader(session);
             DocumentWriter writer = new ReplicationWriter(path, session);
 
             pipe = new ReplicationPipe(10);
