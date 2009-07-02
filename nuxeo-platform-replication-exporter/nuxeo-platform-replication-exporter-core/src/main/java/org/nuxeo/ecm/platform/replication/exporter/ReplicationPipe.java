@@ -32,6 +32,7 @@ import org.nuxeo.ecm.platform.replication.common.StatusListener;
 
 /**
  * Extension of basic DocumentPipeImpl to allow multithreading
+ *
  * @author cpriceputu@nuxeo.com
  *
  */
@@ -72,6 +73,9 @@ public class ReplicationPipe extends DocumentPipeImpl {
         }
 
         running = true;
+        if (listener != null) {
+            listener.onUpdateStatus(StatusListener.STARTED);
+        }
 
         List<DocumentTranslationMap> maps = new Vector<DocumentTranslationMap>();
         readAndWriteDocs(maps);

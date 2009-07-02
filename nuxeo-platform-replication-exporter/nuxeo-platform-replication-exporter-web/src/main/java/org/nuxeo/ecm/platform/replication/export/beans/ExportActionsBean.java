@@ -68,11 +68,17 @@ public class ExportActionsBean implements Serializable, StatusListener {
     @In(create = true)
     protected transient ResourcesAccessor resourcesAccessor;
 
+    private long startTime = 0;
+
+    private long endTime = 0;
+
     private DocumentaryBaseExporterService exportService = null;
 
     private String repo;
 
-    private int fileCount = 0;
+    private long fileCount = 0;
+
+    private long oldFileCount = 0;
 
     private boolean done = false;
 
@@ -115,8 +121,29 @@ public class ExportActionsBean implements Serializable, StatusListener {
                 fileCount++;
             }
 
+            endTime = System.currentTimeMillis();
+            long time = Math.abs(endTime - startTime) / 1000;
+
+            if (endTime - startTime > 10000) {
+                LOG.info("Documents Exported: " + fileCount);
+                LOG.info("Docs/sec : " + ((fileCount - oldFileCount) / time));
+
+                endTime = startTime;
+                oldFileCount = fileCount;
+            }
+
         } else if ((Integer) params[0] == StatusListener.DONE) {
             setDone(true);
+
+            endTime = System.currentTimeMillis();
+            long time = Math.abs(endTime - startTime) / 1000;
+            LOG.info("Documents Exported: " + fileCount);
+            LOG.info("Docs/sec : " + ((fileCount - oldFileCount) / time));
+
+        } else if ((Integer) params[0] == StatusListener.STARTED) {
+            startTime = System.currentTimeMillis();
+            fileCount = 0;
+            oldFileCount = 1;
         }
 
     }
@@ -141,7 +168,7 @@ public class ExportActionsBean implements Serializable, StatusListener {
         this.fileCount = fileCount;
     }
 
-    public int getFileCount() {
+    public long getFileCount() {
         return fileCount;
     }
 
