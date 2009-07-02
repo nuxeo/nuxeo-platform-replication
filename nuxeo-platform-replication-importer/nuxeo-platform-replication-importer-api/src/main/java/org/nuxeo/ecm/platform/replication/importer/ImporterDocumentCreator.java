@@ -227,9 +227,6 @@ public class ImporterDocumentCreator {
                 properties.getProperty(CoreSession.IMPORT_LIFECYCLE_STATE));
         document.putContextData(CoreSession.IMPORT_LIFECYCLE_POLICY,
                 properties.getProperty(CoreSession.IMPORT_LIFECYCLE_POLICY));
-
-        session.importDocuments(Collections.singletonList(document));
-        session.save();
         return document;
 
     }
@@ -265,8 +262,6 @@ public class ImporterDocumentCreator {
         document.putContextData(CoreSession.IMPORT_PROXY_VERSIONABLE_ID,
                 properties.getProperty(CoreSession.IMPORT_PROXY_VERSIONABLE_ID));
 
-        session.importDocuments(Collections.singletonList(document));
-        session.save();
         return document;
 
     }

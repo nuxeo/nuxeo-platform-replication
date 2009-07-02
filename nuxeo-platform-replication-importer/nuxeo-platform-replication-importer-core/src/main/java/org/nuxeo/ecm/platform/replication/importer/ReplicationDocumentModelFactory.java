@@ -16,6 +16,7 @@
 package org.nuxeo.ecm.platform.replication.importer;
 
 import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.METADATA_FILE_NAME;
+import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.VERSIONS_LOCATION_NAME;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -46,7 +47,6 @@ import org.nuxeo.ecm.core.io.DocumentWriter;
 import org.nuxeo.ecm.core.io.ExportConstants;
 import org.nuxeo.ecm.core.io.ExportedDocument;
 import org.nuxeo.ecm.core.io.impl.ExportedDocumentImpl;
-import org.nuxeo.ecm.core.io.impl.plugins.DocumentModelWriter;
 import org.nuxeo.ecm.core.model.NoSuchRepositoryException;
 import org.nuxeo.ecm.core.model.Repository;
 import org.nuxeo.ecm.core.storage.sql.RepositoryManagement;
@@ -59,9 +59,9 @@ import org.nuxeo.runtime.services.streaming.FileSource;
 /**
  * Implements the document model factory as for replication needs. It core
  * imports document and sets the document properties.
- *
+ * 
  * @author rux
- *
+ * 
  */
 public class ReplicationDocumentModelFactory implements
         ImporterDocumentModelFactory {
@@ -69,8 +69,6 @@ public class ReplicationDocumentModelFactory implements
     private static final Log log = LogFactory.getLog(ReplicationDocumentModelFactory.class);
 
     protected CoreSession session;
-
-    protected DocumentModel parent;
 
     protected SourceNode fileNode;
 
@@ -91,7 +89,6 @@ public class ReplicationDocumentModelFactory implements
             DocumentModel parent, SourceNode node) throws Exception {
         this.fileNode = node;
         this.session = session;
-        this.parent = parent;
         log.info("importing folder " + node.getName());
         return importDocument();
     }
@@ -100,7 +97,6 @@ public class ReplicationDocumentModelFactory implements
             DocumentModel parent, SourceNode node) throws Exception {
         this.fileNode = node;
         this.session = session;
-        this.parent = parent;
         log.info("importing leaf " + node.getName());
         return importDocument();
     }
@@ -109,7 +105,8 @@ public class ReplicationDocumentModelFactory implements
         return node.isFolderish();
     }
 
-    protected void removeChildrenDepthFirst(DocumentRef ref) throws ClientException {
+    protected void removeChildrenDepthFirst(DocumentRef ref)
+            throws ClientException {
         DocumentModelList children = session.getChildren(ref);
         for (DocumentModel child : children) {
             removeChildrenDepthFirst(child.getRef());
@@ -117,7 +114,8 @@ public class ReplicationDocumentModelFactory implements
         }
     }
 
-    protected void removeChildrenLowLevel(DocumentRef ref) throws ClientException {
+    protected void removeChildrenLowLevel(DocumentRef ref)
+            throws ClientException {
         session.removeChildren(ref);
         session.save();
         log.info("cleaned up Root before the import begins");
@@ -135,12 +133,13 @@ public class ReplicationDocumentModelFactory implements
                 throw new ClientException("Can only import in a VCS repository");
             }
         } catch (NoSuchRepositoryException e) {
-            log.warn("Error clearing SQL repo caches (may be normal in non JEE environment)", e);
+            log.warn(
+                    "Error clearing SQL repo caches (may be normal in non JEE environment)",
+                    e);
         }
         log.info("starts new transaction");
         txHelper.beginNewTransaction();
     }
-
 
     protected DocumentModel cleanUpRoot() throws ClientException {
         DocumentModel root = session.getRootDocument();
@@ -151,13 +150,15 @@ public class ReplicationDocumentModelFactory implements
         txHelper.commitOrRollbackTransaction();
         log.info("starts new transaction");
         txHelper.beginNewTransaction();
-        //removeChildrenLowLevel(root.getRef());
+        // removeChildrenLowLevel(root.getRef());
         return root;
     }
 
     protected DocumentModel importDocument() throws ClientException,
             IOException {
-
+        if (fileNode.getName().endsWith(VERSIONS_LOCATION_NAME)) {
+            return null;
+        }
         ExportedDocument xdoc = new ExportedDocumentImpl();
         try {
             xdoc.setDocument(ImporterDocumentCreator.loadXML(new File(
@@ -192,13 +193,11 @@ public class ReplicationDocumentModelFactory implements
         DocumentModel documentModel = null;
         if (!xdoc.getType().equals("Root")) {
             xdoc.setPath(new Path(new File(fileNode.getName()).getName()));
-            properties.put(CoreSession.IMPORT_LIFECYCLE_STATE,
-                    ((Element) xdoc.getDocument().selectNodes(
-                            "//system/lifecycle-state").get(0)).getText());
-            properties.put(CoreSession.IMPORT_LIFECYCLE_POLICY,
-                    ((Element) xdoc.getDocument().selectNodes(
-                            "//system/lifecycle-policy").get(0)).getText());
-            documentModel = coreImportDocument(xdoc, properties);
+            Path path = new Path(((Element) xdoc.getDocument().selectNodes(
+                    "//system/path").get(0)).getText());
+            path = path.removeLastSegments(1);
+            documentModel = coreImportDocument(xdoc, path.toString(),
+                    properties);
             loadSystemInfo(documentModel, xdoc.getDocument());
         } else {
             if (importProxies) {
@@ -211,8 +210,8 @@ public class ReplicationDocumentModelFactory implements
         sendStatus(StatusListener.DOC_PROCESS_SUCCESS, documentModel);
         // update document properties, basicaly set up the blobs and update
 
-        DocumentWriter writer = new DocumentModelWriter(session,
-                parent.getPathAsString(), 1);
+        DocumentWriter writer = new ReplicationDocumentModelWriter(session,
+                documentModel, 1);
 
         File[] blobFiles = new File(fileNode.getName()).listFiles(new FilenameFilter() {
 
@@ -234,13 +233,13 @@ public class ReplicationDocumentModelFactory implements
     }
 
     protected DocumentModel coreImportDocument(ExportedDocument doc,
-            Properties properties) throws ClientException {
+            String parentPath, Properties properties) throws ClientException {
         // hack to obtain the name of the document: get the file path; later get
         // the name
         File currentDocumentFile = new File(fileNode.getName());
         return ImporterDocumentCreator.importDocument(session, doc.getType(),
-                doc.getId(), currentDocumentFile.getName(),
-                parent != null ? parent.getPathAsString() : null, properties);
+                doc.getId(), currentDocumentFile.getName(), parentPath,
+                properties);
     }
 
     /**
@@ -286,7 +285,7 @@ public class ReplicationDocumentModelFactory implements
         Element system = doc.getRootElement().element(
                 ExportConstants.SYSTEM_TAG);
         Element accessControl = system.element(ExportConstants.ACCESS_CONTROL_TAG);
-        if (accessControl == null) {
+        if (docModel.getRef() == null || accessControl == null) {
             return;
         }
         Iterator<Element> it = accessControl.elementIterator(ExportConstants.ACL_TAG);
@@ -300,6 +299,28 @@ public class ReplicationDocumentModelFactory implements
                 if (size > 0) {
                     ACP acp = new ACPImpl();
                     ACL acl = new ACLImpl(ACL.LOCAL_ACL);
+                    acp.addACL(acl);
+                    for (int i = 0; i < size; i++) {
+                        Element el = entries.get(i);
+                        String username = el.attributeValue(ExportConstants.PRINCIPAL_ATTR);
+                        String permission = el.attributeValue(ExportConstants.PERMISSION_ATTR);
+                        String grant = el.attributeValue(ExportConstants.GRANT_ATTR);
+                        ACE ace = new ACE(username, permission,
+                                Boolean.parseBoolean(grant));
+                        acl.add(ace);
+                    }
+                    acp.addACL(acl);
+                    session.setACP(docModel.getRef(), acp, false);
+                }
+            }
+
+            if (ACL.INHERITED_ACL.equals(element.attributeValue(ExportConstants.NAME_ATTR))) {
+                // this is the local ACL - import it
+                List<Element> entries = element.elements();
+                int size = entries.size();
+                if (size > 0) {
+                    ACP acp = new ACPImpl();
+                    ACL acl = new ACLImpl(ACL.INHERITED_ACL);
                     acp.addACL(acl);
                     for (int i = 0; i < size; i++) {
                         Element el = entries.get(i);
