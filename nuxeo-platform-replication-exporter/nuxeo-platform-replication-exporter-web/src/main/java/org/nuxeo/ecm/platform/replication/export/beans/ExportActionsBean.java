@@ -26,7 +26,7 @@ import org.jboss.seam.annotations.Create;
 import org.jboss.seam.annotations.In;
 import org.jboss.seam.annotations.Name;
 import org.jboss.seam.annotations.Scope;
-import org.jboss.seam.core.FacesMessages;
+import org.jboss.seam.faces.FacesMessages;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.io.ExportedDocument;
@@ -101,6 +101,7 @@ public class ExportActionsBean implements Serializable, StatusListener {
 
 			endTime = System.currentTimeMillis();
 			long time = Math.abs(endTime - startTime) / 1000;
+			time = time != 0 ? time : 1;
 
 			if (endTime - startTime > 10000) {
 				LOG.info("Documents Exported: " + fileCount);
@@ -115,6 +116,7 @@ public class ExportActionsBean implements Serializable, StatusListener {
 
 			endTime = System.currentTimeMillis();
 			long time = Math.abs(endTime - startTime) / 1000;
+			time = time != 0 ? time : 1;
 			LOG.info("Export completed.");
 			LOG.info("Documents Exported: " + fileCount);
 			LOG.info("Docs/sec : " + ((fileCount - oldFileCount) / time));
