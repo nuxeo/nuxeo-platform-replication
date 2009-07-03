@@ -29,13 +29,9 @@ import org.jboss.seam.annotations.Scope;
 import org.jboss.seam.faces.FacesMessages;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.core.io.ExportedDocument;
-import org.nuxeo.ecm.platform.relations.web.listener.RelationActions;
 import org.nuxeo.ecm.platform.replication.common.StatusListener;
 import org.nuxeo.ecm.platform.replication.exporter.DocumentaryBaseExporterService;
-import org.nuxeo.ecm.platform.ui.web.api.NavigationContext;
 import org.nuxeo.ecm.webapp.helpers.ResourcesAccessor;
 import org.nuxeo.runtime.api.Framework;
 
@@ -53,14 +49,8 @@ public class ExportActionsBean implements Serializable, StatusListener {
 
     private static final long serialVersionUID = 1L;
 
-    @In(create = true)
-    private transient NavigationContext navigationContext;
-
     @In(create = true, required = false)
     private transient CoreSession documentManager;
-
-    @In(create = true, required = false)
-    private transient RelationActions relationActions;
 
     @In(create = true, required = false)
     protected transient FacesMessages facesMessages;
@@ -88,19 +78,6 @@ public class ExportActionsBean implements Serializable, StatusListener {
     public void initialize() throws Exception {
         exportService = Framework.getService(DocumentaryBaseExporterService.class);
         exportService.setListener(this);
-    }
-
-    private String goHome() {
-
-        DocumentModel root;
-        try {
-            root = documentManager.getDocument(new PathRef("/"));
-            navigationContext.setCurrentDocument(root);
-            return navigationContext.navigateToDocument(root);
-        } catch (ClientException e) {
-            e.printStackTrace();
-        }
-        return "home";
     }
 
     public String startExport() throws ClientException {
@@ -137,6 +114,7 @@ public class ExportActionsBean implements Serializable, StatusListener {
 
             endTime = System.currentTimeMillis();
             long time = Math.abs(endTime - startTime) / 1000;
+            LOG.info("Export completed.");
             LOG.info("Documents Exported: " + fileCount);
             LOG.info("Docs/sec : " + ((fileCount - oldFileCount) / time));
 

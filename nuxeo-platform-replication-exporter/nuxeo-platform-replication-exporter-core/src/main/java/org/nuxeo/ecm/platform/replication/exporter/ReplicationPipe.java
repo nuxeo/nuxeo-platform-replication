@@ -139,7 +139,7 @@ public class ReplicationPipe extends DocumentPipeImpl {
             done = executor.awaitTermination(1, TimeUnit.SECONDS);
         }
 
-        LOG.info("Done ...");
+        LOG.info("Multithread export finished...");
     }
 
     public void setListener(StatusListener listener) {
