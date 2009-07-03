@@ -67,6 +67,8 @@ public class ReplicationWriter extends XMLDirectoryWriter {
 
 	private CoreSession session = null;
 
+	private static final Object mutex = new Object();
+
 	public ReplicationWriter(File file, CoreSession session) throws IOException {
 		super(file);
 		this.session = session;
@@ -76,11 +78,11 @@ public class ReplicationWriter extends XMLDirectoryWriter {
 	public DocumentTranslationMap write(ExportedDocument doc)
 			throws IOException {
 
+		File parent = new File(getDestination().toString(),
+				DOCUMENTARY_BASE_LOCATION_NAME);
 		try {
 			DocumentModel document = session
 					.getDocument(new IdRef(doc.getId()));
-			File parent = new File(getDestination().toString(),
-					DOCUMENTARY_BASE_LOCATION_NAME);
 			OutputFormat format = OutputFormat.createPrettyPrint();
 
 			if (!document.isVersion()) {
@@ -91,7 +93,9 @@ public class ReplicationWriter extends XMLDirectoryWriter {
 				parent = new File(parent, document.getId());
 			}
 
-			parent.mkdirs();
+			synchronized (mutex) {
+				parent.mkdirs();
+			}
 
 			XMLWriter writer = new XMLWriter(new FileOutputStream(new File(
 					parent, "document.xml")), format);
@@ -120,7 +124,7 @@ public class ReplicationWriter extends XMLDirectoryWriter {
 					"Document Metadata");
 
 		} catch (Exception e) {
-			LOG.error(e);
+			LOG.error(parent.getAbsolutePath() + " missing!", e);
 			throw new IOException(e.getMessage());
 		}
 		return null;
