@@ -29,154 +29,133 @@ import org.jboss.seam.annotations.Scope;
 import org.jboss.seam.core.FacesMessages;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.core.io.ExportedDocument;
-import org.nuxeo.ecm.platform.relations.web.listener.RelationActions;
 import org.nuxeo.ecm.platform.replication.common.StatusListener;
 import org.nuxeo.ecm.platform.replication.exporter.DocumentaryBaseExporterService;
-import org.nuxeo.ecm.platform.ui.web.api.NavigationContext;
 import org.nuxeo.ecm.webapp.helpers.ResourcesAccessor;
 import org.nuxeo.runtime.api.Framework;
 
 /**
  *Export action bean
- *
+ * 
  * @author cpriceputu@nuxeo.com
- *
+ * 
  */
 @Scope(ScopeType.SESSION)
 @Name("exportActions")
 public class ExportActionsBean implements Serializable, StatusListener {
 
-    private static final Logger LOG = Logger.getLogger(ExportActionsBean.class);
+	private static final Logger LOG = Logger.getLogger(ExportActionsBean.class);
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    @In(create = true)
-    private transient NavigationContext navigationContext;
+	@In(create = true, required = false)
+	private transient CoreSession documentManager;
 
-    @In(create = true, required = false)
-    private transient CoreSession documentManager;
+	@In(create = true, required = false)
+	protected transient FacesMessages facesMessages;
 
-    @In(create = true, required = false)
-    private transient RelationActions relationActions;
+	@In(create = true)
+	protected transient ResourcesAccessor resourcesAccessor;
 
-    @In(create = true, required = false)
-    protected transient FacesMessages facesMessages;
+	private long startTime = 0;
 
-    @In(create = true)
-    protected transient ResourcesAccessor resourcesAccessor;
+	private long endTime = 0;
 
-    private long startTime = 0;
+	private DocumentaryBaseExporterService exportService = null;
 
-    private long endTime = 0;
+	private String repo;
 
-    private DocumentaryBaseExporterService exportService = null;
+	private long fileCount = 0;
 
-    private String repo;
+	private long oldFileCount = 0;
 
-    private long fileCount = 0;
+	private boolean done = false;
 
-    private long oldFileCount = 0;
+	private String path = null;
 
-    private boolean done = false;
+	@Create
+	public void initialize() throws Exception {
+		exportService = Framework
+				.getService(DocumentaryBaseExporterService.class);
+		exportService.setListener(this);
+	}
 
-    private String path = null;
+	public String startExport() throws ClientException {
+		setDone(false);
+		setFileCount(0);
 
-    @Create
-    public void initialize() throws Exception {
-        exportService = Framework.getService(DocumentaryBaseExporterService.class);
-        exportService.setListener(this);
-    }
+		exportService.export(documentManager.getRepositoryName(), null,
+				new File(getPath()), false, false, false);
 
-    private String goHome() {
+		return null;
+	}
 
-        DocumentModel root;
-        try {
-            root = documentManager.getDocument(new PathRef("/"));
-            navigationContext.setCurrentDocument(root);
-            return navigationContext.navigateToDocument(root);
-        } catch (ClientException e) {
-            e.printStackTrace();
-        }
-        return "home";
-    }
+	public void onUpdateStatus(Object... params) {
+		if ((Integer) params[0] == StatusListener.DOC_PROCESS_SUCCESS) {
+			if (params[1] instanceof ExportedDocument[]) {
+				fileCount += ((ExportedDocument[]) params[1]).length;
+			} else {
+				fileCount++;
+			}
 
-    public String startExport() throws ClientException {
-        setDone(false);
-        setFileCount(0);
+			endTime = System.currentTimeMillis();
+			long time = Math.abs(endTime - startTime) / 1000;
 
-        exportService.export(documentManager.getRepositoryName(), null,
-                new File(getPath()), false, false, false);
+			if (endTime - startTime > 10000) {
+				LOG.info("Documents Exported: " + fileCount);
+				LOG.info("Docs/sec : " + ((fileCount - oldFileCount) / time));
 
-        return null;
-    }
+				endTime = startTime;
+				oldFileCount = fileCount;
+			}
 
-    public void onUpdateStatus(Object... params) {
-        if ((Integer) params[0] == StatusListener.DOC_PROCESS_SUCCESS) {
-            if (params[1] instanceof ExportedDocument[]) {
-                fileCount += ((ExportedDocument[]) params[1]).length;
-            } else {
-                fileCount++;
-            }
+		} else if ((Integer) params[0] == StatusListener.DONE) {
+			setDone(true);
 
-            endTime = System.currentTimeMillis();
-            long time = Math.abs(endTime - startTime) / 1000;
+			endTime = System.currentTimeMillis();
+			long time = Math.abs(endTime - startTime) / 1000;
+			LOG.info("Export completed.");
+			LOG.info("Documents Exported: " + fileCount);
+			LOG.info("Docs/sec : " + ((fileCount - oldFileCount) / time));
 
-            if (endTime - startTime > 10000) {
-                LOG.info("Documents Exported: " + fileCount);
-                LOG.info("Docs/sec : " + ((fileCount - oldFileCount) / time));
+		} else if ((Integer) params[0] == StatusListener.STARTED) {
+			startTime = System.currentTimeMillis();
+			fileCount = 0;
+			oldFileCount = 1;
+		}
 
-                endTime = startTime;
-                oldFileCount = fileCount;
-            }
+	}
 
-        } else if ((Integer) params[0] == StatusListener.DONE) {
-            setDone(true);
+	public void setRepo(String repo) {
+		this.repo = repo;
+	}
 
-            endTime = System.currentTimeMillis();
-            long time = Math.abs(endTime - startTime) / 1000;
-            LOG.info("Documents Exported: " + fileCount);
-            LOG.info("Docs/sec : " + ((fileCount - oldFileCount) / time));
+	public String getRepo() {
+		return repo;
+	}
 
-        } else if ((Integer) params[0] == StatusListener.STARTED) {
-            startTime = System.currentTimeMillis();
-            fileCount = 0;
-            oldFileCount = 1;
-        }
+	public void setPath(String path) {
+		this.path = path;
+	}
 
-    }
+	public String getPath() {
+		return path;
+	}
 
-    public void setRepo(String repo) {
-        this.repo = repo;
-    }
+	public void setFileCount(int fileCount) {
+		this.fileCount = fileCount;
+	}
 
-    public String getRepo() {
-        return repo;
-    }
+	public long getFileCount() {
+		return fileCount;
+	}
 
-    public void setPath(String path) {
-        this.path = path;
-    }
+	public boolean getDone() {
+		return done;
+	}
 
-    public String getPath() {
-        return path;
-    }
-
-    public void setFileCount(int fileCount) {
-        this.fileCount = fileCount;
-    }
-
-    public long getFileCount() {
-        return fileCount;
-    }
-
-    public boolean getDone() {
-        return done;
-    }
-
-    public void setDone(boolean done) {
-        this.done = done;
-    }
+	public void setDone(boolean done) {
+		this.done = done;
+	}
 }
