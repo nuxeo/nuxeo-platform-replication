@@ -14,26 +14,25 @@
  */
 package org.nuxeo.ecm.platform.replication.exporter;
 
-
 /**
  * Required for MBean
- *
+ * 
  * @author cpriceputu@nuxeo.com
- *
+ * 
  */
-public class ExporterFactory { 
-//extends AbstractResourceFactory {
-//
-//    public void registerResources() {
-//        DocumentaryBaseExporterService instance = null;
-//        try {
-//            instance = Framework.getService(DocumentaryBaseExporterService.class);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        service.registerResource("ExporterService",
-//                ObjectNameFactory.formatQualifiedName("ExporterService"),
-//                DocumentaryBaseExpServiceImplMBean.class, instance);
-//    }
+public class ExporterFactory {
+	// extends AbstractResourceFactory {
+	//
+	// public void registerResources() {
+	// DocumentaryBaseExporterService instance = null;
+	// try {
+	// instance = Framework.getService(DocumentaryBaseExporterService.class);
+	// } catch (Exception e) {
+	// e.printStackTrace();
+	// }
+	// service.registerResource("ExporterService",
+	// ObjectNameFactory.formatQualifiedName("ExporterService"),
+	// DocumentaryBaseExpServiceImplMBean.class, instance);
+	// }
 
 }

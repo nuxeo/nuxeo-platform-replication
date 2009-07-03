@@ -24,63 +24,63 @@ import org.nuxeo.ecm.platform.replication.common.StatusListener;
 
 /**
  * Used to run as system.
- *
+ * 
  * @author cpriceputu@nuxeo.com
- *
+ * 
  */
 public class UnrestrictedExporter extends UnrestrictedSessionRunner {
-    private ReplicationPipe pipe = null;
+	private ReplicationPipe pipe = null;
 
-    private StatusListener listener = null;
+	private StatusListener listener = null;
 
-    private File path = null;
+	private File path = null;
 
-    public UnrestrictedExporter(String repositoryName, File path) {
-        super(repositoryName);
-        setPath(path);
-    }
+	public UnrestrictedExporter(String repositoryName, File path) {
+		super(repositoryName);
+		setPath(path);
+	}
 
-    @Override
-    public void run() throws ClientException {
-        try {
+	@Override
+	public void run() throws ClientException {
+		try {
 
-            DocumentReader reader = new ReplicationReader(session);
-            DocumentWriter writer = new ReplicationWriter(path, session);
+			DocumentReader reader = new ReplicationReader(session);
+			DocumentWriter writer = new ReplicationWriter(path, session);
 
-            pipe = new ReplicationPipe(10);
-            pipe.setListener(listener);
-            pipe.setReader(reader);
-            pipe.setWriter(writer);
-            pipe.run();
+			pipe = new ReplicationPipe(10);
+			pipe.setListener(listener);
+			pipe.setReader(reader);
+			pipe.setWriter(writer);
+			pipe.run();
 
-            if (getListener() != null) {
-                getListener().onUpdateStatus(StatusListener.DONE);
-            }
+			if (getListener() != null) {
+				getListener().onUpdateStatus(StatusListener.DONE);
+			}
 
-        } catch (Exception e) {
-            throw new ClientException(e);
-        }
-    }
+		} catch (Exception e) {
+			throw new ClientException(e);
+		}
+	}
 
-    public void stop() {
-        if (pipe != null)
-            pipe.stop();
-    }
+	public void stop() {
+		if (pipe != null)
+			pipe.stop();
+	}
 
-    public void setListener(StatusListener listener) {
-        this.listener = listener;
-    }
+	public void setListener(StatusListener listener) {
+		this.listener = listener;
+	}
 
-    public StatusListener getListener() {
-        return listener;
-    }
+	public StatusListener getListener() {
+		return listener;
+	}
 
-    public void setPath(File path) {
-        this.path = path;
-    }
+	public void setPath(File path) {
+		this.path = path;
+	}
 
-    public File getPath() {
-        return path;
-    }
+	public File getPath() {
+		return path;
+	}
 
 }

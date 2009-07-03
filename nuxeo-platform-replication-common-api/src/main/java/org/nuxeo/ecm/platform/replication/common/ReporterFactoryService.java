@@ -27,12 +27,12 @@ import org.nuxeo.ecm.core.api.ClientException;
  */
 public interface ReporterFactoryService {
 
-    /**
-     * Constructs the reporter instance based on the log file location.
-     * 
-     * @param location
-     * @return
-     * @throws ClientException
-     */
-    public Reporter getReporter(File location) throws ClientException;
+	/**
+	 * Constructs the reporter instance based on the log file location.
+	 * 
+	 * @param location
+	 * @return
+	 * @throws ClientException
+	 */
+	public Reporter getReporter(File location) throws ClientException;
 }

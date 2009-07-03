@@ -46,55 +46,55 @@ import org.nuxeo.ecm.core.api.ClientException;
  */
 public interface Reporter {
 
-    /**
-     * Writes an entry at the end of the file.
-     * 
-     * @param documentId
-     * @param blobsSize
-     * @throws ClientException
-     */
-    void writeEntry(String documentId, int blobsSize) throws ClientException;
+	/**
+	 * Writes an entry at the end of the file.
+	 * 
+	 * @param documentId
+	 * @param blobsSize
+	 * @throws ClientException
+	 */
+	void writeEntry(String documentId, int blobsSize) throws ClientException;
 
-    /**
-     * Writes the header at the begin of the file.
-     * 
-     * @param documentaryScope
-     * @param resume
-     * @throws ClientException
-     */
-    void writeHeader(String documentaryScope, boolean resume)
-            throws ClientException;
+	/**
+	 * Writes the header at the begin of the file.
+	 * 
+	 * @param documentaryScope
+	 * @param resume
+	 * @throws ClientException
+	 */
+	void writeHeader(String documentaryScope, boolean resume)
+			throws ClientException;
 
-    /**
-     * Reads the header.
-     * 
-     * @return
-     * @throws ClientException
-     */
-    String getHeader() throws ClientException;
+	/**
+	 * Reads the header.
+	 * 
+	 * @return
+	 * @throws ClientException
+	 */
+	String getHeader() throws ClientException;
 
-    /**
-     * Reads the last entry.
-     * 
-     * @return
-     * @throws ClientException
-     */
-    String getLastEntry() throws ClientException;
+	/**
+	 * Reads the last entry.
+	 * 
+	 * @return
+	 * @throws ClientException
+	 */
+	String getLastEntry() throws ClientException;
 
-    /**
-     * Retrieves the number of entries.
-     * 
-     * @return
-     * @throws ClientException
-     */
-    int getNumberOfDocuments() throws ClientException;
+	/**
+	 * Retrieves the number of entries.
+	 * 
+	 * @return
+	 * @throws ClientException
+	 */
+	int getNumberOfDocuments() throws ClientException;
 
-    /**
-     * Computes the sum of the blob size.
-     * 
-     * @return
-     * @throws ClientException
-     */
-    long getTotalSize() throws ClientException;
+	/**
+	 * Computes the sum of the blob size.
+	 * 
+	 * @return
+	 * @throws ClientException
+	 */
+	long getTotalSize() throws ClientException;
 
 }
