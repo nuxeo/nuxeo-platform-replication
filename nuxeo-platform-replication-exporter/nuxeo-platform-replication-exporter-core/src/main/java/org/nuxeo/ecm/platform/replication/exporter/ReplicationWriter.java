@@ -42,12 +42,14 @@ import org.nuxeo.ecm.platform.replication.common.ReplicationConstants;
 
 /**
  * Extends XMLDirectoryWriter to provide additional metadata .
- *
+ * 
  * @author cpriceputu@nuxeo.com
- *
+ * 
  */
 public class ReplicationWriter extends XMLDirectoryWriter {
     private static final Logger LOG = Logger.getLogger(ReplicationWriter.class);
+
+    private static final Object mutex = new Object();
 
     private CoreSession session = null;
 
@@ -76,7 +78,9 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                 parent = new File(parent, document.getId());
             }
 
-            parent.mkdirs();
+            synchronized (mutex) {
+                parent.mkdirs();
+            }
 
             XMLWriter writer = new XMLWriter(new FileOutputStream(new File(
                     parent, "document.xml")), format);
