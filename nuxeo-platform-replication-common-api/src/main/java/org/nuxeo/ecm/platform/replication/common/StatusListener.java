@@ -18,9 +18,9 @@ package org.nuxeo.ecm.platform.replication.common;
 /**
  * Listener used to provide information about the process that is
  * running(import/export)
- * 
+ *
  * @author cpriceputu
- * 
+ *
  */
 public interface StatusListener {
     public static final int OK = 0;
@@ -31,7 +31,9 @@ public interface StatusListener {
 
     public static final int PROCESS_STOPPED = 3;
 
-    public static final int DONE = 4;
+    public static final int STARTED = 4;
+
+    public static final int DONE = 5;
 
     public void onUpdateStatus(Object... params);
 }

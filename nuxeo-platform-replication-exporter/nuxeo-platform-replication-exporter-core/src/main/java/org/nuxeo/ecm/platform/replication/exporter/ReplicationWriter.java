@@ -71,13 +71,13 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                 parent = new File(parent,
                         USUAL_DOCUMENTS_LOCATION_NAME);
                 parent = new File(parent, doc.getPath().toString());
-                parent.mkdirs();
             } else {
                 parent = new File(parent,
                         VERSIONS_LOCATION_NAME);
                 parent = new File(parent, document.getId());
-                parent.mkdirs();
             }
+
+            parent.mkdirs();
 
             XMLWriter writer = new XMLWriter(new FileOutputStream(new File(
                     parent, "document.xml")), format);
