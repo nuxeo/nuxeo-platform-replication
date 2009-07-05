@@ -36,7 +36,7 @@ import org.nuxeo.ecm.core.schema.types.primitives.DateType;
 
 /**
  * Core imports various types of documents. The document can't be updated, so it
- * has not exist before.
+ * has not to exist before.
  * 
  * @author rux
  * 
@@ -77,8 +77,7 @@ public class ImporterDocumentCreator {
                 && properties.getProperty(CoreSession.IMPORT_VERSION_MAJOR) != null
                 && properties.getProperty(CoreSession.IMPORT_VERSION_MINOR) != null) {
             // import a version document
-            return importVersionDocument(session, type, id, name,
-                    properties);
+            return importVersionDocument(session, type, id, name, properties);
         } else {
             // import a normal document
             return importUsualDocument(session, type, id, name, parentPath,
@@ -87,11 +86,24 @@ public class ImporterDocumentCreator {
 
     }
 
+    /**
+     * Looks in properties if it is about a proxy to import.
+     * 
+     * @param properties
+     * @return
+     */
     public static boolean isProxy(Properties properties) {
         return properties.getProperty(CoreSession.IMPORT_PROXY_TARGET_ID) != null
                 && properties.getProperty(CoreSession.IMPORT_PROXY_VERSIONABLE_ID) != null;
     }
 
+    /**
+     * It is the same loadXML method from core IO.
+     * 
+     * @param file
+     * @return
+     * @throws ClientException
+     */
     public static Document loadXML(File file) throws ClientException {
         BufferedInputStream in = null;
         try {
@@ -186,8 +198,8 @@ public class ImporterDocumentCreator {
      * @throws ClientException
      */
     public static DocumentModel importVersionDocument(CoreSession session,
-            String type, String id, String name,
-            Properties properties) throws ClientException {
+            String type, String id, String name, Properties properties)
+            throws ClientException {
 
         if (properties == null) {
             log.debug("The received .properties file cannot be NULL ...");

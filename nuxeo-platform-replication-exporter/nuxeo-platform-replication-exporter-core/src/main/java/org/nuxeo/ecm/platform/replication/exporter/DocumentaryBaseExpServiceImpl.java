@@ -31,7 +31,7 @@ import org.nuxeo.ecm.platform.replication.common.StatusListener;
  */
 public class DocumentaryBaseExpServiceImpl // extends ServiceMBeanSupport
         implements DocumentaryBaseExpServiceImplMBean, Runnable {
-    private static final Logger LOG = Logger.getLogger(DocumentaryBaseExpServiceImpl.class);
+    private static final Logger log = Logger.getLogger(DocumentaryBaseExpServiceImpl.class);
 
     private String domain = null;
 
@@ -42,7 +42,6 @@ public class DocumentaryBaseExpServiceImpl // extends ServiceMBeanSupport
     private File path = null;
 
     public DocumentaryBaseExpServiceImpl() {
-
     }
 
     public void export(String domain, Map<String, Serializable> parameter,
@@ -50,7 +49,7 @@ public class DocumentaryBaseExpServiceImpl // extends ServiceMBeanSupport
             boolean exportProxies) throws ClientException {
         setDomain(domain);
         setPath(path);
-        LOG.info("Starting export of " + domain + " to "
+        log.info("Starting export of " + domain + " to "
                 + path.getAbsolutePath());
         new Thread(this).start();
     }
@@ -62,7 +61,7 @@ public class DocumentaryBaseExpServiceImpl // extends ServiceMBeanSupport
             exp.setListener(listener);
             exp.runUnrestricted();
         } catch (Exception e) {
-            LOG.error(e);
+            log.error("Error exporting: ", e);
         }
     }
 

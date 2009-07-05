@@ -29,5 +29,14 @@ import org.nuxeo.ecm.core.api.ClientException;
  */
 public interface DocumentXmlTransformer {
 
+    /**
+     * Transforms the XML document as it was exported before actual import. The
+     * returned XML document is used in import instead the original one.
+     * 
+     * @param xmlDocument the XML representation of exported document
+     * @return the XML document to be used instead. If null returned, the
+     *         process is not impacted.
+     * @throws ClientException
+     */
     Document transform(Document xmlDocument) throws ClientException;
 }

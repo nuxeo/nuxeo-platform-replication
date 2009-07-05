@@ -31,7 +31,6 @@ import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.nuxeo.common.utils.Path;
-import org.nuxeo.ecm.core.NXCore;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
@@ -47,9 +46,6 @@ import org.nuxeo.ecm.core.io.DocumentWriter;
 import org.nuxeo.ecm.core.io.ExportConstants;
 import org.nuxeo.ecm.core.io.ExportedDocument;
 import org.nuxeo.ecm.core.io.impl.ExportedDocumentImpl;
-import org.nuxeo.ecm.core.model.NoSuchRepositoryException;
-import org.nuxeo.ecm.core.model.Repository;
-import org.nuxeo.ecm.core.storage.sql.RepositoryManagement;
 import org.nuxeo.ecm.platform.importer.base.TxHelper;
 import org.nuxeo.ecm.platform.importer.factories.ImporterDocumentModelFactory;
 import org.nuxeo.ecm.platform.importer.source.SourceNode;
@@ -112,33 +108,6 @@ public class ReplicationDocumentModelFactory implements
         }
     }
 
-    protected void removeChildrenLowLevel(DocumentRef ref)
-            throws ClientException {
-        session.removeChildren(ref);
-        session.save();
-        log.info("cleaned up Root before the import begins");
-        TxHelper txHelper = new TxHelper();
-        txHelper.grabCurrentTransaction(null);
-        txHelper.commitOrRollbackTransaction();
-        log.debug("commited transaction before fushing cache");
-        try {
-            Repository repository = NXCore.getRepository(session.getRepositoryName());
-            if (repository instanceof RepositoryManagement) {
-                RepositoryManagement sqlRepoMng = (RepositoryManagement) repository;
-                sqlRepoMng.clearCaches();
-            } else {
-                log.error("Can not clear cache since this is not a VCS repo");
-                throw new ClientException("Can only import in a VCS repository");
-            }
-        } catch (NoSuchRepositoryException e) {
-            log.warn(
-                    "Error clearing SQL repo caches (may be normal in non JEE environment)",
-                    e);
-        }
-        log.debug("starts new transaction");
-        txHelper.beginNewTransaction();
-    }
-
     protected DocumentModel cleanUpRoot() throws ClientException {
         DocumentModel root = session.getRootDocument();
         removeChildrenDepthFirst(root.getRef());
@@ -148,7 +117,6 @@ public class ReplicationDocumentModelFactory implements
         txHelper.commitOrRollbackTransaction();
         log.debug("starts new transaction");
         txHelper.beginNewTransaction();
-        // removeChildrenLowLevel(root.getRef());
         return root;
     }
 
@@ -194,7 +162,8 @@ public class ReplicationDocumentModelFactory implements
             Path path = new Path(((Element) xdoc.getDocument().selectNodes(
                     "//system/path").get(0)).getText());
             path = path.removeLastSegments(1);
-            documentModel = coreImportDocument(xdoc, path.toString(), properties);
+            documentModel = coreImportDocument(xdoc, path.toString(),
+                    properties);
             loadSystemInfo(documentModel, xdoc.getDocument());
         } else {
             if (importProxies) {
@@ -209,13 +178,10 @@ public class ReplicationDocumentModelFactory implements
 
         DocumentWriter writer = new ReplicationDocumentModelWriter(session,
                 documentModel, 1);
-
         File[] blobFiles = new File(fileNode.getName()).listFiles(new FilenameFilter() {
-
             public boolean accept(File dir, String name) {
                 return name.contains(".blob");
             }
-
         });
         if (blobFiles.length > 0) {
             // set all the blobs
@@ -225,7 +191,6 @@ public class ReplicationDocumentModelFactory implements
             }
         }
         writer.write(xdoc);
-
         return documentModel;
     }
 
@@ -274,11 +239,9 @@ public class ReplicationDocumentModelFactory implements
         xmlTransformer = transformer;
     }
 
+    @SuppressWarnings("unchecked")
     protected void loadSystemInfo(DocumentModel docModel, Document doc)
             throws ClientException {
-        // how do I set the life cycle? would we set it?
-
-        // TODO import security
         Element system = doc.getRootElement().element(
                 ExportConstants.SYSTEM_TAG);
         Element accessControl = system.element(ExportConstants.ACCESS_CONTROL_TAG);

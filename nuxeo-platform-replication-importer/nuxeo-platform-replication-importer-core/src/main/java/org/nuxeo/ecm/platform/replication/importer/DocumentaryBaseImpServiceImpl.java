@@ -34,9 +34,9 @@ import org.nuxeo.ecm.platform.replication.common.StatusListener;
 
 /**
  * Implementation for import documentary base service.
- *
+ * 
  * @author rux
- *
+ * 
  */
 public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
         implements DocumentaryBaseImporterService {
@@ -54,10 +54,10 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
         this.xmlTransformer = xmlTransformer;
     }
 
-    public void importDocuments(Map<String, Serializable> parameter, File path, boolean resume,
-            boolean exportVersions, boolean exportProxies,
+    public void importDocuments(Map<String, Serializable> parameter, File path,
+            boolean resume, boolean exportVersions, boolean exportProxies,
             boolean useMultiThread) throws ClientException {
-        //this.session = session;
+        log.info("Starting import. First, usual documents...");
         // we need to import the documentary base in order: usual documents,
         // versions, proxies
         File usualDocumentsRoot = new File(path.getPath() + File.separator
@@ -69,6 +69,7 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
                 + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
                 + VERSIONS_LOCATION_NAME);
         if (versionsRoot.exists()) {
+            log.info("Second, version documents...");
             doSynchronImport(versionsRoot, false, useMultiThread);
         }
 
@@ -76,6 +77,7 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
                 + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
                 + USUAL_DOCUMENTS_LOCATION_NAME);
         if (proxiesRoot.exists()) {
+            log.info("Third, proxies documents...");
             doSynchronImport(proxiesRoot, true, useMultiThread);
         }
         if (listener != null) {
@@ -99,7 +101,8 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
             } else {
                 importer.setThreadPolicy(new MonoThreadPolicy());
             }
-            ImporterFilter filter = new EventServiceConfiguratorFilter(true, true, true, false);
+            ImporterFilter filter = new EventServiceConfiguratorFilter(true,
+                    true, true, false);
             importer.addFilter(filter);
             doRun(importer, Boolean.TRUE);
         } catch (Exception e) {

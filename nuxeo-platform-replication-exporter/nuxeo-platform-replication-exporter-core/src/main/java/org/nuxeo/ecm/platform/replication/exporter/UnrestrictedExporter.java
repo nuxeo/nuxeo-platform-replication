@@ -24,9 +24,9 @@ import org.nuxeo.ecm.platform.replication.common.StatusListener;
 
 /**
  * Used to run as system.
- *
+ * 
  * @author cpriceputu@nuxeo.com
- *
+ * 
  */
 public class UnrestrictedExporter extends UnrestrictedSessionRunner {
     private ReplicationPipe pipe = null;
@@ -43,20 +43,16 @@ public class UnrestrictedExporter extends UnrestrictedSessionRunner {
     @Override
     public void run() throws ClientException {
         try {
-
             DocumentReader reader = new ReplicationReader(session);
             DocumentWriter writer = new ReplicationWriter(path, session);
-
             pipe = new ReplicationPipe(10);
             pipe.setListener(listener);
             pipe.setReader(reader);
             pipe.setWriter(writer);
             pipe.run();
-
             if (getListener() != null) {
                 getListener().onUpdateStatus(StatusListener.DONE);
             }
-
         } catch (Exception e) {
             throw new ClientException(e);
         }

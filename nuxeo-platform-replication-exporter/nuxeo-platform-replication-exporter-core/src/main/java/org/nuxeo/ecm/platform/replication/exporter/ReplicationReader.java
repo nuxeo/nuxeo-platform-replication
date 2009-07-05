@@ -36,7 +36,7 @@ import org.nuxeo.ecm.core.io.impl.plugins.DocumentModelReader;
  */
 public class ReplicationReader extends DocumentModelReader {
 
-    private static final Logger LOG = Logger.getLogger(ReplicationReader.class);
+    private static final Logger log = Logger.getLogger(ReplicationReader.class);
 
     protected Iterator<DocumentModel> iterator = null;
 
@@ -53,7 +53,7 @@ public class ReplicationReader extends DocumentModelReader {
         super(session);
         DocumentModelList list = session.query("SELECT * FROM Document");
         list.add(session.getRootDocument());
-        LOG.info("Exporting " + list.size() + " documents");
+        log.info("Exporting " + list.size() + " documents");
         iterator = list.iterator();
     }
 

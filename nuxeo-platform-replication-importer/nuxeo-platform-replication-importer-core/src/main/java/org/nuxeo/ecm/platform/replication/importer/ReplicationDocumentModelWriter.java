@@ -29,8 +29,9 @@ import org.nuxeo.ecm.core.io.ExportedDocument;
 import org.nuxeo.ecm.core.io.impl.AbstractDocumentModelWriter;
 
 /**
- * A writer which is updating the already existing document which is obtain
- * during an replication import process.
+ * A writer which is updating the already existing document obtained in
+ * replication import process. The most important: it uses the core import
+ * method instead session.save() for documents with no ref, like versions.
  * 
  * @author btatar
  * 

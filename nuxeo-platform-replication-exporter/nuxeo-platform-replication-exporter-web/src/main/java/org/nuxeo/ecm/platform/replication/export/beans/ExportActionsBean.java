@@ -36,7 +36,7 @@ import org.nuxeo.ecm.webapp.helpers.ResourcesAccessor;
 import org.nuxeo.runtime.api.Framework;
 
 /**
- *Export action bean
+ * Export action bean
  * 
  * @author cpriceputu@nuxeo.com
  * 
@@ -45,119 +45,109 @@ import org.nuxeo.runtime.api.Framework;
 @Name("exportActions")
 public class ExportActionsBean implements Serializable, StatusListener {
 
-	private static final Logger LOG = Logger.getLogger(ExportActionsBean.class);
+    private static final Logger log = Logger.getLogger(ExportActionsBean.class);
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@In(create = true, required = false)
-	private transient CoreSession documentManager;
+    @In(create = true, required = false)
+    private transient CoreSession documentManager;
 
-	@In(create = true, required = false)
-	protected transient FacesMessages facesMessages;
+    @In(create = true, required = false)
+    protected transient FacesMessages facesMessages;
 
-	@In(create = true)
-	protected transient ResourcesAccessor resourcesAccessor;
+    @In(create = true)
+    protected transient ResourcesAccessor resourcesAccessor;
 
-	private long startTime = 0;
+    private long startTime = 0;
 
-	private long endTime = 0;
+    private long endTime = 0;
 
-	private DocumentaryBaseExporterService exportService = null;
+    private DocumentaryBaseExporterService exportService = null;
 
-	private String repo;
+    private String repo;
 
-	private long fileCount = 0;
+    private long fileCount = 0;
 
-	private long oldFileCount = 0;
+    private long oldFileCount = 0;
 
-	private boolean done = false;
+    private boolean done = false;
 
-	private String path = null;
+    private String path = null;
 
-	@Create
-	public void initialize() throws Exception {
-		exportService = Framework
-				.getService(DocumentaryBaseExporterService.class);
-		exportService.setListener(this);
-	}
+    @Create
+    public void initialize() throws Exception {
+        exportService = Framework.getService(DocumentaryBaseExporterService.class);
+        exportService.setListener(this);
+    }
 
-	public String startExport() throws ClientException {
-		setDone(false);
-		setFileCount(0);
+    public String startExport() throws ClientException {
+        setDone(false);
+        setFileCount(0);
+        exportService.export(documentManager.getRepositoryName(), null,
+                new File(getPath()), false, false, false);
+        return null;
+    }
 
-		exportService.export(documentManager.getRepositoryName(), null,
-				new File(getPath()), false, false, false);
+    public void onUpdateStatus(Object... params) {
+        if ((Integer) params[0] == StatusListener.DOC_PROCESS_SUCCESS) {
+            if (params[1] instanceof ExportedDocument[]) {
+                fileCount += ((ExportedDocument[]) params[1]).length;
+            } else {
+                fileCount++;
+            }
+            endTime = System.currentTimeMillis();
+            long time = Math.abs(endTime - startTime) / 1000;
+            time = time != 0 ? time : 1;
+            if (endTime - startTime > 10000) {
+                log.info("Documents Exported: " + fileCount);
+                log.info("Docs/sec : " + ((fileCount - oldFileCount) / time));
+                endTime = startTime;
+                oldFileCount = fileCount;
+            }
+        } else if ((Integer) params[0] == StatusListener.DONE) {
+            setDone(true);
+            endTime = System.currentTimeMillis();
+            long time = Math.abs(endTime - startTime) / 1000;
+            time = time != 0 ? time : 1;
+            log.info("Export completed.");
+            log.info("Documents Exported: " + fileCount);
+            log.info("Docs/sec : " + ((fileCount - oldFileCount) / time));
+        } else if ((Integer) params[0] == StatusListener.STARTED) {
+            startTime = System.currentTimeMillis();
+            fileCount = 0;
+            oldFileCount = 1;
+        }
+    }
 
-		return null;
-	}
+    public void setRepo(String repo) {
+        this.repo = repo;
+    }
 
-	public void onUpdateStatus(Object... params) {
-		if ((Integer) params[0] == StatusListener.DOC_PROCESS_SUCCESS) {
-			if (params[1] instanceof ExportedDocument[]) {
-				fileCount += ((ExportedDocument[]) params[1]).length;
-			} else {
-				fileCount++;
-			}
+    public String getRepo() {
+        return repo;
+    }
 
-			endTime = System.currentTimeMillis();
-			long time = Math.abs(endTime - startTime) / 1000;
-			time = time != 0 ? time : 1;
+    public void setPath(String path) {
+        this.path = path;
+    }
 
-			if (endTime - startTime > 10000) {
-				LOG.info("Documents Exported: " + fileCount);
-				LOG.info("Docs/sec : " + ((fileCount - oldFileCount) / time));
+    public String getPath() {
+        return path;
+    }
 
-				endTime = startTime;
-				oldFileCount = fileCount;
-			}
+    public void setFileCount(int fileCount) {
+        this.fileCount = fileCount;
+    }
 
-		} else if ((Integer) params[0] == StatusListener.DONE) {
-			setDone(true);
+    public long getFileCount() {
+        return fileCount;
+    }
 
-			endTime = System.currentTimeMillis();
-			long time = Math.abs(endTime - startTime) / 1000;
-			time = time != 0 ? time : 1;
-			LOG.info("Export completed.");
-			LOG.info("Documents Exported: " + fileCount);
-			LOG.info("Docs/sec : " + ((fileCount - oldFileCount) / time));
+    public boolean getDone() {
+        return done;
+    }
 
-		} else if ((Integer) params[0] == StatusListener.STARTED) {
-			startTime = System.currentTimeMillis();
-			fileCount = 0;
-			oldFileCount = 1;
-		}
-
-	}
-
-	public void setRepo(String repo) {
-		this.repo = repo;
-	}
-
-	public String getRepo() {
-		return repo;
-	}
-
-	public void setPath(String path) {
-		this.path = path;
-	}
-
-	public String getPath() {
-		return path;
-	}
-
-	public void setFileCount(int fileCount) {
-		this.fileCount = fileCount;
-	}
-
-	public long getFileCount() {
-		return fileCount;
-	}
-
-	public boolean getDone() {
-		return done;
-	}
-
-	public void setDone(boolean done) {
-		this.done = done;
-	}
+    public void setDone(boolean done) {
+        this.done = done;
+    }
 }

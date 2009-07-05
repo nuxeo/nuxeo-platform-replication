@@ -47,7 +47,7 @@ import org.nuxeo.ecm.platform.replication.common.ReplicationConstants;
  * 
  */
 public class ReplicationWriter extends XMLDirectoryWriter {
-    private static final Logger LOG = Logger.getLogger(ReplicationWriter.class);
+    private static final Logger log = Logger.getLogger(ReplicationWriter.class);
 
     private static final Object mutex = new Object();
 
@@ -67,7 +67,6 @@ public class ReplicationWriter extends XMLDirectoryWriter {
         try {
             DocumentModel document = session.getDocument(new IdRef(doc.getId()));
             OutputFormat format = OutputFormat.createPrettyPrint();
-
             if (!document.isVersion()) {
                 parent = new File(parent,
                         ReplicationConstants.USUAL_DOCUMENTS_LOCATION_NAME);
@@ -77,7 +76,6 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                         ReplicationConstants.VERSIONS_LOCATION_NAME);
                 parent = new File(parent, document.getId());
             }
-
             synchronized (mutex) {
                 parent.mkdirs();
             }
@@ -86,7 +84,6 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                     parent, "document.xml")), format);
             writer.write(doc.getDocument());
             writer.close();
-
             Map<String, Blob> blobs = doc.getBlobs();
             for (Map.Entry<String, Blob> entry : blobs.entrySet()) {
                 entry.getValue().transferTo(new File(parent, entry.getKey()));
@@ -102,13 +99,11 @@ public class ReplicationWriter extends XMLDirectoryWriter {
             }
 
             Properties metadata = getDocumentMetadata(session, document);
-
             File metadataFile = new File(parent, "metadata.properties");
             metadata.store(new FileOutputStream(metadataFile),
                     "Document Metadata");
-
         } catch (Exception e) {
-            LOG.error(parent.getAbsolutePath() + " missing!", e);
+            log.error(parent.getAbsolutePath() + " missing!", e);
             throw new IOException(e.getMessage());
         }
         return null;
@@ -117,13 +112,10 @@ public class ReplicationWriter extends XMLDirectoryWriter {
     public static Properties getDocumentMetadata(CoreSession documentManager,
             DocumentModel document) throws ClientException, DocumentException {
         Properties props = new Properties();
-
         DocumentRef ref = document.getRef();
-
         if (document.isProxy()) {
             DocumentModel version = documentManager.getSourceDocument(ref);
             DocumentModel sourceDocument = documentManager.getSourceDocument(version.getRef());
-
             props.setProperty(CoreSession.IMPORT_PROXY_TARGET_ID,
                     version.getId() == null ? "" : version.getId());
             props.setProperty(CoreSession.IMPORT_PROXY_VERSIONABLE_ID,
@@ -131,14 +123,12 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                             : sourceDocument.getId());
         } else if (document.isVersion()) {
             DocumentModel sourceDocument = documentManager.getSourceDocument(ref);
-
             props.setProperty(CoreSession.IMPORT_VERSION_VERSIONABLE_ID,
                     sourceDocument.getId() == null ? ""
                             : sourceDocument.getId());
             props.setProperty(CoreSession.IMPORT_VERSION_LABEL,
                     document.getVersionLabel() == null ? ""
                             : document.getVersionLabel());
-
             List<VersionModel> versions = documentManager.getVersionsForDocument(sourceDocument.getRef());
             for (VersionModel version : versions) {
                 // add version description
@@ -151,18 +141,14 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                         new DateType().encode(version.getCreated()) == null ? ""
                                 : new DateType().encode(version.getCreated()));
             }
-
             VersioningDocument docVer = document.getAdapter(VersioningDocument.class);
             String minorVer = docVer.getMinorVersion().toString();
             String majorVer = docVer.getMajorVersion().toString();
-
             props.setProperty(CoreSession.IMPORT_VERSION_MAJOR,
                     majorVer == null ? "" : majorVer);
-
             props.setProperty(CoreSession.IMPORT_VERSION_MINOR,
                     minorVer == null ? "" : minorVer);
         } else {
-
             props.setProperty(CoreSession.IMPORT_LOCK,
                     document.getLock() == null ? "" : document.getLock());
             if (document.isVersionable()) {
@@ -188,7 +174,6 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                             minorVer == null ? "" : minorVer);
                 }
             }
-
         }
 
         props.setProperty(CoreSession.IMPORT_LIFECYCLE_STATE,
@@ -197,7 +182,6 @@ public class ReplicationWriter extends XMLDirectoryWriter {
         props.setProperty(CoreSession.IMPORT_LIFECYCLE_POLICY,
                 document.getLifeCyclePolicy() == null ? ""
                         : document.getLifeCyclePolicy());
-
         return props;
     }
 }

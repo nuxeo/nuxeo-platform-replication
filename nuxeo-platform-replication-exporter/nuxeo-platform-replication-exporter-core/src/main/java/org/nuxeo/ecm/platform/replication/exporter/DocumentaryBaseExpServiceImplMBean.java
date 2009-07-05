@@ -22,8 +22,9 @@ import org.nuxeo.ecm.core.api.ClientException;
 
 /**
  * MBean interface to act as a service.
+ * 
  * @author cpriceputu@nuxeo.com
- *
+ * 
  */
 public interface DocumentaryBaseExpServiceImplMBean extends
         DocumentaryBaseExporterService {

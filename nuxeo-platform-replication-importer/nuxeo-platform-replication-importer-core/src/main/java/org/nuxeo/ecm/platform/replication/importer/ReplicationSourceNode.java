@@ -33,9 +33,9 @@ import org.nuxeo.ecm.platform.importer.source.SourceNode;
 public class ReplicationSourceNode implements SourceNode {
 
     protected File file;
-    
+
     protected List<SourceNode> children;
-    
+
     public ReplicationSourceNode(File file) {
         children = null;
         this.file = file;
@@ -44,16 +44,16 @@ public class ReplicationSourceNode implements SourceNode {
     public ReplicationSourceNode(String filePath) {
         this(new File(filePath));
     }
-    
+
     public BlobHolder getBlobHolder() {
-        //not interesting, any way blob files are imported from files
+        // not interesting, any way blob files are imported from files
         return null;
     }
 
     public List<SourceNode> getChildren() {
-        //the documents are exported as folders, look if other folders under
+        // the documents are exported as folders, look if other folders under
         children = new ArrayList<SourceNode>();
-        for (File child:file.listFiles()) {
+        for (File child : file.listFiles()) {
             if (child.isDirectory()) {
                 children.add(new ReplicationSourceNode(child.getPath()));
             }
@@ -66,7 +66,7 @@ public class ReplicationSourceNode implements SourceNode {
     }
 
     public boolean isFolderish() {
-        //in fact return if there are any children here
+        // in fact return if there are any children here
         if (children == null) {
             getChildren();
         }

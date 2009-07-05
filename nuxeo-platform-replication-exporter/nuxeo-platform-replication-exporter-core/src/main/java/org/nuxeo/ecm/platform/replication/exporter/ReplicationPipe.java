@@ -32,12 +32,12 @@ import org.nuxeo.ecm.platform.replication.common.StatusListener;
 
 /**
  * Extension of basic DocumentPipeImpl to allow multithreading
- *
+ * 
  * @author cpriceputu@nuxeo.com
- *
+ * 
  */
 public class ReplicationPipe extends DocumentPipeImpl {
-    private static final Logger LOG = Logger.getLogger(ReplicationPipe.class);
+    private static final Logger log = Logger.getLogger(ReplicationPipe.class);
 
     private StatusListener listener = null;
 
@@ -76,15 +76,13 @@ public class ReplicationPipe extends DocumentPipeImpl {
         if (listener != null) {
             listener.onUpdateStatus(StatusListener.STARTED);
         }
-
         List<DocumentTranslationMap> maps = new Vector<DocumentTranslationMap>();
         readAndWriteDocs(maps);
-
         try {
             DocumentTranslationMap map = DocumentTranslationMapImpl.merge(maps);
             return map;
         } catch (Exception e) {
-            LOG.warn(e);
+            log.warn("Error in pipe: ", e);
         }
 
         return null;
@@ -94,10 +92,8 @@ public class ReplicationPipe extends DocumentPipeImpl {
             throws IOException, InterruptedException {
         ExecutorService executor = Executors.newFixedThreadPool(pageSize < 1 ? 1
                 : pageSize);
-
         if (pageSize == 0) {
             // handle single doc case
-
             ExportedDocument doc = null;
             while (isRunning()) {
                 synchronized (this) {
@@ -106,12 +102,10 @@ public class ReplicationPipe extends DocumentPipeImpl {
                         break;
                     }
                 }
-
                 Runner r = new Runner(this, doc, maps);
                 r.setListener(listener);
                 executor.execute(new Runner(this, doc, maps));
             }
-
         } else {
             // handle multiple doc case
             ExportedDocument[] docs = null;
@@ -122,7 +116,6 @@ public class ReplicationPipe extends DocumentPipeImpl {
                 if (docs == null) {
                     break;
                 }
-
                 Runner r = new MultipleRunner(this, docs, maps);
                 r.setListener(listener);
                 executor.execute(r);
@@ -138,8 +131,7 @@ public class ReplicationPipe extends DocumentPipeImpl {
             }
             done = executor.awaitTermination(1, TimeUnit.SECONDS);
         }
-
-        LOG.info("Multithread export finished...");
+        log.info("Multithread export finished...");
     }
 
     public void setListener(StatusListener listener) {
@@ -177,7 +169,6 @@ class MultipleRunner extends Runner {
             sendStatus(StatusListener.PROCESS_STOPPED);
             return;
         }
-
         try {
             if (docs.length != 0) {
                 getPipe().applyTransforms(docs);
@@ -188,7 +179,6 @@ class MultipleRunner extends Runner {
 
                 sendStatus(StatusListener.DOC_PROCESS_SUCCESS, docs);
             }
-
         } catch (Exception e) {
             LOG.error(e);
             sendStatus(StatusListener.ERROR, e);
@@ -222,7 +212,6 @@ class Runner implements Runnable {
             sendStatus(StatusListener.PROCESS_STOPPED);
             return;
         }
-
         try {
             pipe.applyTransforms(doc);
             DocumentTranslationMap map = pipe.getWriter().write(doc);

@@ -17,18 +17,15 @@
  */
 package org.nuxeo.ecm.platform.replication.importer.beans;
 
-import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.REPLICATION_IMPORT_USE_MULTI_THREAD;
 import java.io.File;
 import java.io.Serializable;
 
 import org.apache.log4j.Logger;
 import org.jboss.seam.ScopeType;
 import org.jboss.seam.annotations.Create;
-import org.jboss.seam.annotations.In;
 import org.jboss.seam.annotations.Name;
 import org.jboss.seam.annotations.Scope;
 import org.nuxeo.ecm.core.api.ClientException;
-import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.io.ExportedDocument;
 import org.nuxeo.ecm.platform.replication.common.StatusListener;
 import org.nuxeo.ecm.platform.replication.importer.DocumentaryBaseImporterService;
@@ -37,9 +34,9 @@ import org.nuxeo.runtime.api.Framework;
 /**
  * Seam component used to perform the import of documents in the process of
  * replication.
- *
+ * 
  * @author btatar
- *
+ * 
  */
 @Scope(ScopeType.SESSION)
 @Name("importActions")
@@ -48,9 +45,6 @@ public class ImportActionsBean implements Serializable, StatusListener {
     private static final Logger log = Logger.getLogger(ImportActionsBean.class);
 
     private static final long serialVersionUID = 1L;
-
-    @In(create = true, required = false)
-    private transient CoreSession documentManager;
 
     // returns the number of imported documents
     private int fileCount;
@@ -78,7 +72,7 @@ public class ImportActionsBean implements Serializable, StatusListener {
 
     /**
      * Performs the replication import process.
-     *
+     * 
      * @return
      * @throws ClientException
      */
@@ -86,8 +80,8 @@ public class ImportActionsBean implements Serializable, StatusListener {
         log.debug("Starting replication import process...");
         setDone(false);
         setFileCount(0);
-        importService.importDocuments(null, new File(path),
-                true, true, true, useMultiThread);
+        importService.importDocuments(null, new File(path), true, true, true,
+                useMultiThread);
         return null;
     }
 
@@ -101,11 +95,9 @@ public class ImportActionsBean implements Serializable, StatusListener {
             } else {
                 fileCount++;
             }
-
         } else if ((Integer) params[0] == StatusListener.DONE) {
             setDone(true);
         }
-
     }
 
     public void setPath(String path) {

@@ -20,7 +20,6 @@ import java.io.Serializable;
 import java.util.Map;
 
 import org.nuxeo.ecm.core.api.ClientException;
-import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.platform.replication.common.StatusListener;
 
 /**
@@ -46,15 +45,15 @@ import org.nuxeo.ecm.platform.replication.common.StatusListener;
  * exported as the usual documents with single difference: without workflows.
  * The importer is reading the files and acts multi-threaded in 2 steps: first
  * it "core imports" the documents and after it updates the properties.
- *
+ * 
  * @author rux
- *
+ * 
  */
 public interface DocumentaryBaseImporterService {
 
     /**
      * Imports the documentary base.
-     *
+     * 
      * @param parameter
      * @param path the path to root directory of replication
      * @param resume
@@ -63,9 +62,9 @@ public interface DocumentaryBaseImporterService {
      * @param useMultiThread
      * @throws ClientException
      */
-    void importDocuments(Map<String, Serializable> parameter, File path, boolean resume,
-            boolean exportVersions, boolean exportProxies, boolean useMultiThread)
-            throws ClientException;
+    void importDocuments(Map<String, Serializable> parameter, File path,
+            boolean resume, boolean exportVersions, boolean exportProxies,
+            boolean useMultiThread) throws ClientException;
 
     /**
      * Stops the process of import.
@@ -74,13 +73,14 @@ public interface DocumentaryBaseImporterService {
 
     /**
      * Sets the listener that will informs about the import process status.
-     *
+     * 
      * @param listener
      */
     void setListener(StatusListener listener);
 
     /**
      * Sets the transformer for exported document.
+     * 
      * @param xmlTransformer
      */
     void setXmlTransformer(DocumentXmlTransformer xmlTransformer);

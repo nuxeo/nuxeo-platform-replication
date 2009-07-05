@@ -1,3 +1,18 @@
+/*
+ * (C) Copyright 2009 Nuxeo SAS (http://nuxeo.com/) and contributors.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Lesser General Public License
+ * (LGPL) version 2.1 which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/lgpl.html
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ */
+
 package org.nuxeo.ecm.platform;
 
 import java.io.File;
@@ -40,8 +55,6 @@ public class ReporterTest extends TestCase {
 
         LOG.info(rp.getLastEntry());
         LOG.info("Size of documents: " + rp.getTotalSize());
-
-        // new File(System.getProperty("user.home"), "teste.synchro").delete();
     }
 
     public void testFileChannel() throws Exception {
@@ -53,8 +66,6 @@ public class ReporterTest extends TestCase {
 
     @Override
     protected void tearDown() throws Exception {
-        // new File(System.getProperty("user.home"), "teste.synchro").delete();
-
         super.tearDown();
     }
 }
@@ -64,9 +75,7 @@ class Runner implements Runnable {
 
     private static final Logger LOG = Logger.getLogger(Runner.class);
 
-    public Runner() {
-
-    }
+    public Runner() {}
 
     public void run() {
         try {

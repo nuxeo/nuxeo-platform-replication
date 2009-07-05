@@ -18,9 +18,9 @@ package org.nuxeo.ecm.platform.replication.common;
 /**
  * Listener used to provide information about the process that is
  * running(import/export)
- *
+ * 
  * @author cpriceputu
- *
+ * 
  */
 public interface StatusListener {
     public static final int OK = 0;
