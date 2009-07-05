@@ -89,7 +89,6 @@ public class ReplicationDocumentModelFactory implements
             DocumentModel parent, SourceNode node) throws Exception {
         this.fileNode = node;
         this.session = session;
-        log.info("importing folder " + node.getName());
         return importDocument();
     }
 
@@ -97,7 +96,6 @@ public class ReplicationDocumentModelFactory implements
             DocumentModel parent, SourceNode node) throws Exception {
         this.fileNode = node;
         this.session = session;
-        log.info("importing leaf " + node.getName());
         return importDocument();
     }
 
@@ -122,7 +120,7 @@ public class ReplicationDocumentModelFactory implements
         TxHelper txHelper = new TxHelper();
         txHelper.grabCurrentTransaction(null);
         txHelper.commitOrRollbackTransaction();
-        log.info("commited transaction before fushing cache");
+        log.debug("commited transaction before fushing cache");
         try {
             Repository repository = NXCore.getRepository(session.getRepositoryName());
             if (repository instanceof RepositoryManagement) {
@@ -137,7 +135,7 @@ public class ReplicationDocumentModelFactory implements
                     "Error clearing SQL repo caches (may be normal in non JEE environment)",
                     e);
         }
-        log.info("starts new transaction");
+        log.debug("starts new transaction");
         txHelper.beginNewTransaction();
     }
 
@@ -148,7 +146,7 @@ public class ReplicationDocumentModelFactory implements
         TxHelper txHelper = new TxHelper();
         txHelper.grabCurrentTransaction(null);
         txHelper.commitOrRollbackTransaction();
-        log.info("starts new transaction");
+        log.debug("starts new transaction");
         txHelper.beginNewTransaction();
         // removeChildrenLowLevel(root.getRef());
         return root;
@@ -196,8 +194,7 @@ public class ReplicationDocumentModelFactory implements
             Path path = new Path(((Element) xdoc.getDocument().selectNodes(
                     "//system/path").get(0)).getText());
             path = path.removeLastSegments(1);
-            documentModel = coreImportDocument(xdoc, path.toString(),
-                    properties);
+            documentModel = coreImportDocument(xdoc, path.toString(), properties);
             loadSystemInfo(documentModel, xdoc.getDocument());
         } else {
             if (importProxies) {
