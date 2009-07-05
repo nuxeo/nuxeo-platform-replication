@@ -29,6 +29,8 @@ public class TestImport extends SQLRepositoryTestCase {
         deployBundle("org.nuxeo.ecm.core.api");
         deployBundle("org.nuxeo.ecm.core");
         deployBundle("org.nuxeo.ecm.core.schema");
+        deployBundle("org.nuxeo.ecm.platform.picture.core");
+        deployBundle("org.nuxeo.ecm.platform.forum.core");
         deployBundle("org.nuxeo.ecm.platform.replication.importer.api");
         deployContrib("org.nuxeo.ecm.platform.replication.importer.core","OSGI-INF/ImporterService.xml");
         openSession();
@@ -61,7 +63,6 @@ public class TestImport extends SQLRepositoryTestCase {
 
         DocumentModel root = session.getRootDocument();
         assertNotNull(root);
-        String rootUUID = root.getRef().toString();
 
         DocumentModelList children = session.getChildren(root.getRef());
         assertEquals(0,children.size());
@@ -76,21 +77,43 @@ public class TestImport extends SQLRepositoryTestCase {
         root = session.getRootDocument();
         assertNotNull(root);
 
-        IdRef ref = new IdRef("db6646ea-dd30-42a3-aec5-2e40a7a79511");
+        //check a top directory
+        IdRef ref = new IdRef("b293d80e-9357-484f-9713-ff5bc12a4ac6");
         assertTrue(session.exists(ref));
         DocumentModel doc = session.getDocument(ref);
-        assertEquals("Workspace", doc.getType());
-        assertEquals("ws", doc.getTitle());
+        assertEquals("WorkspaceRoot", doc.getType());
+        assertEquals("Workspaces", doc.getTitle());
 
-        ref = new IdRef("c114da8f-cb7c-424d-9419-3f483db2390a");
+        //check default domain
+        ref = new IdRef("6c0f811c-d13b-4461-8376-3664274a7ba4");
         assertTrue(session.exists(ref));
         doc = session.getDocument(ref);
         assertEquals("Domain", doc.getType());
-        //assertEquals("Default domain", doc.getTitle());
+        assertEquals("Default domain", doc.getTitle());
 
-        children = session.getChildren(root.getRef());
-        assertEquals(1,children.size());
-        session.hasChildren(new IdRef("c114da8f-cb7c-424d-9419-3f483db2390a"));
+        //check an usual document
+        ref = new IdRef("a55ff4f7-556a-4a4b-bd5b-1eabb47b57fb");
+        assertTrue(session.exists(ref));
+        doc = session.getDocument(ref);
+        assertEquals("File", doc.getType());
+        assertEquals("file 1", doc.getTitle());
+        
+        //check a version
+        ref = new IdRef("e1e9b1fe-9f48-4408-afc1-f8f167524f4b");
+        assertTrue(session.exists(ref));
+        doc = session.getDocument(ref);
+        assertEquals("Note", doc.getType());
+        assertEquals("domanu", doc.getTitle());
+        assertTrue(doc.isVersion());
+        assertEquals("2", doc.getVersionLabel());
+        
+        //check a proxy
+        ref = new IdRef("23080819-2a78-410f-9323-d3938d52c044");
+        assertTrue(session.exists(ref));
+        doc = session.getDocument(ref);
+        assertEquals("Note", doc.getType());
+        assertEquals("domanu", doc.getTitle());
+        assertTrue(doc.isProxy());
 
     }
 
