@@ -45,7 +45,7 @@ import org.nuxeo.runtime.api.Framework;
 @Name("exportActions")
 public class ExportActionsBean implements Serializable, StatusListener {
 
-    private static final Logger LOG = Logger.getLogger(ExportActionsBean.class);
+    private static final Logger log = Logger.getLogger(ExportActionsBean.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -103,8 +103,8 @@ public class ExportActionsBean implements Serializable, StatusListener {
             time = time != 0 ? time : 1;
 
             if (endTime - startTime > 10000) {
-                LOG.info("Documents Exported: " + fileCount);
-                LOG.info("Docs/sec : " + ((fileCount - oldFileCount) / time));
+                log.info("Documents Exported: " + fileCount);
+                log.info("Docs/sec : " + ((fileCount - oldFileCount) / time));
 
                 endTime = startTime;
                 oldFileCount = fileCount;
@@ -116,9 +116,9 @@ public class ExportActionsBean implements Serializable, StatusListener {
             endTime = System.currentTimeMillis();
             long time = Math.abs(endTime - startTime) / 1000;
             time = time != 0 ? time : 1;
-            LOG.info("Export completed.");
-            LOG.info("Documents Exported: " + fileCount);
-            LOG.info("Docs/sec : " + ((fileCount - oldFileCount) / time));
+            log.info("Export completed.");
+            log.info("Documents Exported: " + fileCount);
+            log.info("Docs/sec : " + ((fileCount - oldFileCount) / time));
 
         } else if ((Integer) params[0] == StatusListener.STARTED) {
             startTime = System.currentTimeMillis();

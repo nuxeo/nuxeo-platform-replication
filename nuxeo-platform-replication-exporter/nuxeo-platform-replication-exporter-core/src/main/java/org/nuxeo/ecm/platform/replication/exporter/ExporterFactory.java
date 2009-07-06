@@ -15,24 +15,24 @@
 package org.nuxeo.ecm.platform.replication.exporter;
 
 /**
- * Required for MBean
+ * Required for MBean. On 5.1.6 it doesn't work any longer.
  * 
  * @author cpriceputu@nuxeo.com
  * 
  */
 public class ExporterFactory {
-	// extends AbstractResourceFactory {
-	//
-	// public void registerResources() {
-	// DocumentaryBaseExporterService instance = null;
-	// try {
-	// instance = Framework.getService(DocumentaryBaseExporterService.class);
-	// } catch (Exception e) {
-	// e.printStackTrace();
-	// }
-	// service.registerResource("ExporterService",
-	// ObjectNameFactory.formatQualifiedName("ExporterService"),
-	// DocumentaryBaseExpServiceImplMBean.class, instance);
-	// }
+    // extends AbstractResourceFactory {
+    //
+    // public void registerResources() {
+    // DocumentaryBaseExporterService instance = null;
+    // try {
+    // instance = Framework.getService(DocumentaryBaseExporterService.class);
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // }
+    // service.registerResource("ExporterService",
+    // ObjectNameFactory.formatQualifiedName("ExporterService"),
+    // DocumentaryBaseExpServiceImplMBean.class, instance);
+    // }
 
 }

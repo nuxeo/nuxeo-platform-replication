@@ -44,59 +44,59 @@ import org.nuxeo.ecm.core.search.api.client.search.results.document.SearchPagePr
  */
 public class ReplicationReader extends DocumentModelReader {
 
-	private static final Logger LOG = Logger.getLogger(ReplicationReader.class);
+    private static final Logger log = Logger.getLogger(ReplicationReader.class);
 
-	public static final String proxyQuery = "SELECT * FROM Document WHERE ecm:isProxy = 1";
+    public static final String proxyQuery = "SELECT * FROM Document WHERE ecm:isProxy = 1";
 
-	public static final String query = "SELECT * FROM Document";
+    public static final String query = "SELECT * FROM Document";
 
-	protected Iterator<DocumentModel> iterator = null;
+    protected Iterator<DocumentModel> iterator = null;
 
-	/**
-	 * The documents are retrieved using a session query. The iterated query is
-	 * not working see NXP-3814. So the documents are collected in memory. When
-	 * the iterated query will be available the memory exhaustion can be
-	 * avoided. Moreover the session query on 1.4 is not retrieving proxies so
-	 * even further the search service is used to bring them.
-	 * 
-	 * @param session
-	 * @throws ClientException
-	 */
-	protected ReplicationReader(CoreSession session) throws Exception {
-		super(session);
-		DocumentModelList list = new DocumentModelListImpl(session.query(query));
-		list.add(0, session.getRootDocument());
-		LOG.info("Exporting " + list.size() + " versions and usual documents");
+    /**
+     * The documents are retrieved using a session query. The iterated query is
+     * not working see NXP-3814. So the documents are collected in memory. When
+     * the iterated query will be available the memory exhaustion can be
+     * avoided. Moreover the session query on 1.4 is not retrieving proxies so
+     * even further the search service is used to bring them.
+     * 
+     * @param session
+     * @throws ClientException
+     */
+    protected ReplicationReader(CoreSession session) throws Exception {
+        super(session);
+        DocumentModelList list = new DocumentModelListImpl(session.query(query));
+        list.add(0, session.getRootDocument());
+        log.info("Exporting " + list.size() + " versions and usual documents");
 
-		SearchService service = SearchServiceDelegate.getRemoteSearchService();
+        SearchService service = SearchServiceDelegate.getRemoteSearchService();
 
-		// add proxies
-		ComposedNXQueryImpl query = new ComposedNXQueryImpl(SQLQueryParser
-				.parse(proxyQuery), service.getSearchPrincipal(session
-				.getPrincipal()));
-		SearchPageProvider nxqlProvider = new SearchPageProvider(service
-				.searchQuery(query, 0, 10), false, null, proxyQuery);
-		DocumentModelList proxies = new DocumentModelListImpl(nxqlProvider
-				.getCurrentPage());
-		while (nxqlProvider.isNextPageAvailable()) {
-			proxies.addAll(nxqlProvider.getNextPage());
-		}
-		LOG.info("Exporting " + proxies.size() + " proxies");
-		for (DocumentModel proxy : proxies) {
-			list.add(session.getDocument(proxy.getRef()));
-		}
-		LOG.info("Exporting " + list.size() + " documents");
-		iterator = list.iterator();
-	}
+        // add proxies
+        ComposedNXQueryImpl query = new ComposedNXQueryImpl(
+                SQLQueryParser.parse(proxyQuery),
+                service.getSearchPrincipal(session.getPrincipal()));
+        SearchPageProvider nxqlProvider = new SearchPageProvider(
+                service.searchQuery(query, 0, 10), false, null, proxyQuery);
+        DocumentModelList proxies = new DocumentModelListImpl(
+                nxqlProvider.getCurrentPage());
+        while (nxqlProvider.isNextPageAvailable()) {
+            proxies.addAll(nxqlProvider.getNextPage());
+        }
+        log.info("Exporting " + proxies.size() + " proxies");
+        for (DocumentModel proxy : proxies) {
+            list.add(session.getDocument(proxy.getRef()));
+        }
+        log.info("Exporting " + list.size() + " documents");
+        iterator = list.iterator();
+    }
 
-	@Override
-	public ExportedDocument read() throws IOException {
-		if (iterator.hasNext()) {
-			DocumentModel docModel = iterator.next();
-			return new ExportedDocumentImpl(docModel, inlineBlobs);
+    @Override
+    public ExportedDocument read() throws IOException {
+        if (iterator.hasNext()) {
+            DocumentModel docModel = iterator.next();
+            return new ExportedDocumentImpl(docModel, inlineBlobs);
 
-		}
-		return null;
-	}
+        }
+        return null;
+    }
 
 }

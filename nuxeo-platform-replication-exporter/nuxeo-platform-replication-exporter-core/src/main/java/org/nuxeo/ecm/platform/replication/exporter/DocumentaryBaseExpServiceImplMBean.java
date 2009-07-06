@@ -27,11 +27,11 @@ import org.nuxeo.ecm.core.api.ClientException;
  * 
  */
 public interface DocumentaryBaseExpServiceImplMBean extends
-		DocumentaryBaseExporterService {
+        DocumentaryBaseExporterService {
 
-	public void export(String domain, Map<String, Serializable> parameter,
-			File path, boolean resume, boolean exportVersions,
-			boolean exportProxies) throws ClientException;
+    public void export(String domain, Map<String, Serializable> parameter,
+            File path, boolean resume, boolean exportVersions,
+            boolean exportProxies) throws ClientException;
 
-	public void stop();
+    public void stop();
 }

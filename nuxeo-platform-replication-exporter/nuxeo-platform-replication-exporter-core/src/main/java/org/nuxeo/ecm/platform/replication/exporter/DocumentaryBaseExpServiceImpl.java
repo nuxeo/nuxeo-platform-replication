@@ -30,67 +30,66 @@ import org.nuxeo.ecm.platform.replication.common.StatusListener;
  * 
  */
 public class DocumentaryBaseExpServiceImpl // extends ServiceMBeanSupport
-		implements DocumentaryBaseExpServiceImplMBean, Runnable {
-	private static final Logger LOG = Logger
-			.getLogger(DocumentaryBaseExpServiceImpl.class);
+        implements DocumentaryBaseExpServiceImplMBean, Runnable {
+    private static final Logger log = Logger.getLogger(DocumentaryBaseExpServiceImpl.class);
 
-	private String domain = null;
+    private String domain = null;
 
-	private UnrestrictedExporter exp = null;
+    private UnrestrictedExporter exp = null;
 
-	private StatusListener listener = null;
+    private StatusListener listener = null;
 
-	private File path = null;
+    private File path = null;
 
-	public DocumentaryBaseExpServiceImpl() {
+    public DocumentaryBaseExpServiceImpl() {
 
-	}
+    }
 
-	public void export(String domain, Map<String, Serializable> parameter,
-			File path, boolean resume, boolean exportVersions,
-			boolean exportProxies) throws ClientException {
-		setDomain(domain);
-		setPath(path);
-		LOG.info("Starting export of " + domain + " to "
-				+ path.getAbsolutePath());
-		new Thread(this).start();
-	}
+    public void export(String domain, Map<String, Serializable> parameter,
+            File path, boolean resume, boolean exportVersions,
+            boolean exportProxies) throws ClientException {
+        setDomain(domain);
+        setPath(path);
+        log.info("Starting export of " + domain + " to "
+                + path.getAbsolutePath());
+        new Thread(this).start();
+    }
 
-	public void run() {
-		stop();
-		try {
-			exp = new UnrestrictedExporter(domain, getPath());
-			exp.setListener(listener);
-			exp.runUnrestricted();
-		} catch (Exception e) {
-			LOG.error(e);
-		}
-	}
+    public void run() {
+        stop();
+        try {
+            exp = new UnrestrictedExporter(domain, getPath());
+            exp.setListener(listener);
+            exp.runUnrestricted();
+        } catch (Exception e) {
+            log.error("Error exporting: ", e);
+        }
+    }
 
-	public void setDomain(String domain) {
-		this.domain = domain;
-	}
+    public void setDomain(String domain) {
+        this.domain = domain;
+    }
 
-	public String getDomain() {
-		return domain;
-	}
+    public String getDomain() {
+        return domain;
+    }
 
-	public void stop() {
-		if (exp != null) {
-			exp.stop();
-			exp = null;
-		}
-	}
+    public void stop() {
+        if (exp != null) {
+            exp.stop();
+            exp = null;
+        }
+    }
 
-	public void setListener(StatusListener listener) {
-		this.listener = listener;
-	}
+    public void setListener(StatusListener listener) {
+        this.listener = listener;
+    }
 
-	public void setPath(File path) {
-		this.path = path;
-	}
+    public void setPath(File path) {
+        this.path = path;
+    }
 
-	public File getPath() {
-		return path;
-	}
+    public File getPath() {
+        return path;
+    }
 }

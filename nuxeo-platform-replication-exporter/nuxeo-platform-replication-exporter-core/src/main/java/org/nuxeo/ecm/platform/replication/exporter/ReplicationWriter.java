@@ -63,159 +63,140 @@ import org.nuxeo.ecm.core.schema.types.primitives.DateType;
  * 
  */
 public class ReplicationWriter extends XMLDirectoryWriter {
-	private static final Logger LOG = Logger.getLogger(ReplicationWriter.class);
+    private static final Logger log = Logger.getLogger(ReplicationWriter.class);
 
-	private CoreSession session = null;
+    private CoreSession session = null;
 
-	private static final Object mutex = new Object();
+    private static final Object mutex = new Object();
 
-	public ReplicationWriter(File file, CoreSession session) throws IOException {
-		super(file);
-		this.session = session;
-	}
+    public ReplicationWriter(File file, CoreSession session) throws IOException {
+        super(file);
+        this.session = session;
+    }
 
-	@Override
-	public DocumentTranslationMap write(ExportedDocument doc)
-			throws IOException {
+    @Override
+    public DocumentTranslationMap write(ExportedDocument doc)
+            throws IOException {
 
-		File parent = new File(getDestination().toString(),
-				DOCUMENTARY_BASE_LOCATION_NAME);
-		try {
-			DocumentModel document = session
-					.getDocument(new IdRef(doc.getId()));
-			OutputFormat format = OutputFormat.createPrettyPrint();
+        File parent = new File(getDestination().toString(),
+                DOCUMENTARY_BASE_LOCATION_NAME);
+        try {
+            DocumentModel document = session.getDocument(new IdRef(doc.getId()));
+            OutputFormat format = OutputFormat.createPrettyPrint();
 
-			if (!document.isVersion()) {
-				parent = new File(parent, USUAL_DOCUMENTS_LOCATION_NAME);
-				parent = new File(parent, doc.getPath().toString());
-			} else {
-				parent = new File(parent, VERSIONS_LOCATION_NAME);
-				parent = new File(parent, document.getId());
-			}
+            if (!document.isVersion()) {
+                parent = new File(parent, USUAL_DOCUMENTS_LOCATION_NAME);
+                parent = new File(parent, doc.getPath().toString());
+            } else {
+                parent = new File(parent, VERSIONS_LOCATION_NAME);
+                parent = new File(parent, document.getId());
+            }
 
-			synchronized (mutex) {
-				parent.mkdirs();
-			}
+            synchronized (mutex) {
+                parent.mkdirs();
+            }
 
-			XMLWriter writer = new XMLWriter(new FileOutputStream(new File(
-					parent, "document.xml")), format);
-			writer.write(doc.getDocument());
-			writer.close();
+            XMLWriter writer = new XMLWriter(new FileOutputStream(new File(
+                    parent, "document.xml")), format);
+            writer.write(doc.getDocument());
+            writer.close();
+            Map<String, Blob> blobs = doc.getBlobs();
+            for (Map.Entry<String, Blob> entry : blobs.entrySet()) {
+                entry.getValue().transferTo(new File(parent, entry.getKey()));
+            }
+            // write external documents
+            for (Map.Entry<String, Document> entry : doc.getDocuments().entrySet()) {
 
-			Map<String, Blob> blobs = doc.getBlobs();
-			for (Map.Entry<String, Blob> entry : blobs.entrySet()) {
-				entry.getValue().transferTo(new File(parent, entry.getKey()));
-			}
+                writer = new XMLWriter(new FileOutputStream(new File(parent,
+                        entry.getKey() + ".xml")), format);
+                writer.write(entry.getValue());
+                writer.close();
+            }
+            Properties metadata = getDocumentMetadata(session, document);
+            File metadataFile = new File(parent, "metadata.properties");
+            metadata.store(new FileOutputStream(metadataFile),
+                    "Document Metadata");
+        } catch (Exception e) {
+            log.error(parent.getAbsolutePath() + " missing!", e);
+            throw new IOException(e.getMessage());
+        }
+        return null;
+    }
 
-			// write external documents
-			for (Map.Entry<String, Document> entry : doc.getDocuments()
-					.entrySet()) {
+    public static Properties getDocumentMetadata(CoreSession documentManager,
+            DocumentModel document) throws ClientException, DocumentException {
+        Properties props = new Properties();
+        DocumentRef ref = document.getRef();
+        if (document.isProxy()) {
+            DocumentModel version = documentManager.getSourceDocument(ref);
+            DocumentModel sourceDocument = documentManager.getSourceDocument(version.getRef());
+            props.setProperty(IMPORT_PROXY_TARGET_ID,
+                    version.getId() == null ? "" : version.getId());
+            props.setProperty(IMPORT_PROXY_VERSIONABLE_ID,
+                    sourceDocument.getId() == null ? ""
+                            : sourceDocument.getId());
+        } else if (document.isVersion()) {
+            DocumentModel sourceDocument = documentManager.getSourceDocument(ref);
+            props.setProperty(IMPORT_VERSION_VERSIONABLE_ID,
+                    sourceDocument.getId() == null ? ""
+                            : sourceDocument.getId());
+            props.setProperty(IMPORT_VERSION_LABEL,
+                    document.getVersionLabel() == null ? ""
+                            : document.getVersionLabel());
+            List<VersionModel> versions = documentManager.getVersionsForDocument(sourceDocument.getRef());
+            for (VersionModel version : versions) {
+                // add version description
+                props.setProperty(IMPORT_VERSION_DESCRIPTION,
+                        version.getDescription() == null ? ""
+                                : version.getDescription());
+                // add version creation date
+                props.setProperty(
+                        IMPORT_VERSION_CREATED,
+                        new DateType().encode(version.getCreated()) == null ? ""
+                                : new DateType().encode(version.getCreated()));
+            }
+            VersioningDocument docVer = document.getAdapter(VersioningDocument.class);
+            String minorVer = docVer.getMinorVersion().toString();
+            String majorVer = docVer.getMajorVersion().toString();
 
-				writer = new XMLWriter(new FileOutputStream(new File(parent,
-						entry.getKey() + ".xml")), format);
-				writer.write(entry.getValue());
-				writer.close();
-			}
+            props.setProperty(IMPORT_VERSION_MAJOR, majorVer == null ? ""
+                    : majorVer);
 
-			Properties metadata = getDocumentMetadata(session, document);
+            props.setProperty(IMPORT_VERSION_MINOR, minorVer == null ? ""
+                    : minorVer);
+        } else {
+            props.setProperty(IMPORT_LOCK, document.getLock() == null ? ""
+                    : document.getLock());
+            if (document.isVersionable()) {
+                props.setProperty(IMPORT_CHECKED_IN, Boolean.FALSE.toString());
+                // add the id of the last version, which represents the base for
+                // the current state of the document
+                DocumentModel version = documentManager.getLastDocumentVersion(ref);
+                if ((version != null)
+                        && version.getId().equals(document.getId())) {
+                    props.setProperty(IMPORT_BASE_VERSION_ID,
+                            version.getId() == null ? "" : version.getId());
+                }
+                VersioningDocument docVer = document.getAdapter(VersioningDocument.class);
+                if (docVer != null) {
+                    String minorVer = docVer.getMinorVersion().toString();
+                    String majorVer = docVer.getMajorVersion().toString();
+                    // add major version
+                    props.setProperty(IMPORT_VERSION_MAJOR,
+                            majorVer == null ? "" : majorVer);
+                    // add minor version
+                    props.setProperty(IMPORT_VERSION_MINOR,
+                            minorVer == null ? "" : minorVer);
+                }
+            }
+        }
 
-			File metadataFile = new File(parent, "metadata.properties");
-			metadata.store(new FileOutputStream(metadataFile),
-					"Document Metadata");
-
-		} catch (Exception e) {
-			LOG.error(parent.getAbsolutePath() + " missing!", e);
-			throw new IOException(e.getMessage());
-		}
-		return null;
-	}
-
-	public static Properties getDocumentMetadata(CoreSession documentManager,
-			DocumentModel document) throws ClientException, DocumentException {
-		Properties props = new Properties();
-
-		DocumentRef ref = document.getRef();
-
-		if (document.isProxy()) {
-			DocumentModel version = documentManager.getSourceDocument(ref);
-			DocumentModel sourceDocument = documentManager
-					.getSourceDocument(version.getRef());
-
-			props.setProperty(IMPORT_PROXY_TARGET_ID,
-					version.getId() == null ? "" : version.getId());
-			props.setProperty(IMPORT_PROXY_VERSIONABLE_ID, sourceDocument
-					.getId() == null ? "" : sourceDocument.getId());
-		} else if (document.isVersion()) {
-			DocumentModel sourceDocument = documentManager
-					.getSourceDocument(ref);
-
-			props.setProperty(IMPORT_VERSION_VERSIONABLE_ID, sourceDocument
-					.getId() == null ? "" : sourceDocument.getId());
-			props.setProperty(IMPORT_VERSION_LABEL,
-					document.getVersionLabel() == null ? "" : document
-							.getVersionLabel());
-
-			List<VersionModel> versions = documentManager
-					.getVersionsForDocument(sourceDocument.getRef());
-			for (VersionModel version : versions) {
-				// add version description
-				props.setProperty(IMPORT_VERSION_DESCRIPTION, version
-						.getDescription() == null ? "" : version
-						.getDescription());
-				// add version creation date
-				props.setProperty(IMPORT_VERSION_CREATED, new DateType()
-						.encode(version.getCreated()) == null ? ""
-						: new DateType().encode(version.getCreated()));
-			}
-
-			VersioningDocument docVer = document
-					.getAdapter(VersioningDocument.class);
-			String minorVer = docVer.getMinorVersion().toString();
-			String majorVer = docVer.getMajorVersion().toString();
-
-			props.setProperty(IMPORT_VERSION_MAJOR, majorVer == null ? ""
-					: majorVer);
-
-			props.setProperty(IMPORT_VERSION_MINOR, minorVer == null ? ""
-					: minorVer);
-		} else {
-
-			props.setProperty(IMPORT_LOCK, document.getLock() == null ? ""
-					: document.getLock());
-			if (document.isVersionable()) {
-				props.setProperty(IMPORT_CHECKED_IN, Boolean.FALSE.toString());
-				// add the id of the last version, which represents the base for
-				// the current state of the document
-				DocumentModel version = documentManager
-						.getLastDocumentVersion(ref);
-				if ((version != null)
-						&& version.getId().equals(document.getId())) {
-					props.setProperty(IMPORT_BASE_VERSION_ID,
-							version.getId() == null ? "" : version.getId());
-				}
-				VersioningDocument docVer = document
-						.getAdapter(VersioningDocument.class);
-				if (docVer != null) {
-					String minorVer = docVer.getMinorVersion().toString();
-					String majorVer = docVer.getMajorVersion().toString();
-					// add major version
-					props.setProperty(IMPORT_VERSION_MAJOR,
-							majorVer == null ? "" : majorVer);
-					// add minor version
-					props.setProperty(IMPORT_VERSION_MINOR,
-							minorVer == null ? "" : minorVer);
-				}
-			}
-
-		}
-
-		props.setProperty(IMPORT_LIFECYCLE_STATE, document
-				.getCurrentLifeCycleState() == null ? "" : document
-				.getCurrentLifeCycleState());
-		props.setProperty(IMPORT_LIFECYCLE_POLICY, document
-				.getLifeCyclePolicy() == null ? "" : document
-				.getLifeCyclePolicy());
-
-		return props;
-	}
+        props.setProperty(IMPORT_LIFECYCLE_STATE,
+                document.getCurrentLifeCycleState() == null ? ""
+                        : document.getCurrentLifeCycleState());
+        props.setProperty(IMPORT_LIFECYCLE_POLICY,
+                document.getLifeCyclePolicy() == null ? ""
+                        : document.getLifeCyclePolicy());
+        return props;
+    }
 }

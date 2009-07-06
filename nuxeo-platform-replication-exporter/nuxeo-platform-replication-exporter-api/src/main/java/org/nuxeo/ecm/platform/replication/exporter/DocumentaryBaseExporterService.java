@@ -50,30 +50,30 @@ import org.nuxeo.ecm.platform.replication.common.StatusListener;
  */
 public interface DocumentaryBaseExporterService {
 
-	/**
-	 * Exports the documentary base.
-	 * 
-	 * @param session
-	 * @param parameter
-	 * @param path
-	 * @param resume
-	 * @param exportVersions
-	 * @param exportProxies
-	 * @throws ClientException
-	 */
-	public void export(String domain, Map<String, Serializable> parameter,
-			File path, boolean resume, boolean exportVersions,
-			boolean exportProxies) throws ClientException;
+    /**
+     * Exports the documentary base.
+     * 
+     * @param session
+     * @param parameter
+     * @param path
+     * @param resume
+     * @param exportVersions
+     * @param exportProxies
+     * @throws ClientException
+     */
+    public void export(String domain, Map<String, Serializable> parameter,
+            File path, boolean resume, boolean exportVersions,
+            boolean exportProxies) throws ClientException;
 
-	/**
-	 * Stops the export
-	 */
-	public void stop();
+    /**
+     * Stops the export
+     */
+    public void stop();
 
-	/**
-	 * Sets a listener that receives misc events
-	 * 
-	 * @param listener
-	 */
-	public void setListener(StatusListener listener);
+    /**
+     * Sets a listener that receives misc events
+     * 
+     * @param listener
+     */
+    public void setListener(StatusListener listener);
 }
