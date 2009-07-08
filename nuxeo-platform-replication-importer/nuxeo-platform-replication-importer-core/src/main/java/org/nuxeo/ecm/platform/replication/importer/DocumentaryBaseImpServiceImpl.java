@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.platform.importer.base.GenericMultiThreadedImporter;
 import org.nuxeo.ecm.platform.importer.executor.AbstractImporterExecutor;
@@ -34,9 +35,9 @@ import org.nuxeo.ecm.platform.replication.common.StatusListener;
 
 /**
  * Implementation for import documentary base service.
- * 
+ *
  * @author rux
- * 
+ *
  */
 public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
         implements DocumentaryBaseImporterService {
@@ -45,6 +46,8 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
     private StatusListener listener;
 
     private DocumentXmlTransformer xmlTransformer;
+
+    private ImportRunner runner;
 
     public DocumentXmlTransformer getXmlTransformer() {
         return xmlTransformer;
@@ -57,35 +60,12 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
     public void importDocuments(Map<String, Serializable> parameter, File path,
             boolean resume, boolean exportVersions, boolean exportProxies,
             boolean useMultiThread) throws ClientException {
-        log.info("Starting import. First, usual documents...");
-        // we need to import the documentary base in order: usual documents,
-        // versions, proxies
-        File usualDocumentsRoot = new File(path.getPath() + File.separator
-                + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
-                + USUAL_DOCUMENTS_LOCATION_NAME);
-        doSynchronImport(usualDocumentsRoot, false, useMultiThread);
-
-        File versionsRoot = new File(path.getPath() + File.separator
-                + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
-                + VERSIONS_LOCATION_NAME);
-        if (versionsRoot.exists()) {
-            log.info("Second, version documents...");
-            doSynchronImport(versionsRoot, false, useMultiThread);
-        }
-
-        File proxiesRoot = new File(path.getPath() + File.separator
-                + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
-                + USUAL_DOCUMENTS_LOCATION_NAME);
-        if (proxiesRoot.exists()) {
-            log.info("Third, proxies documents...");
-            doSynchronImport(proxiesRoot, true, useMultiThread);
-        }
-        if (listener != null) {
-            listener.onUpdateStatus(StatusListener.DONE);
-        }
+        runner = new ImportRunner(parameter, path, resume, exportVersions,
+                exportProxies, useMultiThread, this, listener);
+        runner.start();
     }
 
-    protected void doSynchronImport(File root, boolean importProxies,
+    public void doSynchronImport(File root, boolean importProxies,
             boolean useMultiThread) throws ClientException {
         try {
             ReplicationSourceNode sourceNode = new ReplicationSourceNode(root);
@@ -122,5 +102,142 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
     public void stop() {
         // TODO Auto-generated method stub
 
+    }
+}
+
+class ImportRunner implements Runnable {
+
+    private static Logger LOG = Logger.getLogger(ImportRunner.class);
+
+    private Map<String, Serializable> parameter;
+
+    private File path;
+
+    private boolean resume;
+
+    private boolean exportVersions;
+
+    private boolean exportProxies;
+
+    private boolean useMultiThread;
+
+    private DocumentaryBaseImpServiceImpl service;
+
+    private StatusListener listener;
+
+    public ImportRunner(Map<String, Serializable> parameter, File path,
+            boolean resume, boolean exportVersions, boolean exportProxies,
+            boolean useMultiThread, DocumentaryBaseImpServiceImpl service,
+            StatusListener listener) {
+        setParameter(parameter);
+        setPath(path);
+        setResume(resume);
+        setExportVersions(exportVersions);
+        setExportProxies(exportProxies);
+        setUseMultiThread(useMultiThread);
+
+        setService(service);
+        setListener(listener);
+    }
+
+    public void start() {
+        new Thread(this).start();
+    }
+
+    public void run() {
+        try {
+            LOG.info("Starting import. First, usual documents...");
+            // we need to import the documentary base in order: usual documents,
+            // versions, proxies
+            File usualDocumentsRoot = new File(path.getPath() + File.separator
+                    + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
+                    + USUAL_DOCUMENTS_LOCATION_NAME);
+            service.doSynchronImport(usualDocumentsRoot, false, useMultiThread);
+
+            File versionsRoot = new File(path.getPath() + File.separator
+                    + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
+                    + VERSIONS_LOCATION_NAME);
+            if (versionsRoot.exists()) {
+                LOG.info("Second, version documents...");
+                service.doSynchronImport(versionsRoot, false, useMultiThread);
+            }
+
+            File proxiesRoot = new File(path.getPath() + File.separator
+                    + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
+                    + USUAL_DOCUMENTS_LOCATION_NAME);
+            if (proxiesRoot.exists()) {
+                LOG.info("Third, proxies documents...");
+                service.doSynchronImport(proxiesRoot, true, useMultiThread);
+            }
+            if (listener != null) {
+                listener.onUpdateStatus(StatusListener.DONE);
+            }
+        } catch (ClientException e) {
+            LOG.error("Error", e);
+        }
+    }
+
+    public void setParameter(Map<String, Serializable> parameter) {
+        this.parameter = parameter;
+    }
+
+    public Map<String, Serializable> getParameter() {
+        return parameter;
+    }
+
+    public void setPath(File path) {
+        this.path = path;
+    }
+
+    public File getPath() {
+        return path;
+    }
+
+    public void setResume(boolean resume) {
+        this.resume = resume;
+    }
+
+    public boolean isResume() {
+        return resume;
+    }
+
+    public void setExportVersions(boolean exportVersions) {
+        this.exportVersions = exportVersions;
+    }
+
+    public boolean isExportVersions() {
+        return exportVersions;
+    }
+
+    public void setExportProxies(boolean exportProxies) {
+        this.exportProxies = exportProxies;
+    }
+
+    public boolean isExportProxies() {
+        return exportProxies;
+    }
+
+    public void setUseMultiThread(boolean useMultiThread) {
+        this.useMultiThread = useMultiThread;
+    }
+
+    public boolean isUseMultiThread() {
+        return useMultiThread;
+    }
+
+    public void setListener(StatusListener listener) {
+        this.listener = listener;
+    }
+
+    public StatusListener getListener() {
+        return listener;
+    }
+
+    public DocumentaryBaseImpServiceImpl getService() {
+        return service;
+    }
+
+    public void setService(DocumentaryBaseImpServiceImpl service) {
+        this.service = service;
     }
 }
