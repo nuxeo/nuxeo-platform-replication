@@ -54,6 +54,7 @@ public class TestImport extends SQLRepositoryTestCase {
         openSession();
     }
 
+    @SuppressWarnings("unchecked")
     private File getArchiveFile() throws ZipException, IOException {
         File zip = new File(
                 FileUtils.getResourcePathFromContext("DocumentaryBase.zip"));
@@ -92,7 +93,8 @@ public class TestImport extends SQLRepositoryTestCase {
         File archiveDir = getArchiveFile();
         assertTrue(archiveDir.exists());
         assertTrue(archiveDir.list().length > 0);
-        importer.importDocuments(null, archiveDir, false, true, true, false);
+        importer.importDocuments(null, archiveDir, false, true, true, false,
+                false);
         root = session.getRootDocument();
         assertNotNull(root);
 
@@ -145,7 +147,8 @@ public class TestImport extends SQLRepositoryTestCase {
         File archiveDir = getArchiveFile();
         assertTrue(archiveDir.exists());
         assertTrue(archiveDir.list().length > 0);
-        importer.importDocuments(null, archiveDir, false, true, true, false);
+        importer.importDocuments(null, archiveDir, false, true, true, false,
+                false);
         session.getRootDocument();
 
     }

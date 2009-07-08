@@ -35,9 +35,9 @@ import org.nuxeo.ecm.platform.replication.common.StatusListener;
 
 /**
  * Implementation for import documentary base service.
- *
+ * 
  * @author rux
- *
+ * 
  */
 public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
         implements DocumentaryBaseImporterService {
@@ -59,10 +59,15 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
 
     public void importDocuments(Map<String, Serializable> parameter, File path,
             boolean resume, boolean exportVersions, boolean exportProxies,
-            boolean useMultiThread) throws ClientException {
+            boolean useMultiThread, boolean asynchronous)
+            throws ClientException {
         runner = new ImportRunner(parameter, path, resume, exportVersions,
                 exportProxies, useMultiThread, this, listener);
-        runner.start();
+        if (asynchronous) {
+            runner.start();
+        } else {
+            runner.run();
+        }
     }
 
     public void doSynchronImport(File root, boolean importProxies,

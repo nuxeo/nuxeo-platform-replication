@@ -81,7 +81,7 @@ public class ImportActionsBean implements Serializable, StatusListener {
         setDone(false);
         setFileCount(0);
         importService.importDocuments(null, new File(path), true, true, true,
-                useMultiThread);
+                useMultiThread, true);
         return null;
     }
 

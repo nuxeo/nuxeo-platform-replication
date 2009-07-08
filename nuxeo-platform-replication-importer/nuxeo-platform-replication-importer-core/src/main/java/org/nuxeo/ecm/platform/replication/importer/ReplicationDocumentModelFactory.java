@@ -15,6 +15,7 @@
 
 package org.nuxeo.ecm.platform.replication.importer;
 
+import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.DOCUMENTARY_BASE_LOCATION_NAME;
 import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.METADATA_FILE_NAME;
 import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.VERSIONS_LOCATION_NAME;
 
@@ -122,7 +123,9 @@ public class ReplicationDocumentModelFactory implements
 
     protected DocumentModel importDocument() throws ClientException,
             IOException {
-        if (fileNode.getName().endsWith(VERSIONS_LOCATION_NAME)) {
+        if (fileNode.getName().endsWith(
+                DOCUMENTARY_BASE_LOCATION_NAME + File.separator
+                        + VERSIONS_LOCATION_NAME)) {
             return null;
         }
         ExportedDocument xdoc = new ExportedDocumentImpl();
@@ -158,9 +161,9 @@ public class ReplicationDocumentModelFactory implements
         // create document
         DocumentModel documentModel = null;
         if (!xdoc.getType().equals("Root")) {
-            xdoc.setPath(new Path(new File(fileNode.getName()).getName()));
             Path path = new Path(((Element) xdoc.getDocument().selectNodes(
                     "//system/path").get(0)).getText());
+            xdoc.setPath(new Path(path.lastSegment()));
             path = path.removeLastSegments(1);
             documentModel = coreImportDocument(xdoc, path.toString(),
                     properties);
@@ -196,12 +199,8 @@ public class ReplicationDocumentModelFactory implements
 
     protected DocumentModel coreImportDocument(ExportedDocument doc,
             String parentPath, Properties properties) throws ClientException {
-        // hack to obtain the name of the document: get the file path; later get
-        // the name
-        File currentDocumentFile = new File(fileNode.getName());
         return ImporterDocumentCreator.importDocument(session, doc.getType(),
-                doc.getId(), currentDocumentFile.getName(), parentPath,
-                properties);
+                doc.getId(), doc.getPath().toString(), parentPath, properties);
     }
 
     /**

@@ -60,11 +60,12 @@ public interface DocumentaryBaseImporterService {
      * @param exportVersions
      * @param exportProxies
      * @param useMultiThread
+     * @param asynchronous start the service asynchronous
      * @throws ClientException
      */
     void importDocuments(Map<String, Serializable> parameter, File path,
             boolean resume, boolean exportVersions, boolean exportProxies,
-            boolean useMultiThread) throws ClientException;
+            boolean useMultiThread, boolean asynchronous) throws ClientException;
 
     /**
      * Stops the process of import.

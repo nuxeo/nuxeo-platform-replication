@@ -35,7 +35,8 @@ public interface DocumentaryBaseImpServiceImplMBean extends
     void importDocuments(CoreSession session,
             Map<String, Serializable> parameter, File path, boolean resume,
             boolean exportVersions, boolean exportProxies,
-            boolean useMultiThread) throws ClientException;
+            boolean useMultiThread, boolean asynchronous)
+            throws ClientException;
 
     void stop();
 
