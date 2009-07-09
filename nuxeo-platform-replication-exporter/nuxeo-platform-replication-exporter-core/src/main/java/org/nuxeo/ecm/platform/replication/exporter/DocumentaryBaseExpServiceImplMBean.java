@@ -15,23 +15,20 @@
 package org.nuxeo.ecm.platform.replication.exporter;
 
 import java.io.File;
-import java.io.Serializable;
-import java.util.Map;
 
 import org.nuxeo.ecm.core.api.ClientException;
 
 /**
  * MBean interface to act as a service.
- * 
+ *
  * @author cpriceputu@nuxeo.com
- * 
+ *
  */
 public interface DocumentaryBaseExpServiceImplMBean extends
         DocumentaryBaseExporterService {
 
-    public void export(String domain, Map<String, Serializable> parameter,
-            File path, boolean resume, boolean exportVersions,
-            boolean exportProxies) throws ClientException;
+    public void export(String domain, File path, boolean showLog)
+            throws ClientException;
 
     public void stop();
 }

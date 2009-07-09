@@ -24,9 +24,9 @@ import org.nuxeo.ecm.platform.replication.common.StatusListener;
 
 /**
  * Used to run as system.
- * 
+ *
  * @author cpriceputu@nuxeo.com
- * 
+ *
  */
 public class UnrestrictedExporter extends UnrestrictedSessionRunner {
     private ReplicationPipe pipe = null;
