@@ -25,9 +25,9 @@ import org.nuxeo.ecm.platform.replication.common.StatusListener;
 
 /**
  * Implementation for export documentary base service.
- * 
+ *
  * @author cpriceputu
- * 
+ *
  */
 public class DocumentaryBaseExpServiceImpl // extends ServiceMBeanSupport
         implements DocumentaryBaseExpServiceImplMBean, Runnable {
@@ -91,5 +91,9 @@ public class DocumentaryBaseExpServiceImpl // extends ServiceMBeanSupport
 
     public File getPath() {
         return path;
+    }
+
+    public void export(String domain, File path) throws ClientException {
+        export(domain, null, path, false, false, false);
     }
 }

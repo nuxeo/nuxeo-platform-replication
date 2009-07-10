@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server>
+  <mbean code="org.nuxeo.ecm.platform.replication.exporter.Exporter" 
+  name="nx:type=service,name=Exporter">
+  </mbean>
+</server> 
