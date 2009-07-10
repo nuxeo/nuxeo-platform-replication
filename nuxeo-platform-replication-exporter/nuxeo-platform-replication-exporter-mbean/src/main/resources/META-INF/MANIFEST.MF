@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 1
+Bundle-Name: Nuxeo Platform Replication Exporter MBean
+Bundle-SymbolicName: org.nuxeo.ecm.platform.replication.exporter.mbean;singleton:=true
+Export-Package: org.nuxeo.ecm.platform.replication.exporter
+Require-Bundle: org.nuxeo.ecm.platform.replication.exporter.api, org.nuxeo.ecm.platform.replication.exporter.api

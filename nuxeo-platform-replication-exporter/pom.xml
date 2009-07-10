@@ -15,5 +15,6 @@
     <module>nuxeo-platform-replication-exporter-api</module>
     <module>nuxeo-platform-replication-exporter-core</module>
     <module>nuxeo-platform-replication-exporter-web</module>
+    <module>nuxeo-platform-replication-exporter-mbean</module>
   </modules>
 </project>
