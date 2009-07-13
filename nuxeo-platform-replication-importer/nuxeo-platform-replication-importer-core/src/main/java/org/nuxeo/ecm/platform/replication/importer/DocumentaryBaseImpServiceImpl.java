@@ -32,15 +32,16 @@ import org.nuxeo.ecm.platform.importer.executor.AbstractImporterExecutor;
 import org.nuxeo.ecm.platform.importer.filter.EventServiceConfiguratorFilter;
 import org.nuxeo.ecm.platform.importer.filter.ImporterFilter;
 import org.nuxeo.ecm.platform.replication.common.StatusListener;
+import org.nuxeo.runtime.api.Framework;
 
 /**
  * Implementation for import documentary base service.
- * 
+ *
  * @author rux
- * 
+ *
  */
 public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
-        implements DocumentaryBaseImporterService {
+        implements DocumentaryBaseImpServiceImplMBean {
     private static final Log log = LogFactory.getLog(DocumentaryBaseImpServiceImpl.class);
 
     private StatusListener listener;
@@ -105,8 +106,13 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
     }
 
     public void stop() {
-        // TODO Auto-generated method stub
 
+    }
+
+    public void importDocuments(File path) throws ClientException {
+        Thread.currentThread().setContextClassLoader(
+                Framework.class.getClassLoader());
+        importDocuments(null, path, true, true, true, false, true);
     }
 }
 
