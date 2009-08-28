@@ -113,6 +113,8 @@ public class ServiceTest extends SQLRepositoryTestCase {
         });
         srv.export("test", null, new File(System.getProperty("user.home"),
                 "test.folder"), true, true, true);
+        //simple avoid closing session before test completes
+        Thread.sleep(10000);
     }
 
     public static void main(String[] args) throws Exception {
