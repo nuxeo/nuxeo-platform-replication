@@ -58,9 +58,9 @@ import org.nuxeo.ecm.core.schema.types.primitives.DateType;
 
 /**
  * Extends XMLDirectoryWriter to provide additional metadata .
- * 
+ *
  * @author cpriceputu@nuxeo.com
- * 
+ *
  */
 public class ReplicationWriter extends XMLDirectoryWriter {
     private static final Logger log = Logger.getLogger(ReplicationWriter.class);
@@ -118,7 +118,7 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                     "Document Metadata");
         } catch (Exception e) {
             log.error(parent.getAbsolutePath() + " missing!", e);
-            throw new IOException(e.getMessage());
+            //throw new IOException(e.getMessage()); don't crash, just continue
         }
         return null;
     }
