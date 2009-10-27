@@ -3,7 +3,7 @@
   <parent>
     <artifactId>nuxeo-platform-replication-exporter</artifactId>
     <groupId>org.nuxeo.ecm.platform</groupId>
-    <version>5.2.1-SNAPSHOT</version>
+    <version>5.3.0-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -31,8 +31,8 @@
     <dependency>
       <groupId>org.nuxeo.ecm.platform</groupId>
       <artifactId>nuxeo-platform-replication-common-api</artifactId>
-      <version>5.2.1-SNAPSHOT</version>
-    </dependency>    
+      <version>5.3.0-SNAPSHOT</version>
+    </dependency>
     <dependency>
       <groupId>org.nuxeo.ecm.platform</groupId>
       <artifactId>nuxeo-platform-versioning-api</artifactId>
@@ -46,7 +46,7 @@
     <dependency>
       <groupId>org.nuxeo.ecm.core</groupId>
       <artifactId>nuxeo-core-storage-sql-test</artifactId>
-      <version>1.5.1-SNAPSHOT</version>
+      <version>1.6.0-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
 
@@ -84,12 +84,12 @@
       <groupId>org.nuxeo.ecm.core</groupId>
       <artifactId>nuxeo-core-api</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>dom4j</groupId>
       <artifactId>dom4j</artifactId>
     </dependency>
-    
+
 
     <!--  MBean Stuff -->
     <dependency>
@@ -113,7 +113,7 @@
       <groupId>org.nuxeo.ecm.platform</groupId>
       <artifactId>nuxeo-platform-replication-exporter-api
       </artifactId>
-      <version>5.2.1-SNAPSHOT</version>
+      <version>5.3.0-SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>
