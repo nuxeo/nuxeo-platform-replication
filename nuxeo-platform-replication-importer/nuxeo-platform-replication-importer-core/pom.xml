@@ -3,7 +3,7 @@
   <parent>
     <artifactId>nuxeo-platform-replication-importer</artifactId>
     <groupId>org.nuxeo.ecm.platform</groupId>
-    <version>5.3.0-SNAPSHOT</version>
+    <version>5.3.1-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -27,12 +27,12 @@
     <dependency>
       <groupId>org.nuxeo.ecm.platform</groupId>
       <artifactId>nuxeo-platform-replication-importer-api</artifactId>
-      <version>5.3.0-SNAPSHOT</version>
+      <version>5.3.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.nuxeo.ecm.platform</groupId>
       <artifactId>nuxeo-platform-importer-core</artifactId>
-      <version>5.3.0-SNAPSHOT</version>
+      <version>5.3.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>dom4j</groupId>
@@ -46,24 +46,24 @@
     <dependency>
       <groupId>org.nuxeo.ecm.platform</groupId>
       <artifactId>nuxeo-platform-replication-common-api</artifactId>
-      <version>5.3.0-SNAPSHOT</version>
+      <version>5.3.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.nuxeo.ecm.core</groupId>
       <artifactId>nuxeo-core-storage-sql-test</artifactId>
-      <version>1.6.0-SNAPSHOT</version>
+      <version>1.6.1-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.nuxeo.ecm.platform</groupId>
       <artifactId>nuxeo-platform-imaging-core</artifactId>
-      <version>5.3.0-SNAPSHOT</version>
+      <version>5.3.1-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.nuxeo.ecm.platform</groupId>
       <artifactId>nuxeo-platform-forum-core</artifactId>
-      <version>5.3.0-SNAPSHOT</version>
+      <version>5.3.1-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
