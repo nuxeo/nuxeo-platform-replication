@@ -55,6 +55,7 @@ import org.nuxeo.ecm.core.io.DocumentTranslationMap;
 import org.nuxeo.ecm.core.io.ExportedDocument;
 import org.nuxeo.ecm.core.io.impl.plugins.XMLDirectoryWriter;
 import org.nuxeo.ecm.core.schema.types.primitives.DateType;
+import org.nuxeo.ecm.platform.replication.exporter.reporter.Reporter;
 
 /**
  * Extends XMLDirectoryWriter to provide additional metadata .
@@ -68,6 +69,8 @@ public class ReplicationWriter extends XMLDirectoryWriter {
     private CoreSession session = null;
 
     private static final Object mutex = new Object();
+
+    public static final String FAKE_BLOB_BODY = "The original blob could not be found, this is a fake replacement one.";
 
     public ReplicationWriter(File file, CoreSession session) throws IOException {
         super(file);
@@ -102,7 +105,16 @@ public class ReplicationWriter extends XMLDirectoryWriter {
             writer.close();
             Map<String, Blob> blobs = doc.getBlobs();
             for (Map.Entry<String, Blob> entry : blobs.entrySet()) {
-                entry.getValue().transferTo(new File(parent, entry.getKey()));
+                File file = new File(parent, entry.getKey());
+
+                try {
+                    entry.getValue().transferTo(file);
+                } catch (Exception e) {
+                    Reporter.getReporter().log(doc.getId(),
+                            doc.getDocument().getName(), entry.getKey());
+                    log.error("Could not export blob creating a fake one.", e);
+                    createFakeBlob(file);
+                }
             }
             // write external documents
             for (Map.Entry<String, Document> entry : doc.getDocuments().entrySet()) {
@@ -118,9 +130,22 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                     "Document Metadata");
         } catch (Exception e) {
             log.error(parent.getAbsolutePath() + " missing!", e);
-            //throw new IOException(e.getMessage()); don't crash, just continue
+            // throw new IOException(e.getMessage()); don't crash, just continue
         }
         return null;
+    }
+
+    public static final void createFakeBlob(File file) throws IOException {
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(file, false);
+            fos.write(FAKE_BLOB_BODY.getBytes());
+        } finally {
+            if (fos != null) {
+                fos.close();
+            }
+        }
     }
 
     public static Properties getDocumentMetadata(CoreSession documentManager,

@@ -16,17 +16,19 @@ package org.nuxeo.ecm.platform.replication.exporter;
 
 import java.io.File;
 
+import org.apache.log4j.Logger;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.UnrestrictedSessionRunner;
 import org.nuxeo.ecm.core.io.DocumentReader;
 import org.nuxeo.ecm.core.io.DocumentWriter;
 import org.nuxeo.ecm.platform.replication.common.StatusListener;
+import org.nuxeo.ecm.platform.replication.exporter.reporter.Reporter;
 
 /**
  * Used to run as system.
- * 
+ *
  * @author cpriceputu@nuxeo.com
- * 
+ *
  */
 public class UnrestrictedExporter extends UnrestrictedSessionRunner {
     private ReplicationPipe pipe = null;
@@ -34,6 +36,8 @@ public class UnrestrictedExporter extends UnrestrictedSessionRunner {
     private StatusListener listener = null;
 
     private File path = null;
+
+    private static final Logger log = Logger.getLogger(UnrestrictedExporter.class);
 
     public UnrestrictedExporter(String repositoryName, File path) {
         super(repositoryName);
@@ -43,6 +47,8 @@ public class UnrestrictedExporter extends UnrestrictedSessionRunner {
     @Override
     public void run() throws ClientException {
         try {
+            Reporter.getReporter().clear();
+
             DocumentReader reader = new ReplicationReader(session);
             DocumentWriter writer = new ReplicationWriter(path, session);
             pipe = new ReplicationPipe(10);
@@ -53,6 +59,8 @@ public class UnrestrictedExporter extends UnrestrictedSessionRunner {
             if (getListener() != null) {
                 getListener().onUpdateStatus(StatusListener.DONE);
             }
+
+            log.info(Reporter.getReporter().getReportAsString());
 
         } catch (Exception e) {
             throw new ClientException(e);
