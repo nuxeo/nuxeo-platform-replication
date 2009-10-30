@@ -22,7 +22,7 @@ import org.nuxeo.ecm.core.api.UnrestrictedSessionRunner;
 import org.nuxeo.ecm.core.io.DocumentReader;
 import org.nuxeo.ecm.core.io.DocumentWriter;
 import org.nuxeo.ecm.platform.replication.common.StatusListener;
-import org.nuxeo.ecm.platform.replication.exporter.reporter.Reporter;
+import org.nuxeo.ecm.platform.replication.exporter.reporter.ExporterReporter;
 
 /**
  * Used to run as system.
@@ -47,7 +47,7 @@ public class UnrestrictedExporter extends UnrestrictedSessionRunner {
     @Override
     public void run() throws ClientException {
         try {
-            Reporter.getReporter().clear();
+            ExporterReporter.getInstance().clear();
 
             DocumentReader reader = new ReplicationReader(session);
             DocumentWriter writer = new ReplicationWriter(path, session);
@@ -60,7 +60,7 @@ public class UnrestrictedExporter extends UnrestrictedSessionRunner {
                 getListener().onUpdateStatus(StatusListener.DONE);
             }
 
-            log.info(Reporter.getReporter().getReportAsString());
+            ExporterReporter.getInstance().dumpLog();
 
         } catch (Exception e) {
             throw new ClientException(e);

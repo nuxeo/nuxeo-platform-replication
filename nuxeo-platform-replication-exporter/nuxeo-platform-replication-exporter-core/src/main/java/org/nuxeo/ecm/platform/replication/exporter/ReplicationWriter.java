@@ -55,7 +55,7 @@ import org.nuxeo.ecm.core.io.DocumentTranslationMap;
 import org.nuxeo.ecm.core.io.ExportedDocument;
 import org.nuxeo.ecm.core.io.impl.plugins.XMLDirectoryWriter;
 import org.nuxeo.ecm.core.schema.types.primitives.DateType;
-import org.nuxeo.ecm.platform.replication.exporter.reporter.Reporter;
+import org.nuxeo.ecm.platform.replication.exporter.reporter.ExporterReporter;
 
 /**
  * Extends XMLDirectoryWriter to provide additional metadata .
@@ -83,8 +83,11 @@ public class ReplicationWriter extends XMLDirectoryWriter {
 
         File parent = new File(getDestination().toString(),
                 DOCUMENTARY_BASE_LOCATION_NAME);
+        ExporterReporter.getInstance().incrementDocumentNumber();
+
         try {
-            DocumentModel document = session.getDocument(new IdRef(doc.getId()));
+            DocumentModel document = session
+                    .getDocument(new IdRef(doc.getId()));
             OutputFormat format = OutputFormat.createPrettyPrint();
 
             if (!document.isVersion()) {
@@ -94,15 +97,24 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                 parent = new File(parent, VERSIONS_LOCATION_NAME);
                 parent = new File(parent, document.getId());
             }
-
             synchronized (mutex) {
                 parent.mkdirs();
             }
+            String documentLocation = parent.getAbsolutePath();
 
-            XMLWriter writer = new XMLWriter(new FileOutputStream(new File(
-                    parent, "document.xml")), format);
-            writer.write(doc.getDocument());
-            writer.close();
+            XMLWriter writer = null;
+            try {
+                writer = new XMLWriter(new FileOutputStream(new File(parent,
+                        "document.xml")), format);
+                writer.write(doc.getDocument());
+                writer.close();
+            } catch (Exception xmle) {
+                // can't recover, document structure corrupted?
+                log.error(documentLocation + " can't be exported!", xmle);
+                ExporterReporter.getInstance().logDocumentStructure(
+                        documentLocation);
+                return null;
+            }
             Map<String, Blob> blobs = doc.getBlobs();
             for (Map.Entry<String, Blob> entry : blobs.entrySet()) {
                 File file = new File(parent, entry.getKey());
@@ -110,40 +122,51 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                 try {
                     entry.getValue().transferTo(file);
                 } catch (Exception e) {
-                    Reporter.getReporter().log(doc.getId(),
-                            doc.getDocument().getName(), entry.getKey());
-                    log.error("Could not export blob creating a fake one.", e);
+                    ExporterReporter.getInstance().logMissingBlob(
+                            documentLocation, entry.getKey());
+                    log.warn("Could not export blob creating a fake one.", e);
                     createFakeBlob(file);
                 }
             }
-            // write external documents
-            for (Map.Entry<String, Document> entry : doc.getDocuments().entrySet()) {
 
+            // write external documents
+            for (Map.Entry<String, Document> entry : doc.getDocuments()
+                    .entrySet()) {
                 writer = new XMLWriter(new FileOutputStream(new File(parent,
                         entry.getKey() + ".xml")), format);
                 writer.write(entry.getValue());
                 writer.close();
             }
+
             Properties metadata = getDocumentMetadata(session, document);
             File metadataFile = new File(parent, "metadata.properties");
             metadata.store(new FileOutputStream(metadataFile),
                     "Document Metadata");
         } catch (Exception e) {
-            log.error(parent.getAbsolutePath() + " missing!", e);
-            // throw new IOException(e.getMessage()); don't crash, just continue
+            String location = parent.getAbsolutePath();
+            log.error(location + " missing!", e);
+            ExporterReporter.getInstance().logUnknownError(location,
+                    e.getMessage());
         }
         return null;
     }
 
-    public static final void createFakeBlob(File file) throws IOException {
+    public static final void createFakeBlob(File file) {
 
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(file, false);
             fos.write(FAKE_BLOB_BODY.getBytes());
+        } catch (Exception e) {
+            log.error("Can't create even the fake blob", e);
         } finally {
             if (fos != null) {
-                fos.close();
+                try {
+                    fos.close();
+                } catch (Exception e2) {
+                    // so what?
+                    log.error("Error closing stream", e2);
+                }
             }
         }
     }
@@ -154,33 +177,34 @@ public class ReplicationWriter extends XMLDirectoryWriter {
         DocumentRef ref = document.getRef();
         if (document.isProxy()) {
             DocumentModel version = documentManager.getSourceDocument(ref);
-            DocumentModel sourceDocument = documentManager.getSourceDocument(version.getRef());
+            DocumentModel sourceDocument = documentManager
+                    .getSourceDocument(version.getRef());
             props.setProperty(IMPORT_PROXY_TARGET_ID,
                     version.getId() == null ? "" : version.getId());
-            props.setProperty(IMPORT_PROXY_VERSIONABLE_ID,
-                    sourceDocument.getId() == null ? ""
-                            : sourceDocument.getId());
+            props.setProperty(IMPORT_PROXY_VERSIONABLE_ID, sourceDocument
+                    .getId() == null ? "" : sourceDocument.getId());
         } else if (document.isVersion()) {
-            DocumentModel sourceDocument = documentManager.getSourceDocument(ref);
-            props.setProperty(IMPORT_VERSION_VERSIONABLE_ID,
-                    sourceDocument.getId() == null ? ""
-                            : sourceDocument.getId());
+            DocumentModel sourceDocument = documentManager
+                    .getSourceDocument(ref);
+            props.setProperty(IMPORT_VERSION_VERSIONABLE_ID, sourceDocument
+                    .getId() == null ? "" : sourceDocument.getId());
             props.setProperty(IMPORT_VERSION_LABEL,
-                    document.getVersionLabel() == null ? ""
-                            : document.getVersionLabel());
-            List<VersionModel> versions = documentManager.getVersionsForDocument(sourceDocument.getRef());
+                    document.getVersionLabel() == null ? "" : document
+                            .getVersionLabel());
+            List<VersionModel> versions = documentManager
+                    .getVersionsForDocument(sourceDocument.getRef());
             for (VersionModel version : versions) {
                 // add version description
-                props.setProperty(IMPORT_VERSION_DESCRIPTION,
-                        version.getDescription() == null ? ""
-                                : version.getDescription());
+                props.setProperty(IMPORT_VERSION_DESCRIPTION, version
+                        .getDescription() == null ? "" : version
+                        .getDescription());
                 // add version creation date
-                props.setProperty(
-                        IMPORT_VERSION_CREATED,
-                        new DateType().encode(version.getCreated()) == null ? ""
-                                : new DateType().encode(version.getCreated()));
+                props.setProperty(IMPORT_VERSION_CREATED, new DateType()
+                        .encode(version.getCreated()) == null ? ""
+                        : new DateType().encode(version.getCreated()));
             }
-            VersioningDocument docVer = document.getAdapter(VersioningDocument.class);
+            VersioningDocument docVer = document
+                    .getAdapter(VersioningDocument.class);
             String minorVer = docVer.getMinorVersion().toString();
             String majorVer = docVer.getMajorVersion().toString();
 
@@ -196,13 +220,15 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                 props.setProperty(IMPORT_CHECKED_IN, Boolean.FALSE.toString());
                 // add the id of the last version, which represents the base for
                 // the current state of the document
-                DocumentModel version = documentManager.getLastDocumentVersion(ref);
+                DocumentModel version = documentManager
+                        .getLastDocumentVersion(ref);
                 if ((version != null)
                         && version.getId().equals(document.getId())) {
                     props.setProperty(IMPORT_BASE_VERSION_ID,
                             version.getId() == null ? "" : version.getId());
                 }
-                VersioningDocument docVer = document.getAdapter(VersioningDocument.class);
+                VersioningDocument docVer = document
+                        .getAdapter(VersioningDocument.class);
                 if (docVer != null) {
                     String minorVer = docVer.getMinorVersion().toString();
                     String majorVer = docVer.getMajorVersion().toString();
@@ -216,12 +242,12 @@ public class ReplicationWriter extends XMLDirectoryWriter {
             }
         }
 
-        props.setProperty(IMPORT_LIFECYCLE_STATE,
-                document.getCurrentLifeCycleState() == null ? ""
-                        : document.getCurrentLifeCycleState());
-        props.setProperty(IMPORT_LIFECYCLE_POLICY,
-                document.getLifeCyclePolicy() == null ? ""
-                        : document.getLifeCyclePolicy());
+        props.setProperty(IMPORT_LIFECYCLE_STATE, document
+                .getCurrentLifeCycleState() == null ? "" : document
+                .getCurrentLifeCycleState());
+        props.setProperty(IMPORT_LIFECYCLE_POLICY, document
+                .getLifeCyclePolicy() == null ? "" : document
+                .getLifeCyclePolicy());
         return props;
     }
 }
