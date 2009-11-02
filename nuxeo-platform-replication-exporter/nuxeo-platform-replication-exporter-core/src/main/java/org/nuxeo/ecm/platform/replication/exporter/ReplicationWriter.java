@@ -43,9 +43,7 @@ import org.dom4j.Document;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 import org.nuxeo.ecm.core.api.Blob;
-import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentException;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentRef;
 import org.nuxeo.ecm.core.api.IdRef;
@@ -61,6 +59,7 @@ import org.nuxeo.ecm.platform.replication.exporter.reporter.ExporterReporter;
  * Extends XMLDirectoryWriter to provide additional metadata .
  *
  * @author cpriceputu@nuxeo.com
+ * @author rux added the reporter logging stuff
  *
  */
 public class ReplicationWriter extends XMLDirectoryWriter {
@@ -122,6 +121,7 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                 try {
                     entry.getValue().transferTo(file);
                 } catch (Exception e) {
+                    // this is case 4
                     ExporterReporter.getInstance().logMissingBlob(
                             documentLocation, entry.getKey());
                     log.warn("Could not export blob creating a fake one.", e);
@@ -138,7 +138,8 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                 writer.close();
             }
 
-            Properties metadata = getDocumentMetadata(session, document);
+            Properties metadata = getDocumentMetadata(session, document,
+                    documentLocation);
             File metadataFile = new File(parent, "metadata.properties");
             metadata.store(new FileOutputStream(metadataFile),
                     "Document Metadata");
@@ -172,41 +173,118 @@ public class ReplicationWriter extends XMLDirectoryWriter {
     }
 
     public static Properties getDocumentMetadata(CoreSession documentManager,
-            DocumentModel document) throws ClientException, DocumentException {
+            DocumentModel document, String documentLocation) {
         Properties props = new Properties();
         DocumentRef ref = document.getRef();
         if (document.isProxy()) {
-            DocumentModel version = documentManager.getSourceDocument(ref);
-            DocumentModel sourceDocument = documentManager
-                    .getSourceDocument(version.getRef());
-            props.setProperty(IMPORT_PROXY_TARGET_ID,
-                    version.getId() == null ? "" : version.getId());
-            props.setProperty(IMPORT_PROXY_VERSIONABLE_ID, sourceDocument
-                    .getId() == null ? "" : sourceDocument.getId());
-        } else if (document.isVersion()) {
-            DocumentModel sourceDocument = documentManager
-                    .getSourceDocument(ref);
-            props.setProperty(IMPORT_VERSION_VERSIONABLE_ID, sourceDocument
-                    .getId() == null ? "" : sourceDocument.getId());
-            props.setProperty(IMPORT_VERSION_LABEL,
-                    document.getVersionLabel() == null ? "" : document
-                            .getVersionLabel());
-            List<VersionModel> versions = documentManager
-                    .getVersionsForDocument(sourceDocument.getRef());
-            for (VersionModel version : versions) {
-                // add version description
-                props.setProperty(IMPORT_VERSION_DESCRIPTION, version
-                        .getDescription() == null ? "" : version
-                        .getDescription());
-                // add version creation date
-                props.setProperty(IMPORT_VERSION_CREATED, new DateType()
-                        .encode(version.getCreated()) == null ? ""
-                        : new DateType().encode(version.getCreated()));
+            // export proxy
+            DocumentModel version = null;
+            DocumentModel liveDocument = null;
+            try {
+                version = documentManager.getSourceDocument(ref);
+            } catch (Exception e) {
+                // so, can't get to the content of proxy
+                // this is case 1
+                log.warn("Can't identify the content of the proxy "
+                        + documentLocation, e);
+                ExporterReporter.getInstance().logMissingVersion(
+                        documentLocation, "<unknown>");
             }
+            if (version != null) {
+                props.setProperty(IMPORT_PROXY_TARGET_ID,
+                        version.getId() == null ? "" : version.getId());
+                try {
+                    liveDocument = documentManager.getSourceDocument(version
+                            .getRef());
+                } catch (Exception e) {
+                    // so, can't get to the live document of proxy
+                    log.warn("Can't identify the source of the proxy "
+                            + documentLocation, e);
+                    ExporterReporter.getInstance().logMissingLivedoc(
+                            documentLocation);
+                }
+                if (liveDocument != null) {
+                    props.setProperty(IMPORT_PROXY_VERSIONABLE_ID, liveDocument
+                            .getId() == null ? "" : liveDocument.getId());
+                } else {
+                    props.setProperty(IMPORT_PROXY_VERSIONABLE_ID, "");
+                }
+            } else {
+                props.setProperty(IMPORT_PROXY_TARGET_ID, "");
+            }
+        } else if (document.isVersion()) {
+            // export version
+            String docLabel = document.getVersionLabel();
+            if (docLabel == null) {
+                docLabel = "";
+            }
+            props.setProperty(IMPORT_VERSION_LABEL, docLabel);
+            DocumentModel liveDocument = null;
+            try {
+                liveDocument = documentManager.getSourceDocument(ref);
+            } catch (Exception e) {
+                // so, can't get to the live document of version
+                log.warn("Can't identify the source of the version "
+                        + documentLocation, e);
+                ExporterReporter.getInstance().logMissingLivedoc(
+                        documentLocation);
+            }
+            if (liveDocument == null) {
+                props.setProperty(IMPORT_VERSION_VERSIONABLE_ID, "");
+                props.setProperty(IMPORT_VERSION_DESCRIPTION, "");
+                props.setProperty(IMPORT_VERSION_CREATED, "");
+            } else {
+                props.setProperty(IMPORT_VERSION_VERSIONABLE_ID, liveDocument
+                        .getId() == null ? "" : liveDocument.getId());
+                // as the version related metadata are available only through
+                // listing and not direct introspection...
+                try {
+                    List<VersionModel> versions = documentManager
+                            .getVersionsForDocument(liveDocument.getRef());
+                    for (VersionModel version : versions) {
+                        if (!docLabel.equals(version.getLabel())) {
+                            continue;
+                        }
+                        // add version description
+                        String propValue = version.getDescription();
+                        props.setProperty(IMPORT_VERSION_DESCRIPTION,
+                                propValue == null ? "" : propValue);
+                        // add version creation date
+                        propValue = new DateType().encode(version.getCreated());
+                        props.setProperty(IMPORT_VERSION_CREATED,
+                                propValue == null ? "" : propValue);
+                        break;
+                    }
+                } catch (Exception e) {
+                    // can't list the versions of the live document
+                    log.warn(
+                            "Failure listing the versions on the same level with "
+                                    + documentLocation, e);
+                    // don't even bother to register as error: missing
+                    // description and date is not big
+                    props.setProperty(IMPORT_VERSION_DESCRIPTION, "");
+                    props.setProperty(IMPORT_VERSION_CREATED, "");
+                }
+            }
+
             VersioningDocument docVer = document
                     .getAdapter(VersioningDocument.class);
-            String minorVer = docVer.getMinorVersion().toString();
-            String majorVer = docVer.getMajorVersion().toString();
+            String minorVer = null;
+            String majorVer = null;
+            try {
+                minorVer = docVer.getMinorVersion().toString();
+            } catch (Exception e) {
+                // bad luck, not important
+                log.warn("Error looking for minor version of "
+                        + documentLocation, e);
+            }
+            try {
+                majorVer = docVer.getMajorVersion().toString();
+            } catch (Exception e) {
+                // bad luck, not important
+                log.warn("Error looking for major version of "
+                        + documentLocation, e);
+            }
 
             props.setProperty(IMPORT_VERSION_MAJOR, majorVer == null ? ""
                     : majorVer);
@@ -214,24 +292,46 @@ public class ReplicationWriter extends XMLDirectoryWriter {
             props.setProperty(IMPORT_VERSION_MINOR, minorVer == null ? ""
                     : minorVer);
         } else {
+            // export usual
             props.setProperty(IMPORT_LOCK, document.getLock() == null ? ""
                     : document.getLock());
             if (document.isVersionable()) {
                 props.setProperty(IMPORT_CHECKED_IN, Boolean.FALSE.toString());
                 // add the id of the last version, which represents the base for
                 // the current state of the document
-                DocumentModel version = documentManager
-                        .getLastDocumentVersion(ref);
+                DocumentModel version = null;
+                try {
+                    version = documentManager.getLastDocumentVersion(ref);
+                } catch (Exception e) {
+                    // this is case 3 and 5
+                    log.error("Failure to get last known version of "
+                            + documentLocation, e);
+                    ExporterReporter.getInstance().logMissingVersion(
+                            documentLocation, "last version");
+                }
                 if ((version != null)
                         && version.getId().equals(document.getId())) {
-                    props.setProperty(IMPORT_BASE_VERSION_ID,
-                            version.getId() == null ? "" : version.getId());
+                    props.setProperty(IMPORT_BASE_VERSION_ID, version.getId());
                 }
                 VersioningDocument docVer = document
                         .getAdapter(VersioningDocument.class);
                 if (docVer != null) {
-                    String minorVer = docVer.getMinorVersion().toString();
-                    String majorVer = docVer.getMajorVersion().toString();
+                    String minorVer = null;
+                    String majorVer = null;
+                    try {
+                        minorVer = docVer.getMinorVersion().toString();
+                    } catch (Exception e) {
+                        // bad luck, not important
+                        log.warn("Error looking for minor version of "
+                                + documentLocation, e);
+                    }
+                    try {
+                        majorVer = docVer.getMajorVersion().toString();
+                    } catch (Exception e) {
+                        // bad luck, not important
+                        log.warn("Error looking for major version of "
+                                + documentLocation, e);
+                    }
                     // add major version
                     props.setProperty(IMPORT_VERSION_MAJOR,
                             majorVer == null ? "" : majorVer);
@@ -242,12 +342,23 @@ public class ReplicationWriter extends XMLDirectoryWriter {
             }
         }
 
-        props.setProperty(IMPORT_LIFECYCLE_STATE, document
-                .getCurrentLifeCycleState() == null ? "" : document
-                .getCurrentLifeCycleState());
-        props.setProperty(IMPORT_LIFECYCLE_POLICY, document
-                .getLifeCyclePolicy() == null ? "" : document
-                .getLifeCyclePolicy());
+        String propValue = null;
+        try {
+            propValue = document.getCurrentLifeCycleState();
+        } catch (Exception e) {
+            log.warn("Can't get the lifecycle for " + documentLocation, e);
+        }
+
+        props.setProperty(IMPORT_LIFECYCLE_STATE, propValue == null ? ""
+                : propValue);
+        propValue = null;
+        try {
+            propValue = document.getLifeCyclePolicy();
+        } catch (Exception e) {
+            log.warn("Can't get the lifecycle for " + documentLocation, e);
+        }
+        props.setProperty(IMPORT_LIFECYCLE_POLICY, propValue == null ? ""
+                : propValue);
         return props;
     }
 }

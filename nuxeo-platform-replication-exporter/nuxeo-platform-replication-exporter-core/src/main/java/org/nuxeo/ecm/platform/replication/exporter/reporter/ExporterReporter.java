@@ -22,6 +22,8 @@ import org.nuxeo.ecm.platform.replication.summary.Reporter;
 import org.nuxeo.ecm.platform.replication.summary.ReporterEntry;
 import org.nuxeo.ecm.platform.replication.summary.ReporterEntryDocumentStructure;
 import org.nuxeo.ecm.platform.replication.summary.ReporterEntryMissingBlob;
+import org.nuxeo.ecm.platform.replication.summary.ReporterEntryMissingLiveDocument;
+import org.nuxeo.ecm.platform.replication.summary.ReporterEntryMissingVersion;
 import org.nuxeo.ecm.platform.replication.summary.ReporterEntryUnknownError;
 
 /**
@@ -58,9 +60,8 @@ public class ExporterReporter extends Reporter {
             numberOfThem = list.size();
         }
         if (numberOfThem > 0) {
-            log.info("  " + numberOfThem
-                    + " documents yields unexpected error."
-                    + " Their status is undefined from the exporter perspective.");
+            log.info("  " + numberOfThem + " documents yields unexpected error.");
+            log.info("  Their status is undefined from the exporter perspective.");
             for (ReporterEntry entry : list) {
                 log.info("    " + entry.getRepresentation());
             }
@@ -73,11 +74,38 @@ public class ExporterReporter extends Reporter {
             numberOfThem = list.size();
         }
         if (numberOfThem > 0) {
-            log.info("  " + numberOfThem
-                    + " documents are compromised."
-                    + " They couldn't be exported. Check log for more details.");
+            log.info("  " + numberOfThem + " documents are compromised.");
+            log.info("  They couldn't be exported. Check log for more details.");
             for (ReporterEntry entry : list) {
                 log.info("    " + entry.getRepresentation());
+            }
+            numberOfThem = 0;
+        }
+
+        list = getEntries().get(
+                ReporterEntryMissingVersion.MISSING_VERSION_KEY);
+        if (list != null) {
+            numberOfThem = list.size();
+        }
+        if (numberOfThem > 0) {
+            log.info("  " + numberOfThem + " documents are missing a version.");
+            log.info("  They are still available for import with no versions attached.");
+            for (ReporterEntry entry : list) {
+                log.info("     " + entry.getRepresentation());
+            }
+            numberOfThem = 0;
+        }
+
+        list = getEntries().get(
+                ReporterEntryMissingLiveDocument.MISSING_LIVEDOC_KEY);
+        if (list != null) {
+            numberOfThem = list.size();
+        }
+        if (numberOfThem > 0) {
+            log.info("  " + numberOfThem + " versions are orphans.");
+            log.info("  They are still available for import with no live document attached.");
+            for (ReporterEntry entry : list) {
+                log.info("     " + entry.getRepresentation());
             }
             numberOfThem = 0;
         }
@@ -87,9 +115,8 @@ public class ExporterReporter extends Reporter {
             numberOfThem = list.size();
         }
         if (numberOfThem > 0) {
-            log.info("  " + numberOfThem
-                    + " documents are missing a blob file."
-                    + " Still they are available for import with a fake blob file instead.");
+            log.info("  " + numberOfThem + " documents are missing a blob file.");
+            log.info("  Still they are available for import with a fake blob file instead.");
             for (ReporterEntry entry : list) {
                 log.info("    " + entry.getRepresentation());
             }

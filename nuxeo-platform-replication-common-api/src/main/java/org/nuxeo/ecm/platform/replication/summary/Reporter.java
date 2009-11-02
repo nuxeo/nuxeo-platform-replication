@@ -100,6 +100,19 @@ public abstract class Reporter {
         log(ReporterEntryMissingBlob.MISSING_BLOB_KEY, reporterEntry);
     }
 
+    public void logMissingVersion(String documentLocation, String versionId) {
+        ReporterEntryMissingVersion reporterEntry = new ReporterEntryMissingVersion();
+        reporterEntry.documentPath = documentLocation;
+        reporterEntry.versionName = versionId;
+        log(ReporterEntryMissingVersion.MISSING_VERSION_KEY, reporterEntry);
+    }
+
+    public void logMissingLivedoc(String documentLocation) {
+        ReporterEntryMissingLiveDocument reporterEntry = new ReporterEntryMissingLiveDocument();
+        reporterEntry.documentPath = documentLocation;
+        log(ReporterEntryMissingLiveDocument.MISSING_LIVEDOC_KEY, reporterEntry);
+    }
+
     public void logUnknownError(String documentLocation, String errorMessage) {
         ReporterEntryUnknownError reporterEntry = new ReporterEntryUnknownError();
         reporterEntry.documentPath = documentLocation;
