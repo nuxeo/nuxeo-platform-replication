@@ -29,6 +29,7 @@ import org.nuxeo.ecm.core.api.DocumentModelList;
 import org.nuxeo.ecm.core.io.ExportedDocument;
 import org.nuxeo.ecm.core.io.impl.ExportedDocumentImpl;
 import org.nuxeo.ecm.core.io.impl.plugins.DocumentModelReader;
+import org.nuxeo.ecm.platform.replication.exporter.reporter.ExporterReporter;
 
 /**
  * Reader extension. The iterated query doesn't work (see NXP-3814). Collecting
@@ -85,20 +86,26 @@ public class ReplicationReader extends DocumentModelReader {
             // just export it
             return new ExportedDocumentImpl(document, inlineBlobs);
         }
+        String documentLocation = document.getPathAsString();
         try {
             // otherwise it is usual document: see if has versions and children
             DocumentModelList children = session.getChildren(document.getRef());
             if (children != null && !children.isEmpty()) {
                 // add the children in front: exhaust a branch as soon as
-                // possible
-                // rather than accumulating it
+                // possible rather than accumulating it
                 exportDocuments.addAll(0, children);
                 if (log.isDebugEnabled()) {
                     log.debug(">>>>>>>>>" + exportDocuments.size()
                             + " documents in list after adding children of "
-                            + document.getName());
+                            + documentLocation);
                 }
             }
+        } catch (Exception e) {
+            log.error("Couldn't retrieve children for " + documentLocation
+                    + ", skipping them.", e);
+            ExporterReporter.getInstance().logNoChildren(documentLocation);
+        }
+        try {
             List<DocumentModel> versions = session.getVersions(document.getRef());
             if (!versions.isEmpty()) {
                 // add the versions in front: don't need to keep them, just
@@ -107,12 +114,13 @@ public class ReplicationReader extends DocumentModelReader {
                 if (log.isDebugEnabled()) {
                     log.debug(">>>>>>>>>" + exportDocuments.size()
                             + " documents in list after adding versions of "
-                            + document.getName());
+                            + documentLocation);
                 }
             }
-        } catch (ClientException ce) {
-            log.error("Couldn't retrieve children / versions for "
-                    + document.getName() + ", skipping them.", ce);
+        } catch (Exception e) {
+            log.error("Couldn't retrieve versions for " + documentLocation
+                    + ", skipping them.", e);
+            ExporterReporter.getInstance().logNoVersions(documentLocation);
         }
         return new ExportedDocumentImpl(document, inlineBlobs);
     }
