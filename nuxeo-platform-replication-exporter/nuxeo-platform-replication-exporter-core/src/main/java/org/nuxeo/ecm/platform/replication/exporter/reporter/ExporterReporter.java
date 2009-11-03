@@ -24,6 +24,8 @@ import org.nuxeo.ecm.platform.replication.summary.ReporterEntryDocumentStructure
 import org.nuxeo.ecm.platform.replication.summary.ReporterEntryMissingBlob;
 import org.nuxeo.ecm.platform.replication.summary.ReporterEntryMissingLiveDocument;
 import org.nuxeo.ecm.platform.replication.summary.ReporterEntryMissingVersion;
+import org.nuxeo.ecm.platform.replication.summary.ReporterEntryNoChildren;
+import org.nuxeo.ecm.platform.replication.summary.ReporterEntryNoVersions;
 import org.nuxeo.ecm.platform.replication.summary.ReporterEntryUnknownError;
 
 /**
@@ -76,6 +78,34 @@ public class ExporterReporter extends Reporter {
         if (numberOfThem > 0) {
             log.info("  " + numberOfThem + " documents are compromised.");
             log.info("  They couldn't be exported. Check log for more details.");
+            for (ReporterEntry entry : list) {
+                log.info("    " + entry.getRepresentation());
+            }
+            numberOfThem = 0;
+        }
+
+        list = getEntries().get(
+                ReporterEntryNoChildren.NO_CHILDREN_KEY);
+        if (list != null) {
+            numberOfThem = list.size();
+        }
+        if (numberOfThem > 0) {
+            log.info("  for " + numberOfThem + " documents children are not available.");
+            log.info("  The children couldn't be read: they are not listed nor exported.");
+            for (ReporterEntry entry : list) {
+                log.info("    " + entry.getRepresentation());
+            }
+            numberOfThem = 0;
+        }
+
+        list = getEntries().get(
+                ReporterEntryNoVersions.NO_VERSIONS_KEY);
+        if (list != null) {
+            numberOfThem = list.size();
+        }
+        if (numberOfThem > 0) {
+            log.info("  for " + numberOfThem + " documents versions are not available.");
+            log.info("  The versions couldn't be read: they are not listed nor exported.");
             for (ReporterEntry entry : list) {
                 log.info("    " + entry.getRepresentation());
             }

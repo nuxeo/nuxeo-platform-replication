@@ -107,6 +107,18 @@ public abstract class Reporter {
         log(ReporterEntryMissingVersion.MISSING_VERSION_KEY, reporterEntry);
     }
 
+    public void logNoVersions(String documentLocation) {
+        ReporterEntryNoVersions reporterEntry = new ReporterEntryNoVersions();
+        reporterEntry.documentPath = documentLocation;
+        log(ReporterEntryNoVersions.NO_VERSIONS_KEY, reporterEntry);
+    }
+
+    public void logNoChildren(String documentLocation) {
+        ReporterEntryNoChildren reporterEntry = new ReporterEntryNoChildren();
+        reporterEntry.documentPath = documentLocation;
+        log(ReporterEntryNoChildren.NO_CHILDREN_KEY, reporterEntry);
+    }
+
     public void logMissingLivedoc(String documentLocation) {
         ReporterEntryMissingLiveDocument reporterEntry = new ReporterEntryMissingLiveDocument();
         reporterEntry.documentPath = documentLocation;
