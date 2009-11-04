@@ -54,6 +54,7 @@ public class ExporterReporter extends Reporter {
     public void dumpLog() {
         log.info("Summary of export action");
         log.info(getDocumentNumber() + " documents attempted to export");
+        boolean successful = true;
 
         List<ReporterEntry> list = getEntries().get(
                 ReporterEntryUnknownError.UNKNOWN_ERROR_KEY);
@@ -68,6 +69,7 @@ public class ExporterReporter extends Reporter {
                 log.info("    " + entry.getRepresentation());
             }
             numberOfThem = 0;
+            successful = false;
         }
 
         list = getEntries().get(
@@ -82,6 +84,7 @@ public class ExporterReporter extends Reporter {
                 log.info("    " + entry.getRepresentation());
             }
             numberOfThem = 0;
+            successful = false;
         }
 
         list = getEntries().get(
@@ -96,6 +99,7 @@ public class ExporterReporter extends Reporter {
                 log.info("    " + entry.getRepresentation());
             }
             numberOfThem = 0;
+            successful = false;
         }
 
         list = getEntries().get(
@@ -110,6 +114,7 @@ public class ExporterReporter extends Reporter {
                 log.info("    " + entry.getRepresentation());
             }
             numberOfThem = 0;
+            successful = false;
         }
 
         list = getEntries().get(
@@ -124,6 +129,7 @@ public class ExporterReporter extends Reporter {
                 log.info("     " + entry.getRepresentation());
             }
             numberOfThem = 0;
+            successful = false;
         }
 
         list = getEntries().get(
@@ -138,6 +144,7 @@ public class ExporterReporter extends Reporter {
                 log.info("     " + entry.getRepresentation());
             }
             numberOfThem = 0;
+            successful = false;
         }
 
         list = getEntries().get(ReporterEntryMissingBlob.MISSING_BLOB_KEY);
@@ -151,6 +158,11 @@ public class ExporterReporter extends Reporter {
                 log.info("    " + entry.getRepresentation());
             }
             numberOfThem = 0;
+            successful = false;
+        }
+
+        if (successful) {
+            log.info("Operation completed with no errors recorded.");
         }
     }
 
