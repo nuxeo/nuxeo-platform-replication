@@ -15,8 +15,8 @@
 package org.nuxeo.ecm.platform.replication.summary;
 
 /**
- * The entry marking the missing blob error. It contains, besides the abstract
- * base, the blob file name.
+ * The entry marking the missing head living document for a particular version /
+ * proxy.
  *
  * @author rux
  *

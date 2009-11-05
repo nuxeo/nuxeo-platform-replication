@@ -15,27 +15,30 @@
 package org.nuxeo.ecm.platform.replication.summary;
 
 /**
- * The entry marking the error trying to retrieve the versions of the current
- * document (the one just to export).
+ * The entry marking a unrecoverable error when core importing. An error message
+ * is stored.
  *
  * @author rux
  *
  */
-public class ReporterEntryNoVersions extends ReporterEntry {
+public class ReporterEntryDocumentImport extends ReporterEntry {
 
-    public static final String NO_VERSIONS_KEY = "noVersions";
+    public static final String DOCUMENT_IMPORT_KEY = "documentImport";
 
-    public ReporterEntryNoVersions(String documentId, String documentName,
-            String documentPath) {
+    public String cause;
+
+    public ReporterEntryDocumentImport(String documentId, String documentName,
+            String documentPath, String cause) {
         super(documentId, documentName, documentPath);
+        this.cause = cause;
     }
 
-    public ReporterEntryNoVersions() {
+    public ReporterEntryDocumentImport() {
     }
 
     @Override
     public String getRepresentation() {
-        return "for document " + getDocumentIdentifier();
+        return "document " + getDocumentIdentifier() + " because: " + cause;
     }
 
 }

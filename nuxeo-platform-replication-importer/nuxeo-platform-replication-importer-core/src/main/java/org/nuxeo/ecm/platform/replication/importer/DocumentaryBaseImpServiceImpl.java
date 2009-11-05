@@ -32,6 +32,7 @@ import org.nuxeo.ecm.platform.importer.executor.AbstractImporterExecutor;
 import org.nuxeo.ecm.platform.importer.filter.EventServiceConfiguratorFilter;
 import org.nuxeo.ecm.platform.importer.filter.ImporterFilter;
 import org.nuxeo.ecm.platform.replication.common.StatusListener;
+import org.nuxeo.ecm.platform.replication.importer.reporter.ImporterReporter;
 import org.nuxeo.runtime.api.Framework;
 
 /**
@@ -48,7 +49,17 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
 
     private DocumentXmlTransformer xmlTransformer;
 
+    private DocumentTypeSelector typeSelector;
+
     private ImportRunner runner;
+
+    public DocumentTypeSelector getTypeSelector() {
+        return typeSelector;
+    }
+
+    public void setTypeSelector(DocumentTypeSelector typeSelector) {
+        this.typeSelector = typeSelector;
+    }
 
     public DocumentXmlTransformer getXmlTransformer() {
         return xmlTransformer;
@@ -62,6 +73,7 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
             boolean resume, boolean exportVersions, boolean exportProxies,
             boolean useMultiThread, boolean asynchronous)
             throws ClientException {
+        ImporterReporter.getInstance().clear();
         runner = new ImportRunner(parameter, path, resume, exportVersions,
                 exportProxies, useMultiThread, this, listener);
         if (asynchronous) {
@@ -81,6 +93,7 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
                     listener, importProxies);
             // here is set the transformer
             documentModelFactory.setDocumentXmlTransformer(xmlTransformer);
+            documentModelFactory.setDocumentTypeSelector(typeSelector);
             importer.setFactory(documentModelFactory);
             if (useMultiThread) {
                 importer.setThreadPolicy(getThreadPolicy());
@@ -112,6 +125,7 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
     public void importDocuments(File path) throws ClientException {
         Thread.currentThread().setContextClassLoader(
                 Framework.class.getClassLoader());
+        typeSelector = new DefaultDocumentTypeSelector();
         importDocuments(null, path, true, true, true, false, true);
     }
 }
@@ -185,6 +199,8 @@ class ImportRunner implements Runnable {
             }
         } catch (ClientException e) {
             LOG.error("Error", e);
+        } finally {
+            ImporterReporter.getInstance().dumpLog();
         }
     }
 

@@ -12,30 +12,24 @@
  * Lesser General Public License for more details.
  *
  */
-package org.nuxeo.ecm.platform.replication.summary;
+
+package org.nuxeo.ecm.platform.replication.importer;
 
 /**
- * The entry marking the error trying to retrieve the versions of the current
- * document (the one just to export).
+ * Choice of importing or not a particular type of documents. In order to use it
+ * just set the custom implementation before running import
+ * {@link DocumentaryBaseImporterService}.
  *
  * @author rux
  *
  */
-public class ReporterEntryNoVersions extends ReporterEntry {
+public interface DocumentTypeSelector {
 
-    public static final String NO_VERSIONS_KEY = "noVersions";
-
-    public ReporterEntryNoVersions(String documentId, String documentName,
-            String documentPath) {
-        super(documentId, documentName, documentPath);
-    }
-
-    public ReporterEntryNoVersions() {
-    }
-
-    @Override
-    public String getRepresentation() {
-        return "for document " + getDocumentIdentifier();
-    }
-
+    /**
+     * Sees if the document type is acceptable to be imported.
+     *
+     * @param documentType the type of document to import
+     * @return true if the document is granted to be imported, false otherwise
+     */
+    boolean accept(String documentType);
 }

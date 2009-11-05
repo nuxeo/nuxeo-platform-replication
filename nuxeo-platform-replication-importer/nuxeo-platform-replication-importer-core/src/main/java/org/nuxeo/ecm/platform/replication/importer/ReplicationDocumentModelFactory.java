@@ -51,14 +51,15 @@ import org.nuxeo.ecm.platform.importer.base.TxHelper;
 import org.nuxeo.ecm.platform.importer.factories.ImporterDocumentModelFactory;
 import org.nuxeo.ecm.platform.importer.source.SourceNode;
 import org.nuxeo.ecm.platform.replication.common.StatusListener;
+import org.nuxeo.ecm.platform.replication.importer.reporter.ImporterReporter;
 import org.nuxeo.runtime.services.streaming.FileSource;
 
 /**
  * Implements the document model factory as for replication needs. It core
  * imports document and sets the document properties.
- * 
+ *
  * @author rux
- * 
+ *
  */
 public class ReplicationDocumentModelFactory implements
         ImporterDocumentModelFactory {
@@ -75,15 +76,30 @@ public class ReplicationDocumentModelFactory implements
 
     protected DocumentXmlTransformer xmlTransformer;
 
+    protected DocumentTypeSelector typeSelector;
+
     public ReplicationDocumentModelFactory(StatusListener listener,
             boolean importProxies) {
         this.listener = listener;
         this.importProxies = importProxies;
         xmlTransformer = null;
+        typeSelector = null;
     }
 
     public DocumentModel createFolderishNode(CoreSession session,
             DocumentModel parent, SourceNode node) throws Exception {
+        if (node == null) {
+            // unexpected, but possible when the folder is not created but
+            // passed away
+            log.warn("Trying to create null folderish node!");
+            return null;
+        }
+        if (session == null) {
+            // this is really unexpected
+            log.error("Null session, but trying to create folderish node "
+                    + node.getName());
+            return null;
+        }
         this.fileNode = node;
         this.session = session;
         return importDocument();
@@ -91,12 +107,29 @@ public class ReplicationDocumentModelFactory implements
 
     public DocumentModel createLeafNode(CoreSession session,
             DocumentModel parent, SourceNode node) throws Exception {
+        if (node == null) {
+            // unexpected, but possible when the folder is not created but
+            // passed away
+            log.warn("Trying to create null leaf node!");
+            return null;
+        }
+        if (session == null) {
+            // this is really unexpected
+            log.error("Null session, but trying to create leaf node "
+                    + node.getName());
+            return null;
+        }
         this.fileNode = node;
         this.session = session;
         return importDocument();
     }
 
     public boolean isTargetDocumentModelFolderish(SourceNode node) {
+        if (node == null) {
+            // kind of unexpected, but possible when the parent is not created
+            log.warn("Null node: is it folderish? No.");
+            return false;
+        }
         return node.isFolderish();
     }
 
@@ -121,30 +154,61 @@ public class ReplicationDocumentModelFactory implements
         return root;
     }
 
-    protected DocumentModel importDocument() throws ClientException,
-            IOException {
-        if (fileNode.getName().endsWith(
-                DOCUMENTARY_BASE_LOCATION_NAME + File.separator
-                        + VERSIONS_LOCATION_NAME)) {
+    protected DocumentModel importDocument() {
+        if (fileNode == null || session == null) {
+            // shouldn't be here
+            log.error("Can't import: nulls");
+            return null;
+        }
+        String documentLocation = fileNode.getName();
+        if (documentLocation.endsWith(DOCUMENTARY_BASE_LOCATION_NAME
+                + File.separator + VERSIONS_LOCATION_NAME)) {
+            // the directory /Versions is only container
             return null;
         }
         ExportedDocument xdoc = new ExportedDocumentImpl();
         try {
             xdoc.setDocument(ImporterDocumentCreator.loadXML(new File(
-                    fileNode.getName() + File.separator + "document.xml")));
-        } catch (ClientException ce) {
-            log.warn("Didn't find xml for" + fileNode.getName());
+                    documentLocation + File.separator + "document.xml")));
+        } catch (Exception e) {
+            // don't log twice: when proxies is twice
+            if (!importProxies) {
+                ImporterReporter.getInstance().incrementDocumentNumber();
+                log.error("Didn't find xml for" + documentLocation);
+                ImporterReporter.getInstance().logDocumentImport(
+                        documentLocation, "xml file is missing or corrupt");
+            }
             return null;
         }
         Properties properties = getPropertiesFile();
         if (properties.isEmpty()) {
-            log.warn("Didn't find metadata for " + fileNode.getName());
+            if (!importProxies) {
+                ImporterReporter.getInstance().incrementDocumentNumber();
+                log.error("Didn't find metadata for " + documentLocation);
+                ImporterReporter.getInstance().logDocumentImport(
+                        documentLocation, "metadata file is missing");
+            }
             return null;
         }
         boolean isProxy = ImporterDocumentCreator.isProxy(properties);
         if ((importProxies && !isProxy) || (!importProxies && isProxy)) {
             // not to import
             return null;
+        }
+        // can't simply have it at the start of the method as the document
+        // should not be to import because the mixed condition above
+        ImporterReporter.getInstance().incrementDocumentNumber();
+        // filter the not wanted types
+        if (typeSelector != null) {
+            String docType = xdoc.getType();
+            if (!typeSelector.accept(docType)) {
+                // document to not be imported
+                log.info("Document " + documentLocation + " of type " + docType
+                        + " rejected");
+                ImporterReporter.getInstance().logTypeBlocked(documentLocation,
+                        docType);
+                return null;
+            }
         }
         // offer a chance to transform the document properties
         if (xmlTransformer != null) {
@@ -153,9 +217,11 @@ public class ReplicationDocumentModelFactory implements
                 if (transformedDocument != null) {
                     xdoc.setDocument(transformedDocument);
                 }
-            } catch (ClientException ce) {
+            } catch (Exception e) {
                 // don't crash in customized code
-                log.warn("Transformation failed", ce);
+                log.warn("Transformation failed", e);
+                ImporterReporter.getInstance().logFailUpdate(documentLocation,
+                        e.getMessage());
             }
         }
         // create document
@@ -165,23 +231,41 @@ public class ReplicationDocumentModelFactory implements
                     "//system/path").get(0)).getText());
             xdoc.setPath(new Path(path.lastSegment()));
             path = path.removeLastSegments(1);
-            documentModel = coreImportDocument(xdoc, path.toString(),
-                    properties);
-            loadSystemInfo(documentModel, xdoc.getDocument());
+            try {
+                documentModel = coreImportDocument(xdoc, path.toString(),
+                        properties);
+            } catch (Exception e) {
+                log.error("Couldn't clone the documents in repository", e);
+                ImporterReporter.getInstance().logDocumentImport(
+                        documentLocation, e.getMessage());
+                return null;
+            }
+            try {
+                loadSystemInfo(documentModel, xdoc.getDocument());
+            } catch (Exception e) {
+                log.warn("Couldn't set ACL for " + documentLocation, e);
+                ImporterReporter.getInstance().logACLFailed(documentLocation);
+                // no acl, but doc is there, continue
+            }
         } else {
-            if (importProxies) {
-                return session.getRootDocument();
-            } else {
-                return cleanUpRoot();
+            try {
+                if (importProxies) {
+                    return session.getRootDocument();
+                } else {
+                    return cleanUpRoot();
+                }
+            } catch (Exception e) {
+                log.fatal("Couldn't import the root: import fails", e);
+                return null;
             }
         }
 
         sendStatus(StatusListener.DOC_PROCESS_SUCCESS, documentModel);
-        // update document properties, basicaly set up the blobs and update
 
+        // update document properties, basically set up the blobs and update
         DocumentWriter writer = new ReplicationDocumentModelWriter(session,
                 documentModel, 1);
-        File[] blobFiles = new File(fileNode.getName()).listFiles(new FilenameFilter() {
+        File[] blobFiles = new File(documentLocation).listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
                 return name.contains(".blob");
             }
@@ -193,10 +277,30 @@ public class ReplicationDocumentModelFactory implements
                         new FileSource(blobFile)));
             }
         }
-        writer.write(xdoc);
+        try {
+            writer.write(xdoc);
+        } catch (Exception e) {
+            log.error("Couldn't update the document structure for "
+                    + documentLocation, e);
+            ImporterReporter.getInstance().logDocumentStructure(
+                    documentLocation);
+        }
         return documentModel;
     }
 
+    /**
+     * Imports the document in repository. Actually only if it is an usual
+     * document, otherwise it only prepares the document for being imported. The
+     * actual import of the versions and proxies occurs after the schema are
+     * loaded in the DocumetnWriter part. The usual documents need to be
+     * imported in order to apply the ACLs.
+     *
+     * @param doc
+     * @param parentPath
+     * @param properties
+     * @return
+     * @throws ClientException
+     */
     protected DocumentModel coreImportDocument(ExportedDocument doc,
             String parentPath, Properties properties) throws ClientException {
         return ImporterDocumentCreator.importDocument(session, doc.getType(),
@@ -236,6 +340,10 @@ public class ReplicationDocumentModelFactory implements
 
     public void setDocumentXmlTransformer(DocumentXmlTransformer transformer) {
         xmlTransformer = transformer;
+    }
+
+    public void setDocumentTypeSelector(DocumentTypeSelector selector) {
+        typeSelector = selector;
     }
 
     @SuppressWarnings("unchecked")

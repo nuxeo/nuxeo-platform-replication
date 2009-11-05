@@ -15,27 +15,31 @@
 package org.nuxeo.ecm.platform.replication.summary;
 
 /**
- * The entry marking the error trying to retrieve the versions of the current
- * document (the one just to export).
+ * The entry marking error in custom processing of the XML structure. It stores
+ * the error message, if any.
  *
  * @author rux
  *
  */
-public class ReporterEntryNoVersions extends ReporterEntry {
+public class ReporterEntryFailUpdate extends ReporterEntry {
 
-    public static final String NO_VERSIONS_KEY = "noVersions";
+    public String errorMessage;
 
-    public ReporterEntryNoVersions(String documentId, String documentName,
-            String documentPath) {
+    public static final String FAIL_UPDATE_KEY = "failUpdate";
+
+    public ReporterEntryFailUpdate(String documentId, String documentName,
+            String documentPath, String errrorMessage) {
         super(documentId, documentName, documentPath);
+        this.errorMessage = errrorMessage;
     }
 
-    public ReporterEntryNoVersions() {
+    public ReporterEntryFailUpdate() {
     }
 
     @Override
     public String getRepresentation() {
-        return "for document " + getDocumentIdentifier();
+        return "document " + getDocumentIdentifier()
+                + " with the error message: " + errorMessage;
     }
 
 }

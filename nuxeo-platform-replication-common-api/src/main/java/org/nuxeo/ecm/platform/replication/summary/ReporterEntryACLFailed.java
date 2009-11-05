@@ -15,27 +15,26 @@
 package org.nuxeo.ecm.platform.replication.summary;
 
 /**
- * The entry marking the error trying to retrieve the versions of the current
- * document (the one just to export).
+ * The entry marking failure to update the ACL on document.
  *
  * @author rux
  *
  */
-public class ReporterEntryNoVersions extends ReporterEntry {
+public class ReporterEntryACLFailed extends ReporterEntry {
 
-    public static final String NO_VERSIONS_KEY = "noVersions";
+    public static final String ACL_FAILED_KEY = "aclFailed";
 
-    public ReporterEntryNoVersions(String documentId, String documentName,
-            String documentPath) {
+    public ReporterEntryACLFailed(String documentId,
+            String documentName, String documentPath, String cause) {
         super(documentId, documentName, documentPath);
     }
 
-    public ReporterEntryNoVersions() {
+    public ReporterEntryACLFailed() {
     }
 
     @Override
     public String getRepresentation() {
-        return "for document " + getDocumentIdentifier();
+        return "document " + getDocumentIdentifier();
     }
 
 }

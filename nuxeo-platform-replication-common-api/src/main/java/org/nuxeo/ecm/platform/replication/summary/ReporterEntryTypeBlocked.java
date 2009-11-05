@@ -15,27 +15,31 @@
 package org.nuxeo.ecm.platform.replication.summary;
 
 /**
- * The entry marking the error trying to retrieve the versions of the current
- * document (the one just to export).
+ * The entry marking the choice of not importing the particular type of
+ * documents. The type is stored.
  *
  * @author rux
  *
  */
-public class ReporterEntryNoVersions extends ReporterEntry {
+public class ReporterEntryTypeBlocked extends ReporterEntry {
 
-    public static final String NO_VERSIONS_KEY = "noVersions";
+    public String blockedType;
 
-    public ReporterEntryNoVersions(String documentId, String documentName,
-            String documentPath) {
+    public static final String TYPE_BLOCKED_KEY = "typeBlocked";
+
+    public ReporterEntryTypeBlocked(String documentId, String documentName,
+            String documentPath, String typeString) {
         super(documentId, documentName, documentPath);
+        this.blockedType = typeString;
     }
 
-    public ReporterEntryNoVersions() {
+    public ReporterEntryTypeBlocked() {
     }
 
     @Override
     public String getRepresentation() {
-        return "for document " + getDocumentIdentifier();
+        return "document " + getDocumentIdentifier() + " of type: "
+                + blockedType;
     }
 
 }
