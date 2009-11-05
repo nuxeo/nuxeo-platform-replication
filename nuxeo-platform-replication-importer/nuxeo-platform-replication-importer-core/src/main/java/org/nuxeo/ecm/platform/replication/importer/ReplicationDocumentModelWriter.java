@@ -32,9 +32,9 @@ import org.nuxeo.ecm.core.io.impl.AbstractDocumentModelWriter;
  * A writer which is updating the already existing document obtained in
  * replication import process. The most important: it uses the core import
  * method instead session.save() for documents with no ref, like versions.
- * 
+ *
  * @author btatar
- * 
+ *
  */
 public class ReplicationDocumentModelWriter extends AbstractDocumentModelWriter {
 
@@ -62,9 +62,7 @@ public class ReplicationDocumentModelWriter extends AbstractDocumentModelWriter 
             IOException ioe = new IOException(
                     "Failed to import document in repository: "
                             + e.getMessage());
-            ioe.setStackTrace(e.getStackTrace());
-            e.printStackTrace();
-            return null;
+            throw ioe;
         }
         return null;
     }

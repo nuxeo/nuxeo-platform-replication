@@ -45,15 +45,15 @@ import org.nuxeo.ecm.platform.replication.common.StatusListener;
  * exported as the usual documents with single difference: without workflows.
  * The importer is reading the files and acts multi-threaded in 2 steps: first
  * it "core imports" the documents and after it updates the properties.
- * 
+ *
  * @author rux
- * 
+ *
  */
 public interface DocumentaryBaseImporterService {
 
     /**
      * Imports the documentary base.
-     * 
+     *
      * @param parameter
      * @param path the path to root directory of replication
      * @param resume
@@ -74,15 +74,20 @@ public interface DocumentaryBaseImporterService {
 
     /**
      * Sets the listener that will informs about the import process status.
-     * 
+     *
      * @param listener
      */
     void setListener(StatusListener listener);
 
     /**
      * Sets the transformer for exported document.
-     * 
+     *
      * @param xmlTransformer
      */
     void setXmlTransformer(DocumentXmlTransformer xmlTransformer);
+
+    /**
+     * Sets the acceptor of the documents before import.
+     */
+    void setTypeSelector(DocumentTypeSelector typeSelector);
 }

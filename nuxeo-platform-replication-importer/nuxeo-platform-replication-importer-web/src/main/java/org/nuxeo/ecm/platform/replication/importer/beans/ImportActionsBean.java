@@ -28,15 +28,16 @@ import org.jboss.seam.annotations.Scope;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.io.ExportedDocument;
 import org.nuxeo.ecm.platform.replication.common.StatusListener;
+import org.nuxeo.ecm.platform.replication.importer.DefaultDocumentTypeSelector;
 import org.nuxeo.ecm.platform.replication.importer.DocumentaryBaseImporterService;
 import org.nuxeo.runtime.api.Framework;
 
 /**
  * Seam component used to perform the import of documents in the process of
  * replication.
- * 
+ *
  * @author btatar
- * 
+ *
  */
 @Scope(ScopeType.SESSION)
 @Name("importActions")
@@ -64,6 +65,7 @@ public class ImportActionsBean implements Serializable, StatusListener {
     public void initialize() throws Exception {
         try {
             importService = Framework.getService(DocumentaryBaseImporterService.class);
+            importService.setTypeSelector(new DefaultDocumentTypeSelector());
             importService.setListener(this);
         } catch (Exception e) {
             log.debug("Could not initialize the import service ...");
@@ -72,7 +74,7 @@ public class ImportActionsBean implements Serializable, StatusListener {
 
     /**
      * Performs the replication import process.
-     * 
+     *
      * @return
      * @throws ClientException
      */

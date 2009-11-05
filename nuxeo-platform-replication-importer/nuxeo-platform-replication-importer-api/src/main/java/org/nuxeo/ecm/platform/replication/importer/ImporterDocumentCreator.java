@@ -30,6 +30,7 @@ import org.nuxeo.common.utils.Path;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
+import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.core.api.impl.DocumentModelImpl;
 import org.nuxeo.ecm.core.schema.types.primitives.DateType;
@@ -37,9 +38,9 @@ import org.nuxeo.ecm.core.schema.types.primitives.DateType;
 /**
  * Core imports various types of documents. The document can't be updated, so it
  * has not to exist before.
- * 
+ *
  * @author rux
- * 
+ *
  */
 public class ImporterDocumentCreator {
 
@@ -48,7 +49,7 @@ public class ImporterDocumentCreator {
     /**
      * Imports a document through core session.Depending on what properties are
      * received, a proxy or version or normal document is further imported.
-     * 
+     *
      * @param session - the nuxeo core session used to import the document
      * @param type - the type of the document that will be imported
      * @param id - the uuid of the document that will be imported
@@ -88,7 +89,7 @@ public class ImporterDocumentCreator {
 
     /**
      * Looks in properties if it is about a proxy to import.
-     * 
+     *
      * @param properties
      * @return
      */
@@ -99,7 +100,7 @@ public class ImporterDocumentCreator {
 
     /**
      * It is the same loadXML method from core IO.
-     * 
+     *
      * @param file
      * @return
      * @throws ClientException
@@ -125,7 +126,7 @@ public class ImporterDocumentCreator {
 
     /**
      * Imports an usual document through core session.
-     * 
+     *
      * @param session - the nuxeo core session used to import the document
      * @param type - the type of the document that will be imported
      * @param id - the uuid of the document that will be imported
@@ -181,12 +182,12 @@ public class ImporterDocumentCreator {
         document.setPathInfo(parentPath, name);
         session.importDocuments(Collections.singletonList(document));
         session.save();
-        return document;
+        return session.getDocument(new IdRef(id));
     }
 
     /**
      * Import a version document through the core session
-     * 
+     *
      * @param session - the nuxeo core session used to import the document
      * @param type - the type of the document that will be imported
      * @param id - the uuid of the document that will be imported
@@ -246,7 +247,7 @@ public class ImporterDocumentCreator {
     /**
      * Import a proxy document through the core session.The proxy documents will
      * have the type ecm:proxy
-     * 
+     *
      * @param session - the nuxeo core session used to import the document
      * @param id - the uuid of the document that will be imported
      * @param name - the name of the document that will be imported

@@ -13,47 +13,46 @@
  *
  */
 
-package org.nuxeo.ecm.platform.replication.exporter.reporter;
+package org.nuxeo.ecm.platform.replication.importer.reporter;
 
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.nuxeo.ecm.platform.replication.summary.Reporter;
 import org.nuxeo.ecm.platform.replication.summary.ReporterEntry;
+import org.nuxeo.ecm.platform.replication.summary.ReporterEntryACLFailed;
+import org.nuxeo.ecm.platform.replication.summary.ReporterEntryDocumentImport;
 import org.nuxeo.ecm.platform.replication.summary.ReporterEntryDocumentStructure;
-import org.nuxeo.ecm.platform.replication.summary.ReporterEntryMissingBlob;
-import org.nuxeo.ecm.platform.replication.summary.ReporterEntryMissingLiveDocument;
-import org.nuxeo.ecm.platform.replication.summary.ReporterEntryMissingVersion;
-import org.nuxeo.ecm.platform.replication.summary.ReporterEntryNoChildren;
-import org.nuxeo.ecm.platform.replication.summary.ReporterEntryNoVersions;
+import org.nuxeo.ecm.platform.replication.summary.ReporterEntryFailUpdate;
+import org.nuxeo.ecm.platform.replication.summary.ReporterEntryTypeBlocked;
 import org.nuxeo.ecm.platform.replication.summary.ReporterEntryUnknownError;
 
 /**
- * Singleton to report the export summary.
+ * Singleton to report the import summary.
  *
  * @author rux
  *
  */
-public class ExporterReporter extends Reporter {
+public class ImporterReporter extends Reporter {
 
-    private static final Logger log = Logger.getLogger(ExporterReporter.class);
+    private static final Logger log = Logger.getLogger(ImporterReporter.class);
 
     private static Reporter reporter = null;
 
-    private ExporterReporter() {
+    private ImporterReporter() {
     }
 
     public static Reporter getInstance() {
         if (reporter == null) {
-            reporter = new ExporterReporter();
+            reporter = new ImporterReporter();
         }
         return reporter;
     }
 
     @Override
     public void dumpLog() {
-        log.info("Summary of export action");
-        log.info(getDocumentNumber() + " documents attempted to export");
+        log.info("Summary of import action");
+        log.info(getDocumentNumber() + " documents attempted to import");
         boolean successful = true;
 
         List<ReporterEntry> list = getEntries().get(
@@ -64,7 +63,7 @@ public class ExporterReporter extends Reporter {
         }
         if (numberOfThem > 0) {
             log.info("  " + numberOfThem + " documents yields unexpected error.");
-            log.info("  Their status is undefined from the exporter perspective.");
+            log.info("  Their status is undefined from the importer perspective.");
             for (ReporterEntry entry : list) {
                 log.info("    " + entry.getRepresentation());
             }
@@ -78,8 +77,8 @@ public class ExporterReporter extends Reporter {
             numberOfThem = list.size();
         }
         if (numberOfThem > 0) {
-            log.info("  " + numberOfThem + " documents are compromised.");
-            log.info("  They couldn't be exported. Check log for more details.");
+            log.info("  " + numberOfThem + " documents' XML structure are compromised.");
+            log.info("  They are imported but as empty documents - including the title.");
             for (ReporterEntry entry : list) {
                 log.info("    " + entry.getRepresentation());
             }
@@ -88,13 +87,13 @@ public class ExporterReporter extends Reporter {
         }
 
         list = getEntries().get(
-                ReporterEntryNoChildren.NO_CHILDREN_KEY);
+                ReporterEntryDocumentImport.DOCUMENT_IMPORT_KEY);
         if (list != null) {
             numberOfThem = list.size();
         }
         if (numberOfThem > 0) {
-            log.info("  for " + numberOfThem + " documents children are not available.");
-            log.info("  The children couldn't be read: they are not listed nor exported.");
+            log.info("  " + numberOfThem + " documents failed to be cloned in repository.");
+            log.info("  They couldn't be imported. Check log for more details.");
             for (ReporterEntry entry : list) {
                 log.info("    " + entry.getRepresentation());
             }
@@ -103,13 +102,13 @@ public class ExporterReporter extends Reporter {
         }
 
         list = getEntries().get(
-                ReporterEntryNoVersions.NO_VERSIONS_KEY);
+                ReporterEntryFailUpdate.FAIL_UPDATE_KEY);
         if (list != null) {
             numberOfThem = list.size();
         }
         if (numberOfThem > 0) {
-            log.info("  for " + numberOfThem + " documents versions are not available.");
-            log.info("  The versions couldn't be read: they are not listed nor exported.");
+            log.info("  for " + numberOfThem + " documents custom schema update failed.");
+            log.info("  The documents are imported as they are, without any custom change.");
             for (ReporterEntry entry : list) {
                 log.info("    " + entry.getRepresentation());
             }
@@ -118,42 +117,28 @@ public class ExporterReporter extends Reporter {
         }
 
         list = getEntries().get(
-                ReporterEntryMissingVersion.MISSING_VERSION_KEY);
+                ReporterEntryTypeBlocked.TYPE_BLOCKED_KEY);
         if (list != null) {
             numberOfThem = list.size();
         }
         if (numberOfThem > 0) {
-            log.info("  " + numberOfThem + " documents are missing a version.");
-            log.info("  They are still available for import with no versions attached.");
+            log.info("  " + numberOfThem + " documents were rejected based on the type selection.");
+            log.info("  The documents are not imported.");
             for (ReporterEntry entry : list) {
-                log.info("     " + entry.getRepresentation());
+                log.info("    " + entry.getRepresentation());
             }
             numberOfThem = 0;
             successful = false;
         }
 
         list = getEntries().get(
-                ReporterEntryMissingLiveDocument.MISSING_LIVEDOC_KEY);
+                ReporterEntryACLFailed.ACL_FAILED_KEY);
         if (list != null) {
             numberOfThem = list.size();
         }
         if (numberOfThem > 0) {
-            log.info("  " + numberOfThem + " versions are orphans.");
-            log.info("  They are still available for import with no live document attached.");
-            for (ReporterEntry entry : list) {
-                log.info("     " + entry.getRepresentation());
-            }
-            numberOfThem = 0;
-            successful = false;
-        }
-
-        list = getEntries().get(ReporterEntryMissingBlob.MISSING_BLOB_KEY);
-        if (list != null) {
-            numberOfThem = list.size();
-        }
-        if (numberOfThem > 0) {
-            log.info("  " + numberOfThem + " documents are missing a blob file.");
-            log.info("  Still they are available for import with a fake blob file instead.");
+            log.info("  for " + numberOfThem + " documents failure to update the ACL system.");
+            log.info("  The documents are imported and preserved with default security rights.");
             for (ReporterEntry entry : list) {
                 log.info("    " + entry.getRepresentation());
             }

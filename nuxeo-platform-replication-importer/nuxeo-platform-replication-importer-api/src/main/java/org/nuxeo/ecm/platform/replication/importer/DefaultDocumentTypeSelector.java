@@ -12,30 +12,30 @@
  * Lesser General Public License for more details.
  *
  */
-package org.nuxeo.ecm.platform.replication.summary;
+
+package org.nuxeo.ecm.platform.replication.importer;
 
 /**
- * The entry marking the error trying to retrieve the versions of the current
- * document (the one just to export).
+ * Defaults the selection of documents, type based, to some
  *
  * @author rux
  *
  */
-public class ReporterEntryNoVersions extends ReporterEntry {
+public class DefaultDocumentTypeSelector implements DocumentTypeSelector {
 
-    public static final String NO_VERSIONS_KEY = "noVersions";
+    static final String[] deniedTypes = { "UserDataRoot" };
 
-    public ReporterEntryNoVersions(String documentId, String documentName,
-            String documentPath) {
-        super(documentId, documentName, documentPath);
-    }
-
-    public ReporterEntryNoVersions() {
-    }
-
-    @Override
-    public String getRepresentation() {
-        return "for document " + getDocumentIdentifier();
+    public boolean accept(String documentType) {
+        if (documentType == null) {
+            // null type, do not import
+            return false;
+        }
+        for (String denyType : deniedTypes) {
+            if (denyType.equals(documentType)) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }

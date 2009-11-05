@@ -93,6 +93,14 @@ public abstract class Reporter {
                 reporterEntry);
     }
 
+    public void logDocumentImport(String documentLocation, String cause) {
+        ReporterEntryDocumentImport reporterEntry = new ReporterEntryDocumentImport();
+        reporterEntry.documentPath = documentLocation;
+        reporterEntry.cause = cause;
+        log(ReporterEntryDocumentImport.DOCUMENT_IMPORT_KEY,
+                reporterEntry);
+    }
+
     public void logMissingBlob(String documentLocation, String blobLocation) {
         ReporterEntryMissingBlob reporterEntry = new ReporterEntryMissingBlob();
         reporterEntry.documentPath = documentLocation;
@@ -130,6 +138,26 @@ public abstract class Reporter {
         reporterEntry.documentPath = documentLocation;
         reporterEntry.errorMessage = errorMessage;
         log(ReporterEntryUnknownError.UNKNOWN_ERROR_KEY, reporterEntry);
+    }
+
+    public void logFailUpdate(String documentLocation, String errorMessage) {
+        ReporterEntryFailUpdate reporterEntry = new ReporterEntryFailUpdate();
+        reporterEntry.documentPath = documentLocation;
+        reporterEntry.errorMessage = errorMessage;
+        log(ReporterEntryFailUpdate.FAIL_UPDATE_KEY, reporterEntry);
+    }
+
+    public void logTypeBlocked(String documentLocation, String typeString) {
+        ReporterEntryTypeBlocked reporterEntry = new ReporterEntryTypeBlocked();
+        reporterEntry.documentPath = documentLocation;
+        reporterEntry.blockedType = typeString;
+        log(ReporterEntryTypeBlocked.TYPE_BLOCKED_KEY, reporterEntry);
+    }
+
+    public void logACLFailed(String documentLocation) {
+        ReporterEntryACLFailed reporterEntry = new ReporterEntryACLFailed();
+        reporterEntry.documentPath = documentLocation;
+        log(ReporterEntryACLFailed.ACL_FAILED_KEY, reporterEntry);
     }
 
     /**
