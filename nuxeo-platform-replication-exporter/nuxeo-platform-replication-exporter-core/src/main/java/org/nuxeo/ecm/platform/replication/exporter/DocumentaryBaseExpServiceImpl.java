@@ -45,11 +45,11 @@ public class DocumentaryBaseExpServiceImpl // extends ServiceMBeanSupport
 
     private long startTime = 0;
 
-    private long endTime = 0;
+    private long lastTime = 0;
 
     private long fileCount = 0;
 
-    private long oldFileCount = 0;
+    private long lastFileCount = 0;
 
     private boolean done = false;
 
@@ -71,6 +71,7 @@ public class DocumentaryBaseExpServiceImpl // extends ServiceMBeanSupport
         try {
             setDone(false);
             setFileCount(0);
+            startTime = System.currentTimeMillis();
 
             exp = new UnrestrictedExporter(domain, getPath());
             exp.setListener(listener);
@@ -124,27 +125,26 @@ public class DocumentaryBaseExpServiceImpl // extends ServiceMBeanSupport
             } else {
                 fileCount++;
             }
-            endTime = System.currentTimeMillis();
-            long time = Math.abs(endTime - startTime) / 1000;
-            time = time != 0 ? time : 1;
-            if (endTime - startTime > 10000) {
-                log.info("Documents Exported: " + fileCount);
-                log.info("Docs/sec : " + ((fileCount - oldFileCount) / time));
-                endTime = startTime;
-                oldFileCount = fileCount;
+            long currentTime = System.currentTimeMillis();
+            long time = (currentTime - lastTime) / 1000;
+            if (time > 10) {
+                float currentSpeed = ((float)(fileCount - lastFileCount)) / time;
+                float overallSpeed = ((float)fileCount) / ((currentTime - startTime) / 1000);
+                String aMessage = String.format("Exported %d documents at the rate %.2f", fileCount, overallSpeed);
+                log.info(aMessage);
+                aMessage = String.format("The immediate speed is: %.2f", currentSpeed);
+                log.info(aMessage);
+                lastTime = currentTime;
+                lastFileCount = fileCount;
             }
         } else if ((Integer) params[0] == StatusListener.DONE) {
             setDone(true);
-            endTime = System.currentTimeMillis();
-            long time = Math.abs(endTime - startTime) / 1000;
-            time = time != 0 ? time : 1;
-            log.info("Export completed.");
-            log.info("Documents Exported: " + fileCount);
-            log.info("Docs/sec : " + ((fileCount - oldFileCount) / time));
+            //reporter takes care logging results, don't twice
         } else if ((Integer) params[0] == StatusListener.STARTED) {
             startTime = System.currentTimeMillis();
             fileCount = 0;
-            oldFileCount = 1;
+            lastFileCount = 0;
+            lastTime = startTime;
         }
     }
 
