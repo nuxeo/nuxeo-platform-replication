@@ -53,6 +53,8 @@ public class ImporterReporter extends Reporter {
     public void dumpLog() {
         log.info("Summary of import action");
         log.info(getDocumentNumber() + " documents attempted to import");
+        log.info(getTimeVelocity());
+
         boolean successful = true;
 
         List<ReporterEntry> list = getEntries().get(
