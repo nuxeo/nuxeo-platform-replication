@@ -54,6 +54,8 @@ public class ExporterReporter extends Reporter {
     public void dumpLog() {
         log.info("Summary of export action");
         log.info(getDocumentNumber() + " documents attempted to export");
+        log.info(getTimeVelocity());
+
         boolean successful = true;
 
         List<ReporterEntry> list = getEntries().get(

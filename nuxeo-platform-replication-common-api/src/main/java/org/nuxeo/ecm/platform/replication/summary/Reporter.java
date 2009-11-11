@@ -20,6 +20,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormat;
+import org.joda.time.format.PeriodFormatter;
 import org.nuxeo.ecm.platform.replication.summary.ReporterEntry;
 
 /**
@@ -30,6 +33,11 @@ import org.nuxeo.ecm.platform.replication.summary.ReporterEntry;
  * access needs to be synchronized. The main process creates, resets it and make
  * the summary. Every where needed, the workers register items.
  *
+ * TODO: I feel that better wold be to move the immediate / overall velocity in
+ * here instead letting it being implemented outside (in
+ * GenericMultiThreadedImporter and DocumentaryBaseExpServiceImpl respectively),
+ * but it is not a priority.
+ *
  * @author rux
  *
  */
@@ -39,12 +47,15 @@ public abstract class Reporter {
 
     private int documentNumber;
 
+    private long startTime = 0;
+
     protected Reporter() {
     }
 
     public void clear() {
         getEntries().clear();
         documentNumber = 0;
+        startTime = System.currentTimeMillis();
     }
 
     /**
@@ -136,4 +147,19 @@ public abstract class Reporter {
      * Dumps the information into the log system.
      */
     public abstract void dumpLog();
+
+    public String getTimeVelocity() {
+        long endTime = System.currentTimeMillis();
+        Period period = new Period(startTime, endTime);
+        PeriodFormatter periodF = PeriodFormat.getDefault();
+        String periodS = periodF.print(period);
+        float seconds = ((float)(endTime - startTime)) / 1000 ;
+        if (seconds <= 0) {
+            //very unlikely, but being only log go easy
+            seconds = 1;
+        }
+        float velocity = ((float) getDocumentNumber()) / seconds;
+        return String.format("time elapsed: %s, velocity: %.2f",
+                periodS, velocity);
+    }
 }
