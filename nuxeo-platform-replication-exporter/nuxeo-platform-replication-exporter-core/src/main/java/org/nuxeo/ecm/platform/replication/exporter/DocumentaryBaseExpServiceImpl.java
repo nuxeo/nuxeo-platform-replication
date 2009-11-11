@@ -72,7 +72,8 @@ public class DocumentaryBaseExpServiceImpl // extends ServiceMBeanSupport
             setDone(false);
             setFileCount(0);
             startTime = System.currentTimeMillis();
-
+            lastTime = startTime;
+            lastFileCount = 0;
             exp = new UnrestrictedExporter(domain, getPath());
             exp.setListener(listener);
             exp.runUnrestricted();
