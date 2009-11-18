@@ -182,7 +182,7 @@ public class ImporterDocumentCreator {
         document.setPathInfo(parentPath, name);
         session.importDocuments(Collections.singletonList(document));
         session.save();
-        return session.getDocument(new IdRef(id));
+        return document;
     }
 
     /**
