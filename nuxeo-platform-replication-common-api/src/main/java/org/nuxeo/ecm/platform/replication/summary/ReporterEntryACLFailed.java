@@ -18,7 +18,6 @@ package org.nuxeo.ecm.platform.replication.summary;
  * The entry marking failure to update the ACL on document.
  *
  * @author rux
- *
  */
 public class ReporterEntryACLFailed extends ReporterEntry {
 

@@ -19,7 +19,6 @@ package org.nuxeo.ecm.platform.replication.summary;
  * is stored.
  *
  * @author rux
- *
  */
 public class ReporterEntryDocumentImport extends ReporterEntry {
 

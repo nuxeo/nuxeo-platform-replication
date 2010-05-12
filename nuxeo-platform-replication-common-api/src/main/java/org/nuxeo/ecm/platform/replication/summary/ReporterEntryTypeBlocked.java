@@ -19,7 +19,6 @@ package org.nuxeo.ecm.platform.replication.summary;
  * documents. The type is stored.
  *
  * @author rux
- *
  */
 public class ReporterEntryTypeBlocked extends ReporterEntry {
 
@@ -30,7 +29,7 @@ public class ReporterEntryTypeBlocked extends ReporterEntry {
     public ReporterEntryTypeBlocked(String documentId, String documentName,
             String documentPath, String typeString) {
         super(documentId, documentName, documentPath);
-        this.blockedType = typeString;
+        blockedType = typeString;
     }
 
     public ReporterEntryTypeBlocked() {

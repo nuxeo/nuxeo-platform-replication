@@ -30,7 +30,7 @@ import org.nuxeo.ecm.platform.replication.common.StatusListener;
  * names are the names of the documents. The path of Nuxeo documents is unique,
  * so it can be used without worrying of duplicates. We can find the usual
  * documents exported, with blobs, with workflow state (inside the document
- * folder a file named “workflow.export”). The JBPM workflow state of the
+ * folder a file named “workflow.export”). The jBPM workflow state of the
  * document is stored (lifecycle state is already saved in the document export)
  * although for the moment it is not of much use. But if required it can be
  * imagined a procedure to update the workflow state when importing based on
@@ -44,22 +44,12 @@ import org.nuxeo.ecm.platform.replication.common.StatusListener;
  * Under “Documentary Base” the “Proxies” folder contains the proxies. They are
  * exported as the usual documents with single difference: without workflows.
  *
- *
  * @author cpriceputu
- *
  */
 public interface DocumentaryBaseExporterService {
 
     /**
      * Exports the documentary base.
-     *
-     * @param session
-     * @param parameter
-     * @param path
-     * @param resume
-     * @param exportVersions
-     * @param exportProxies
-     * @throws ClientException
      */
     void export(String domain, Map<String, Serializable> parameter,
             File path, boolean resume, boolean exportVersions,
@@ -72,8 +62,7 @@ public interface DocumentaryBaseExporterService {
 
     /**
      * Sets a listener that receives misc events
-     *
-     * @param listener
      */
     void setListener(StatusListener listener);
+
 }

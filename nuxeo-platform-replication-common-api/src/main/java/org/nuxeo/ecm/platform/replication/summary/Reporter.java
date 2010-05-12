@@ -23,7 +23,6 @@ import java.util.Map;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormat;
 import org.joda.time.format.PeriodFormatter;
-import org.nuxeo.ecm.platform.replication.summary.ReporterEntry;
 
 /**
  * The base class. This tool aims to summary the status of the replication
@@ -33,17 +32,17 @@ import org.nuxeo.ecm.platform.replication.summary.ReporterEntry;
  * access needs to be synchronized. The main process creates, resets it and make
  * the summary. Every where needed, the workers register items.
  *
+ * @author rux
+ */
+/*
  * TODO: I feel that better wold be to move the immediate / overall velocity in
  * here instead letting it being implemented outside (in
  * GenericMultiThreadedImporter and DocumentaryBaseExpServiceImpl respectively),
  * but it is not a priority.
- *
- * @author rux
- *
  */
 public abstract class Reporter {
 
-    private Map<String, List<ReporterEntry>> entries = null;
+    private Map<String, List<ReporterEntry>> entries;
 
     private int documentNumber;
 
@@ -60,8 +59,6 @@ public abstract class Reporter {
 
     /**
      * Gets the entries: map with the collected items organized on type of item.
-     *
-     * @return
      */
     public Map<String, List<ReporterEntry>> getEntries() {
         if (entries == null) {
@@ -72,9 +69,6 @@ public abstract class Reporter {
 
     /**
      * Stores an entry. The key is specific to type of entries.
-     *
-     * @param key
-     * @param entry
      */
     public synchronized void log(String key, ReporterEntry entry) {
         getEntries();// ensure they are not null
@@ -87,7 +81,7 @@ public abstract class Reporter {
     }
 
     /**
-     * Increment the processed document number.
+     * Increments the processed document number.
      */
     public synchronized void incrementDocumentNumber() {
         documentNumber++;
@@ -186,8 +180,9 @@ public abstract class Reporter {
             //very unlikely, but being only log go easy
             seconds = 1;
         }
-        float velocity = ((float) getDocumentNumber()) / seconds;
+        float velocity = ((float) documentNumber) / seconds;
         return String.format("time elapsed: %s, velocity: %.2f",
                 periodS, velocity);
     }
+
 }

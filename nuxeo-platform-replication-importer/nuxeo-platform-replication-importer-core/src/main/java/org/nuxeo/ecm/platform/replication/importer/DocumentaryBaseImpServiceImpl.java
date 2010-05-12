@@ -132,7 +132,7 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
 
 class ImportRunner implements Runnable {
 
-    private static Logger LOG = Logger.getLogger(ImportRunner.class);
+    private static final Logger LOG = Logger.getLogger(ImportRunner.class);
 
     private Map<String, Serializable> parameter;
 
@@ -154,15 +154,15 @@ class ImportRunner implements Runnable {
             boolean resume, boolean exportVersions, boolean exportProxies,
             boolean useMultiThread, DocumentaryBaseImpServiceImpl service,
             StatusListener listener) {
-        setParameter(parameter);
-        setPath(path);
-        setResume(resume);
-        setExportVersions(exportVersions);
-        setExportProxies(exportProxies);
-        setUseMultiThread(useMultiThread);
+        this.parameter = parameter;
+        this.path = path;
+        this.resume = resume;
+        this.exportVersions = exportVersions;
+        this.exportProxies = exportProxies;
+        this.useMultiThread = useMultiThread;
 
-        setService(service);
-        setListener(listener);
+        this.service = service;
+        this.listener = listener;
     }
 
     public void start() {

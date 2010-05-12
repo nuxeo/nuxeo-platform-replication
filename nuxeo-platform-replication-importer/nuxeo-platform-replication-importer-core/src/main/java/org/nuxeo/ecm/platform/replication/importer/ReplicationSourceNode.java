@@ -32,7 +32,7 @@ import org.nuxeo.ecm.platform.importer.source.SourceNode;
  */
 public class ReplicationSourceNode implements SourceNode {
 
-    protected File file;
+    protected final File file;
 
     protected List<SourceNode> children;
 

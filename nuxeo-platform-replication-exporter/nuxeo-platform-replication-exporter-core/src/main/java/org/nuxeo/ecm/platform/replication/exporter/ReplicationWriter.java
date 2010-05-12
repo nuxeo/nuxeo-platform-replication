@@ -48,18 +48,18 @@ import org.nuxeo.ecm.platform.replication.exporter.reporter.ExporterReporter;
  *
  * @author cpriceputu@nuxeo.com
  * @author rux added the reporter logging stuff
- *
  */
 public class ReplicationWriter extends XMLDirectoryWriter {
-    private static final Logger log = Logger.getLogger(ReplicationWriter.class);
-
-    private CoreSession session = null;
-
-    private static final Object mutex = new Object();
 
     public static final String FAKE_BLOB_BODY = "The original blob could not be found, this is a fake replacement one.";
 
-    public ReplicationWriter(File file, CoreSession session) throws IOException {
+    private static final Logger log = Logger.getLogger(ReplicationWriter.class);
+
+    private static final Object mutex = new Object();
+
+    private final CoreSession session;
+
+    public ReplicationWriter(File file, CoreSession session) {
         super(file);
         this.session = session;
     }
@@ -140,7 +140,7 @@ public class ReplicationWriter extends XMLDirectoryWriter {
         return null;
     }
 
-    public static final void createFakeBlob(File file) {
+    public static void createFakeBlob(File file) {
 
         FileOutputStream fos = null;
         try {
@@ -167,7 +167,6 @@ public class ReplicationWriter extends XMLDirectoryWriter {
         if (document.isProxy()) {
             // export proxy
             DocumentModel version = null;
-            DocumentModel liveDocument = null;
             try {
                 version = documentManager.getSourceDocument(ref);
             } catch (Exception e) {
@@ -181,6 +180,7 @@ public class ReplicationWriter extends XMLDirectoryWriter {
             if (version != null) {
                 props.setProperty(IMPORT_PROXY_TARGET_ID,
                         version.getId() == null ? "" : version.getId());
+                DocumentModel liveDocument = null;
                 try {
                     liveDocument = documentManager.getSourceDocument(version
                             .getRef());
@@ -258,7 +258,6 @@ public class ReplicationWriter extends XMLDirectoryWriter {
             VersioningDocument docVer = document
                     .getAdapter(VersioningDocument.class);
             String minorVer = null;
-            String majorVer = null;
             try {
                 minorVer = docVer.getMinorVersion().toString();
             } catch (Exception e) {
@@ -266,6 +265,7 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                 log.warn("Error looking for minor version of "
                         + documentLocation, e);
             }
+            String majorVer = null;
             try {
                 majorVer = docVer.getMajorVersion().toString();
             } catch (Exception e) {
@@ -305,7 +305,6 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                         .getAdapter(VersioningDocument.class);
                 if (docVer != null) {
                     String minorVer = null;
-                    String majorVer = null;
                     try {
                         minorVer = docVer.getMinorVersion().toString();
                     } catch (Exception e) {
@@ -313,6 +312,7 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                         log.warn("Error looking for minor version of "
                                 + documentLocation, e);
                     }
+                    String majorVer = null;
                     try {
                         majorVer = docVer.getMajorVersion().toString();
                     } catch (Exception e) {

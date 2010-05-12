@@ -32,13 +32,12 @@ import org.nuxeo.ecm.platform.replication.summary.ReporterEntryUnknownError;
  * Singleton to report the export summary.
  *
  * @author rux
- *
  */
 public class ExporterReporter extends Reporter {
 
     private static final Logger log = Logger.getLogger(ExporterReporter.class);
 
-    private static Reporter reporter = null;
+    private static Reporter reporter;
 
     private ExporterReporter() {
     }
@@ -56,107 +55,106 @@ public class ExporterReporter extends Reporter {
         log.info(getDocumentNumber() + " documents attempted to export");
         log.info(getTimeVelocity());
 
-        boolean successful = true;
-
-        List<ReporterEntry> list = getEntries().get(
+        List<ReporterEntry> entries = getEntries().get(
                 ReporterEntryUnknownError.UNKNOWN_ERROR_KEY);
         int numberOfThem = 0;
-        if (list != null) {
-            numberOfThem = list.size();
+        if (entries != null) {
+            numberOfThem = entries.size();
         }
+        boolean successful = true;
         if (numberOfThem > 0) {
             log.info("  " + numberOfThem + " documents yields unexpected error.");
             log.info("  Their status is undefined from the exporter perspective.");
-            for (ReporterEntry entry : list) {
+            for (ReporterEntry entry : entries) {
                 log.info("    " + entry.getRepresentation());
             }
             numberOfThem = 0;
             successful = false;
         }
 
-        list = getEntries().get(
+        entries = getEntries().get(
                 ReporterEntryDocumentStructure.DOCUMENT_STRUCTURE_KEY);
-        if (list != null) {
-            numberOfThem = list.size();
+        if (entries != null) {
+            numberOfThem = entries.size();
         }
         if (numberOfThem > 0) {
             log.info("  " + numberOfThem + " documents are compromised.");
             log.info("  They couldn't be exported. Check log for more details.");
-            for (ReporterEntry entry : list) {
+            for (ReporterEntry entry : entries) {
                 log.info("    " + entry.getRepresentation());
             }
             numberOfThem = 0;
             successful = false;
         }
 
-        list = getEntries().get(
+        entries = getEntries().get(
                 ReporterEntryNoChildren.NO_CHILDREN_KEY);
-        if (list != null) {
-            numberOfThem = list.size();
+        if (entries != null) {
+            numberOfThem = entries.size();
         }
         if (numberOfThem > 0) {
             log.info("  for " + numberOfThem + " documents children are not available.");
             log.info("  The children couldn't be read: they are not listed nor exported.");
-            for (ReporterEntry entry : list) {
+            for (ReporterEntry entry : entries) {
                 log.info("    " + entry.getRepresentation());
             }
             numberOfThem = 0;
             successful = false;
         }
 
-        list = getEntries().get(
+        entries = getEntries().get(
                 ReporterEntryNoVersions.NO_VERSIONS_KEY);
-        if (list != null) {
-            numberOfThem = list.size();
+        if (entries != null) {
+            numberOfThem = entries.size();
         }
         if (numberOfThem > 0) {
             log.info("  for " + numberOfThem + " documents versions are not available.");
             log.info("  The versions couldn't be read: they are not listed nor exported.");
-            for (ReporterEntry entry : list) {
+            for (ReporterEntry entry : entries) {
                 log.info("    " + entry.getRepresentation());
             }
             numberOfThem = 0;
             successful = false;
         }
 
-        list = getEntries().get(
+        entries = getEntries().get(
                 ReporterEntryMissingVersion.MISSING_VERSION_KEY);
-        if (list != null) {
-            numberOfThem = list.size();
+        if (entries != null) {
+            numberOfThem = entries.size();
         }
         if (numberOfThem > 0) {
             log.info("  " + numberOfThem + " documents are missing a version.");
             log.info("  They are still available for import with no versions attached.");
-            for (ReporterEntry entry : list) {
+            for (ReporterEntry entry : entries) {
                 log.info("     " + entry.getRepresentation());
             }
             numberOfThem = 0;
             successful = false;
         }
 
-        list = getEntries().get(
+        entries = getEntries().get(
                 ReporterEntryMissingLiveDocument.MISSING_LIVEDOC_KEY);
-        if (list != null) {
-            numberOfThem = list.size();
+        if (entries != null) {
+            numberOfThem = entries.size();
         }
         if (numberOfThem > 0) {
             log.info("  " + numberOfThem + " versions are orphans.");
             log.info("  They are still available for import with no live document attached.");
-            for (ReporterEntry entry : list) {
+            for (ReporterEntry entry : entries) {
                 log.info("     " + entry.getRepresentation());
             }
             numberOfThem = 0;
             successful = false;
         }
 
-        list = getEntries().get(ReporterEntryMissingBlob.MISSING_BLOB_KEY);
-        if (list != null) {
-            numberOfThem = list.size();
+        entries = getEntries().get(ReporterEntryMissingBlob.MISSING_BLOB_KEY);
+        if (entries != null) {
+            numberOfThem = entries.size();
         }
         if (numberOfThem > 0) {
             log.info("  " + numberOfThem + " documents are missing a blob file.");
             log.info("  Still they are available for import with a fake blob file instead.");
-            for (ReporterEntry entry : list) {
+            for (ReporterEntry entry : entries) {
                 log.info("    " + entry.getRepresentation());
             }
             numberOfThem = 0;

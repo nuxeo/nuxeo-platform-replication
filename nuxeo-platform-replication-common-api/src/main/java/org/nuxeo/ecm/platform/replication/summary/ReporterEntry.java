@@ -18,17 +18,17 @@ package org.nuxeo.ecm.platform.replication.summary;
  * Base class of entries logged in replication tool.
  *
  * @author rux
- *
  */
 public abstract class ReporterEntry {
+
     public String documentId;
     public String documentPath;
     public String documentName;
 
-    public ReporterEntry() {
+    protected ReporterEntry() {
     }
 
-    public ReporterEntry(String documentId, String documentName,
+    protected ReporterEntry(String documentId, String documentName,
             String documentPath) {
         this.documentId = documentId;
         this.documentName = documentName;

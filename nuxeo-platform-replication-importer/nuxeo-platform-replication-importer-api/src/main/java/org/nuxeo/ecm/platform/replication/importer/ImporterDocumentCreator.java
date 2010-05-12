@@ -30,7 +30,6 @@ import org.nuxeo.common.utils.Path;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.core.api.impl.DocumentModelImpl;
 import org.nuxeo.ecm.core.schema.types.primitives.DateType;
@@ -40,7 +39,6 @@ import org.nuxeo.ecm.core.schema.types.primitives.DateType;
  * has not to exist before.
  *
  * @author rux
- *
  */
 public class ImporterDocumentCreator {
 
@@ -89,9 +87,6 @@ public class ImporterDocumentCreator {
 
     /**
      * Looks in properties if it is about a proxy to import.
-     *
-     * @param properties
-     * @return
      */
     public static boolean isProxy(Properties properties) {
         return properties.getProperty(CoreSession.IMPORT_PROXY_TARGET_ID) != null
@@ -100,10 +95,6 @@ public class ImporterDocumentCreator {
 
     /**
      * It is the same loadXML method from core IO.
-     *
-     * @param file
-     * @return
-     * @throws ClientException
      */
     public static Document loadXML(File file) throws ClientException {
         BufferedInputStream in = null;
@@ -192,15 +183,13 @@ public class ImporterDocumentCreator {
      * @param type - the type of the document that will be imported
      * @param id - the uuid of the document that will be imported
      * @param name - the name of the document that will be imported
-     * @param parentPath - the parent path of the document that will be imported
      * @param properties - the properties file that will contain the information
      *            needed to proceed properly the import
+     *
      * @return the new imported document
-     * @throws ClientException
      */
     public static DocumentModel importVersionDocument(CoreSession session,
-            String type, String id, String name, Properties properties)
-            throws ClientException {
+            String type, String id, String name, Properties properties) {
 
         if (properties == null) {
             log.debug("The received .properties file cannot be NULL ...");
@@ -254,12 +243,11 @@ public class ImporterDocumentCreator {
      * @param parentPath - the parent path of the document that will be imported
      * @param properties - the properties file that will contain the information
      *            needed to proceed properly the import
+     *
      * @return the new imported document
-     * @throws ClientException
      */
     public static DocumentModel importProxyDocument(CoreSession session,
-            String id, String name, String parentPath, Properties properties)
-            throws ClientException {
+            String id, String name, String parentPath, Properties properties) {
 
         if (properties == null) {
             log.debug("The received .properties file cannot be NULL ...");
@@ -276,6 +264,6 @@ public class ImporterDocumentCreator {
                 properties.getProperty(CoreSession.IMPORT_PROXY_VERSIONABLE_ID));
 
         return document;
-
     }
+
 }

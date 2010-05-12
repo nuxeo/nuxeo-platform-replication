@@ -19,7 +19,6 @@ package org.nuxeo.ecm.platform.replication.summary;
  * proxy.
  *
  * @author rux
- *
  */
 public class ReporterEntryMissingLiveDocument extends ReporterEntry {
 

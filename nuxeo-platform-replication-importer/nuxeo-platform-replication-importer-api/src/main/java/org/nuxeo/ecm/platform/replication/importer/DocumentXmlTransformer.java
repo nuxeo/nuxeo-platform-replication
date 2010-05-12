@@ -25,7 +25,6 @@ import org.nuxeo.ecm.core.api.ClientException;
  * implementation before running import {@link DocumentaryBaseImporterService}.
  *
  * @author rux
- *
  */
 public interface DocumentXmlTransformer {
 

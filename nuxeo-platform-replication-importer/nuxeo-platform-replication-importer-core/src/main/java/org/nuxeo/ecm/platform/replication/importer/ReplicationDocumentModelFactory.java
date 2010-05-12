@@ -70,7 +70,7 @@ public class ReplicationDocumentModelFactory implements
 
     protected SourceNode fileNode;
 
-    protected boolean importProxies;
+    protected final boolean importProxies;
 
     protected StatusListener listener;
 

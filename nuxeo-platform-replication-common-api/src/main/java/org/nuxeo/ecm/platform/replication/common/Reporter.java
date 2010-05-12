@@ -24,7 +24,7 @@ import org.nuxeo.ecm.core.api.ClientException;
  * purposes: allows resume and offers progress information. The log files
  * contains:
  * <p>
- * a header with overall informations (server connected, time of start, time of
+ * a header with overall information (server connected, time of start, time of
  * end, etc.)
  * <p>
  * a section for documentary base listing one by one:
@@ -42,58 +42,37 @@ import org.nuxeo.ecm.core.api.ClientException;
  * one directly through constructor.
  *
  * @author cpriceputu
- *
  */
 public interface Reporter {
 
     /**
      * Writes an entry at the end of the file.
-     *
-     * @param documentId
-     * @param blobsSize
-     * @throws ClientException
      */
     void writeEntry(String documentId, int blobsSize) throws ClientException;
 
     /**
      * Writes the header at the begin of the file.
-     *
-     * @param documentaryScope
-     * @param resume
-     * @throws ClientException
      */
     void writeHeader(String documentaryScope, boolean resume)
             throws ClientException;
 
     /**
      * Reads the header.
-     *
-     * @return
-     * @throws ClientException
      */
     String getHeader() throws ClientException;
 
     /**
      * Reads the last entry.
-     *
-     * @return
-     * @throws ClientException
      */
     String getLastEntry() throws ClientException;
 
     /**
      * Retrieves the number of entries.
-     *
-     * @return
-     * @throws ClientException
      */
     int getNumberOfDocuments() throws ClientException;
 
     /**
      * Computes the sum of the blob size.
-     *
-     * @return
-     * @throws ClientException
      */
     long getTotalSize() throws ClientException;
 

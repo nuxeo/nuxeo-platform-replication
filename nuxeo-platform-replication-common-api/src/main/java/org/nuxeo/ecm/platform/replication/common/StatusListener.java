@@ -23,17 +23,19 @@ package org.nuxeo.ecm.platform.replication.common;
  *
  */
 public interface StatusListener {
-    static final int OK = 0;
 
-    static final int ERROR = 1;
+    int OK = 0;
 
-    static final int DOC_PROCESS_SUCCESS = 2;
+    int ERROR = 1;
 
-    static final int PROCESS_STOPPED = 3;
+    int DOC_PROCESS_SUCCESS = 2;
 
-    static final int STARTED = 4;
+    int PROCESS_STOPPED = 3;
 
-    static final int DONE = 5;
+    int STARTED = 4;
+
+    int DONE = 5;
 
     void onUpdateStatus(Object... params);
+
 }

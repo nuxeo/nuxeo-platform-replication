@@ -19,7 +19,6 @@ package org.nuxeo.ecm.platform.replication.summary;
  * base, the blob file name.
  *
  * @author rux
- *
  */
 public class ReporterEntryMissingBlob extends ReporterEntry {
     /**

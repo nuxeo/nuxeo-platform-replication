@@ -57,14 +57,11 @@ public class ReplicationReader extends DocumentModelReader {
      * list can grow quite large when the document have lot of versions and the
      * branch holding the exported document has lots of children on many levels.
      */
-    protected LinkedList<DocumentModel> exportDocuments = null;
+    protected LinkedList<DocumentModel> exportDocuments;
 
     /**
      * The usual documents are retrieved using session.getChildren(). For each,
      * the versions are also retrieved. Initially, start with the root.
-     *
-     * @param session
-     * @throws ClientException
      */
     protected ReplicationReader(CoreSession session) throws ClientException {
         super(session);
@@ -76,7 +73,7 @@ public class ReplicationReader extends DocumentModelReader {
     @Override
     public ExportedDocument read() throws IOException {
         if (exportDocuments.isEmpty()) {
-            log.info("Exporting job finsihed!");
+            log.info("Exporting job finished!");
             return null;
         }
         // document to be exported

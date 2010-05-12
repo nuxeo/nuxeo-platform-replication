@@ -62,7 +62,7 @@ public class ExportActionsBean implements Serializable, StatusListener {
 
     private long endTime = 0;
 
-    private DocumentaryBaseExporterService exportService = null;
+    private DocumentaryBaseExporterService exportService;
 
     private String repo;
 
@@ -72,7 +72,7 @@ public class ExportActionsBean implements Serializable, StatusListener {
 
     private boolean done = false;
 
-    private String path = null;
+    private String path;
 
     @Create
     public void initialize() throws Exception {
@@ -84,7 +84,7 @@ public class ExportActionsBean implements Serializable, StatusListener {
         setDone(false);
         setFileCount(0);
         exportService.export(documentManager.getRepositoryName(), null,
-                new File(getPath()), false, false, false);
+                new File(path), false, false, false);
         return null;
     }
 

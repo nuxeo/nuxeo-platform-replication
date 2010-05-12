@@ -27,18 +27,18 @@ import org.nuxeo.ecm.platform.replication.exporter.reporter.ExporterReporter;
  * Used to run as system.
  *
  * @author cpriceputu@nuxeo.com
- *
  */
 public class UnrestrictedExporter extends UnrestrictedSessionRunner {
-    private ReplicationPipe pipe = null;
 
-    private StatusListener listener = null;
+    private ReplicationPipe pipe;
 
-    private File path = null;
+    private StatusListener listener;
+
+    private File path;
 
     public UnrestrictedExporter(String repositoryName, File path) {
         super(repositoryName);
-        setPath(path);
+        this.path = path;
     }
 
     @Override
@@ -53,8 +53,8 @@ public class UnrestrictedExporter extends UnrestrictedSessionRunner {
             pipe.setReader(reader);
             pipe.setWriter(writer);
             pipe.run();
-            if (getListener() != null) {
-                getListener().onUpdateStatus(StatusListener.DONE);
+            if (listener != null) {
+                listener.onUpdateStatus(StatusListener.DONE);
             }
 
             ExporterReporter.getInstance().dumpLog();
@@ -64,8 +64,9 @@ public class UnrestrictedExporter extends UnrestrictedSessionRunner {
     }
 
     public void stop() {
-        if (pipe != null)
+        if (pipe != null) {
             pipe.stop();
+        }
     }
 
     public void setListener(StatusListener listener) {

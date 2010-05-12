@@ -37,7 +37,7 @@ public class ImporterReporter extends Reporter {
 
     private static final Logger log = Logger.getLogger(ImporterReporter.class);
 
-    private static Reporter reporter = null;
+    private static Reporter reporter;
 
     private ImporterReporter() {
     }
@@ -55,93 +55,92 @@ public class ImporterReporter extends Reporter {
         log.info(getDocumentNumber() + " documents attempted to import");
         log.info(getTimeVelocity());
 
-        boolean successful = true;
-
-        List<ReporterEntry> list = getEntries().get(
+        List<ReporterEntry> entries = getEntries().get(
                 ReporterEntryUnknownError.UNKNOWN_ERROR_KEY);
         int numberOfThem = 0;
-        if (list != null) {
-            numberOfThem = list.size();
+        if (entries != null) {
+            numberOfThem = entries.size();
         }
+        boolean successful = true;
         if (numberOfThem > 0) {
             log.info("  " + numberOfThem + " documents yields unexpected error.");
             log.info("  Their status is undefined from the importer perspective.");
-            for (ReporterEntry entry : list) {
+            for (ReporterEntry entry : entries) {
                 log.info("    " + entry.getRepresentation());
             }
             numberOfThem = 0;
             successful = false;
         }
 
-        list = getEntries().get(
+        entries = getEntries().get(
                 ReporterEntryDocumentStructure.DOCUMENT_STRUCTURE_KEY);
-        if (list != null) {
-            numberOfThem = list.size();
+        if (entries != null) {
+            numberOfThem = entries.size();
         }
         if (numberOfThem > 0) {
             log.info("  " + numberOfThem + " documents' XML structure are compromised.");
             log.info("  They are imported but as empty documents - including the title.");
-            for (ReporterEntry entry : list) {
+            for (ReporterEntry entry : entries) {
                 log.info("    " + entry.getRepresentation());
             }
             numberOfThem = 0;
             successful = false;
         }
 
-        list = getEntries().get(
+        entries = getEntries().get(
                 ReporterEntryDocumentImport.DOCUMENT_IMPORT_KEY);
-        if (list != null) {
-            numberOfThem = list.size();
+        if (entries != null) {
+            numberOfThem = entries.size();
         }
         if (numberOfThem > 0) {
             log.info("  " + numberOfThem + " documents failed to be cloned in repository.");
             log.info("  They couldn't be imported. Check log for more details.");
-            for (ReporterEntry entry : list) {
+            for (ReporterEntry entry : entries) {
                 log.info("    " + entry.getRepresentation());
             }
             numberOfThem = 0;
             successful = false;
         }
 
-        list = getEntries().get(
+        entries = getEntries().get(
                 ReporterEntryFailUpdate.FAIL_UPDATE_KEY);
-        if (list != null) {
-            numberOfThem = list.size();
+        if (entries != null) {
+            numberOfThem = entries.size();
         }
         if (numberOfThem > 0) {
             log.info("  for " + numberOfThem + " documents custom schema update failed.");
             log.info("  The documents are imported as they are, without any custom change.");
-            for (ReporterEntry entry : list) {
+            for (ReporterEntry entry : entries) {
                 log.info("    " + entry.getRepresentation());
             }
             numberOfThem = 0;
             successful = false;
         }
 
-        list = getEntries().get(
+        entries = getEntries().get(
                 ReporterEntryTypeBlocked.TYPE_BLOCKED_KEY);
-        if (list != null) {
-            numberOfThem = list.size();
+        if (entries != null) {
+            numberOfThem = entries.size();
         }
         if (numberOfThem > 0) {
             log.info("  " + numberOfThem + " documents were rejected based on the type selection.");
             log.info("  The documents are not imported.");
-            for (ReporterEntry entry : list) {
+            for (ReporterEntry entry : entries) {
                 log.info("    " + entry.getRepresentation());
             }
             numberOfThem = 0;
             successful = false;
         }
 
-        list = getEntries().get(
+        entries = getEntries().get(
                 ReporterEntryACLFailed.ACL_FAILED_KEY);
-        if (list != null) {
-            numberOfThem = list.size();
+        if (entries != null) {
+            numberOfThem = entries.size();
         }
         if (numberOfThem > 0) {
             log.info("  for " + numberOfThem + " documents failure to update the ACL system.");
             log.info("  The documents are imported and preserved with default security rights.");
-            for (ReporterEntry entry : list) {
+            for (ReporterEntry entry : entries) {
                 log.info("    " + entry.getRepresentation());
             }
             numberOfThem = 0;

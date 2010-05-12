@@ -26,13 +26,12 @@ import org.nuxeo.ecm.core.api.ClientException;
  * Implementation for reporter.
  *
  * @author cpriceputu
- *
  */
 public class NXReporter implements Reporter {
 
-    private File location = null;
+    private File location;
 
-    private RandomAccessFile rndFile = null;
+    private RandomAccessFile rndFile;
 
     private static final Logger LOG = Logger.getLogger(NXReporter.class);
 
@@ -40,7 +39,6 @@ public class NXReporter implements Reporter {
         try {
             setLocation(location);
             LOG.info(rndFile.getChannel().size());
-
         } catch (IOException e) {
             throw new ClientException("Failed to create logger.", e);
         }
@@ -69,7 +67,7 @@ public class NXReporter implements Reporter {
     }
 
     public String getLastEntry() throws ClientException {
-        String lastEntry = null;
+        String lastEntry;
         synchronized (this) {
             lastEntry = getLastEntryNoSync();
         }
@@ -156,8 +154,9 @@ public class NXReporter implements Reporter {
 
     public boolean hasHeader() throws IOException {
         rndFile.getFD().sync();
-        if (rndFile.length() == 0)
+        if (rndFile.length() == 0) {
             return false;
+        }
         int c = 0;
         long ptr = rndFile.getFilePointer();
         StringBuilder sb = new StringBuilder();

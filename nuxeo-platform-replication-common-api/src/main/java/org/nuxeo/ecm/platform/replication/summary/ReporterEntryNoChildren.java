@@ -19,7 +19,6 @@ package org.nuxeo.ecm.platform.replication.summary;
  * document (the one just to export).
  *
  * @author rux
- *
  */
 public class ReporterEntryNoChildren extends ReporterEntry {
 

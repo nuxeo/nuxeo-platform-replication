@@ -35,13 +35,13 @@ public class DocumentaryBaseExpServiceImpl // extends ServiceMBeanSupport
         implements DocumentaryBaseExpServiceImplMBean, Runnable, StatusListener {
     private static final Logger log = Logger.getLogger(DocumentaryBaseExpServiceImpl.class);
 
-    private String domain = null;
+    private String domain;
 
-    private UnrestrictedExporter exp = null;
+    private UnrestrictedExporter exp;
 
-    private StatusListener listener = null;
+    private StatusListener listener;
 
-    private File path = null;
+    private File path;
 
     private long startTime = 0;
 
@@ -53,14 +53,11 @@ public class DocumentaryBaseExpServiceImpl // extends ServiceMBeanSupport
 
     private boolean done = false;
 
-    public DocumentaryBaseExpServiceImpl() {
-    }
-
     public void export(String domain, Map<String, Serializable> parameter,
             File path, boolean resume, boolean exportVersions,
             boolean exportProxies) throws ClientException {
-        setDomain(domain);
-        setPath(path);
+        this.domain = domain;
+        this.path = path;
         log.info("Starting export of " + domain + " to "
                 + path.getAbsolutePath());
         new Thread(this).start();
@@ -69,12 +66,12 @@ public class DocumentaryBaseExpServiceImpl // extends ServiceMBeanSupport
     public void run() {
         stop();
         try {
-            setDone(false);
-            setFileCount(0);
+            done = false;
+            fileCount = 0;
             startTime = System.currentTimeMillis();
             lastFileCount = 0;
             lastTime = startTime;
-            exp = new UnrestrictedExporter(domain, getPath());
+            exp = new UnrestrictedExporter(domain, path);
             exp.setListener(listener);
             exp.runUnrestricted();
 
@@ -115,7 +112,7 @@ public class DocumentaryBaseExpServiceImpl // extends ServiceMBeanSupport
         Thread.currentThread().setContextClassLoader(
                 Framework.class.getClassLoader());
 
-        setListener(this);
+        listener = this;
         export(domain, null, path, true, true, true);
     }
 
@@ -139,7 +136,7 @@ public class DocumentaryBaseExpServiceImpl // extends ServiceMBeanSupport
                 lastFileCount = fileCount;
             }
         } else if ((Integer) params[0] == StatusListener.DONE) {
-            setDone(true);
+            done = true;
             //reporter takes care logging results, don't twice
         } else if ((Integer) params[0] == StatusListener.STARTED) {
             startTime = System.currentTimeMillis();
@@ -164,4 +161,5 @@ public class DocumentaryBaseExpServiceImpl // extends ServiceMBeanSupport
     public void setFileCount(long fileCount) {
         this.fileCount = fileCount;
     }
+
 }

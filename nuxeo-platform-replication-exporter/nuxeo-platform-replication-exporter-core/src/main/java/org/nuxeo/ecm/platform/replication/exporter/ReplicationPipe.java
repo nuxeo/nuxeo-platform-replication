@@ -39,7 +39,7 @@ import org.nuxeo.ecm.platform.replication.common.StatusListener;
 public class ReplicationPipe extends DocumentPipeImpl {
     private static final Logger log = Logger.getLogger(ReplicationPipe.class);
 
-    private StatusListener listener = null;
+    private StatusListener listener;
 
     protected int pageSize = 0;
 
@@ -95,7 +95,7 @@ public class ReplicationPipe extends DocumentPipeImpl {
         if (pageSize == 0) {
             // handle single doc case
             ExportedDocument doc = null;
-            while (isRunning()) {
+            while (running) {
                 synchronized (this) {
                     doc = getReader().read();
                     if (doc == null) {
@@ -109,7 +109,7 @@ public class ReplicationPipe extends DocumentPipeImpl {
         } else {
             // handle multiple doc case
             ExportedDocument[] docs = null;
-            while (isRunning()) {
+            while (running) {
                 synchronized (this) {
                     docs = getReader().read(pageSize);
                 }
@@ -125,7 +125,7 @@ public class ReplicationPipe extends DocumentPipeImpl {
         executor.shutdown();
         boolean done = executor.awaitTermination(1, TimeUnit.SECONDS);
         while (!done) {
-            if (!isRunning()) {
+            if (!running) {
                 executor.shutdownNow();
                 break;
             }
@@ -147,12 +147,12 @@ class MultipleRunner extends Runner {
 
     private static final Logger LOG = Logger.getLogger(MultipleRunner.class);
 
-    private ExportedDocument[] docs = null;
+    private ExportedDocument[] docs;
 
     public MultipleRunner(ReplicationPipe pipe, ExportedDocument[] docs,
             List<DocumentTranslationMap> maps) {
         super(pipe, null, maps);
-        setDocs(docs);
+        this.docs = docs;
     }
 
     public ExportedDocument[] getDocs() {
@@ -190,25 +190,25 @@ class MultipleRunner extends Runner {
 
 class Runner implements Runnable {
 
-    private ReplicationPipe pipe = null;
+    private ReplicationPipe pipe;
 
-    private ExportedDocument doc = null;
+    private ExportedDocument doc;
 
-    private List<DocumentTranslationMap> maps = null;
+    private List<DocumentTranslationMap> maps;
 
-    private StatusListener listener = null;
+    private StatusListener listener;
 
     private static final Logger LOG = Logger.getLogger(Runner.class);
 
     public Runner(ReplicationPipe pipe, ExportedDocument doc,
             List<DocumentTranslationMap> maps) {
-        setPipe(pipe);
-        setDoc(doc);
-        setMaps(maps);
+        this.pipe = pipe;
+        this.doc = doc;
+        this.maps = maps;
     }
 
     public void run() {
-        if (!getPipe().isRunning()) {
+        if (!pipe.isRunning()) {
             sendStatus(StatusListener.PROCESS_STOPPED);
             return;
         }

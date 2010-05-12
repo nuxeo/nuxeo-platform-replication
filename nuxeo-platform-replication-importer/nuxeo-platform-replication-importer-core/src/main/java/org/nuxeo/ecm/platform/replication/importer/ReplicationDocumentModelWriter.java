@@ -38,7 +38,7 @@ import org.nuxeo.ecm.core.io.impl.AbstractDocumentModelWriter;
  */
 public class ReplicationDocumentModelWriter extends AbstractDocumentModelWriter {
 
-    private DocumentModel document;
+    private final DocumentModel document;
 
     public ReplicationDocumentModelWriter(CoreSession session,
             DocumentModel document, int saveInterval) {

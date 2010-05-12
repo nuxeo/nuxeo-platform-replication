@@ -21,18 +21,12 @@ import org.nuxeo.ecm.core.api.ClientException;
 
 /**
  * Factory of the Reporter. To be used to have the reporter instance working.
- *
- * @author cpriceputu
- *
  */
 public interface ReporterFactoryService {
 
     /**
      * Constructs the reporter instance based on the log file location.
-     *
-     * @param location
-     * @return
-     * @throws ClientException
      */
     Reporter getReporter(File location) throws ClientException;
+
 }

@@ -71,7 +71,8 @@ public class ReporterTest extends TestCase {
 }
 
 class Runner implements Runnable {
-    private static ReporterFactoryService rfs = new ReporterFactory();
+
+    private static final ReporterFactoryService rfs = new ReporterFactory();
 
     private static final Logger LOG = Logger.getLogger(Runner.class);
 

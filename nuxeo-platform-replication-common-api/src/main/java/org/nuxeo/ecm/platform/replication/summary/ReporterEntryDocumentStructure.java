@@ -18,7 +18,6 @@ package org.nuxeo.ecm.platform.replication.summary;
  * The entry marking a unrecoverable error in the document structure.
  *
  * @author rux
- *
  */
 public class ReporterEntryDocumentStructure extends ReporterEntry {
 

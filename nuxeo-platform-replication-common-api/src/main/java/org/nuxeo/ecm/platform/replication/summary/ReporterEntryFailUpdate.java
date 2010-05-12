@@ -19,7 +19,6 @@ package org.nuxeo.ecm.platform.replication.summary;
  * the error message, if any.
  *
  * @author rux
- *
  */
 public class ReporterEntryFailUpdate extends ReporterEntry {
 
@@ -28,9 +27,9 @@ public class ReporterEntryFailUpdate extends ReporterEntry {
     public static final String FAIL_UPDATE_KEY = "failUpdate";
 
     public ReporterEntryFailUpdate(String documentId, String documentName,
-            String documentPath, String errrorMessage) {
+            String documentPath, String errorMessage) {
         super(documentId, documentName, documentPath);
-        this.errorMessage = errrorMessage;
+        this.errorMessage = errorMessage;
     }
 
     public ReporterEntryFailUpdate() {

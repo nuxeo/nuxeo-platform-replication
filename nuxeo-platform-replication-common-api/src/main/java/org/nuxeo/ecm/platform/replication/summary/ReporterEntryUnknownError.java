@@ -19,9 +19,9 @@ package org.nuxeo.ecm.platform.replication.summary;
  * undefined. It stores the error message.
  *
  * @author rux
- *
  */
 public class ReporterEntryUnknownError extends ReporterEntry {
+
     public String errorMessage;
 
     public static final String UNKNOWN_ERROR_KEY = "unknownError";

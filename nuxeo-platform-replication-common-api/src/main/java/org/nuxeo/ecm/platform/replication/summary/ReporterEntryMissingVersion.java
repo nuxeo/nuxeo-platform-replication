@@ -19,9 +19,9 @@ package org.nuxeo.ecm.platform.replication.summary;
  * is named also.
  *
  * @author rux
- *
  */
 public class ReporterEntryMissingVersion extends ReporterEntry {
+
     public String versionName;
 
     public static final String MISSING_VERSION_KEY = "missingVersion";

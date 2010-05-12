@@ -80,8 +80,8 @@ public class ImportActionsBean implements Serializable, StatusListener {
      */
     public String startImport() throws Exception {
         log.debug("Starting replication import process...");
-        setDone(false);
-        setFileCount(0);
+        done = false;
+        fileCount = 0;
         importService.importDocuments(null, new File(path), true, true, true,
                 useMultiThread, true);
         return null;
@@ -98,7 +98,7 @@ public class ImportActionsBean implements Serializable, StatusListener {
                 fileCount++;
             }
         } else if ((Integer) params[0] == StatusListener.DONE) {
-            setDone(true);
+            done = true;
         }
     }
 
