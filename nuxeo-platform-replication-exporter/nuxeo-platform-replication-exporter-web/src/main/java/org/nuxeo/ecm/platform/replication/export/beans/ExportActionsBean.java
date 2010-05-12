@@ -37,9 +37,9 @@ import org.nuxeo.runtime.api.Framework;
 
 /**
  * Export action bean
- * 
+ *
  * @author cpriceputu@nuxeo.com
- * 
+ *
  */
 @Scope(ScopeType.SESSION)
 @Name("exportActions")

@@ -23,9 +23,9 @@ import org.nuxeo.ecm.core.api.ClientException;
 
 /**
  * Factory of reporter implementation.
- * 
+ *
  * @author cpriceputu
- * 
+ *
  */
 public class ReporterFactory implements ReporterFactoryService {
 

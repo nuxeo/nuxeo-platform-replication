@@ -43,16 +43,16 @@ import org.nuxeo.ecm.platform.replication.common.StatusListener;
  * <p>
  * Under “Documentary Base” the “Proxies” folder contains the proxies. They are
  * exported as the usual documents with single difference: without workflows.
- * 
- * 
+ *
+ *
  * @author cpriceputu
- * 
+ *
  */
 public interface DocumentaryBaseExporterService {
 
     /**
      * Exports the documentary base.
-     * 
+     *
      * @param session
      * @param parameter
      * @param path
@@ -61,19 +61,19 @@ public interface DocumentaryBaseExporterService {
      * @param exportProxies
      * @throws ClientException
      */
-    public void export(String domain, Map<String, Serializable> parameter,
+    void export(String domain, Map<String, Serializable> parameter,
             File path, boolean resume, boolean exportVersions,
             boolean exportProxies) throws ClientException;
 
     /**
      * Stops the export
      */
-    public void stop();
+    void stop();
 
     /**
      * Sets a listener that receives misc events
-     * 
+     *
      * @param listener
      */
-    public void setListener(StatusListener listener);
+    void setListener(StatusListener listener);
 }

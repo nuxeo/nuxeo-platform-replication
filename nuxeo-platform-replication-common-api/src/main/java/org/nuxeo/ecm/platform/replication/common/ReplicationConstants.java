@@ -17,9 +17,9 @@ package org.nuxeo.ecm.platform.replication.common;
 
 /**
  * Utility class used for registering constants.
- * 
+ *
  * @author btatar
- * 
+ *
  */
 public class ReplicationConstants {
 

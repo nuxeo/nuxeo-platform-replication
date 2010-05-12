@@ -20,9 +20,9 @@ import org.nuxeo.runtime.management.ObjectNameFactory;
 
 /**
  * Required for MBean
- * 
+ *
  * @author cpriceputu@nuxeo.com
- * 
+ *
  */
 public class ImporterFactory extends AbstractResourceFactory {
 

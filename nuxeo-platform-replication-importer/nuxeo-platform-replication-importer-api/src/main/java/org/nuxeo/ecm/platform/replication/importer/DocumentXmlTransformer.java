@@ -23,16 +23,16 @@ import org.nuxeo.ecm.core.api.ClientException;
  * (as in Core IO export form) before importing it. The transformation occurs in
  * memory directly in the DOM document. In order to use it just set the custom
  * implementation before running import {@link DocumentaryBaseImporterService}.
- * 
+ *
  * @author rux
- * 
+ *
  */
 public interface DocumentXmlTransformer {
 
     /**
      * Transforms the XML document as it was exported before actual import. The
      * returned XML document is used in import instead the original one.
-     * 
+     *
      * @param xmlDocument the XML representation of exported document
      * @return the XML document to be used instead. If null returned, the
      *         process is not impacted.

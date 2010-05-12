@@ -24,9 +24,9 @@ import org.nuxeo.ecm.core.api.ClientException;
 
 /**
  * Implementation for reporter.
- * 
+ *
  * @author cpriceputu
- * 
+ *
  */
 public class NXReporter implements Reporter {
 

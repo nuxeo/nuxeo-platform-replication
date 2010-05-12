@@ -36,19 +36,19 @@ import org.nuxeo.ecm.core.api.ClientException;
  * the ID of documents processed
  * <p>
  * a section for every other types
- * 
+ *
  * <p>
  * An instance of the reporter can be obtained through the factory, don't get
  * one directly through constructor.
- * 
+ *
  * @author cpriceputu
- * 
+ *
  */
 public interface Reporter {
 
     /**
      * Writes an entry at the end of the file.
-     * 
+     *
      * @param documentId
      * @param blobsSize
      * @throws ClientException
@@ -57,7 +57,7 @@ public interface Reporter {
 
     /**
      * Writes the header at the begin of the file.
-     * 
+     *
      * @param documentaryScope
      * @param resume
      * @throws ClientException
@@ -67,7 +67,7 @@ public interface Reporter {
 
     /**
      * Reads the header.
-     * 
+     *
      * @return
      * @throws ClientException
      */
@@ -75,7 +75,7 @@ public interface Reporter {
 
     /**
      * Reads the last entry.
-     * 
+     *
      * @return
      * @throws ClientException
      */
@@ -83,7 +83,7 @@ public interface Reporter {
 
     /**
      * Retrieves the number of entries.
-     * 
+     *
      * @return
      * @throws ClientException
      */
@@ -91,7 +91,7 @@ public interface Reporter {
 
     /**
      * Computes the sum of the blob size.
-     * 
+     *
      * @return
      * @throws ClientException
      */

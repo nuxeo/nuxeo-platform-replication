@@ -21,9 +21,9 @@ import org.nuxeo.ecm.platform.importer.threading.ImporterThreadingPolicy;
 
 /**
  * The single thread import.
- * 
+ *
  * @author tiry
- * 
+ *
  */
 public class MonoThreadPolicy implements ImporterThreadingPolicy {
 

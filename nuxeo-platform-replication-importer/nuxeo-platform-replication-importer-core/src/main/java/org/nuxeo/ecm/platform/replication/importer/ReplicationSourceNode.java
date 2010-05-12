@@ -26,9 +26,9 @@ import org.nuxeo.ecm.platform.importer.source.SourceNode;
  * Implementation for source node interface. For replication, it is important to
  * have the entire File path and also to select children only the folders: the
  * files are in fact document parts.
- * 
+ *
  * @author rux
- * 
+ *
  */
 public class ReplicationSourceNode implements SourceNode {
 
