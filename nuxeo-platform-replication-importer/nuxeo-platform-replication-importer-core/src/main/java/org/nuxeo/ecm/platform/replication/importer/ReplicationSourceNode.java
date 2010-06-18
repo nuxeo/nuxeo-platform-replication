@@ -65,6 +65,10 @@ public class ReplicationSourceNode implements SourceNode {
         return file.getPath();
     }
 
+    public String getSourcePath(){
+        return file.getAbsolutePath();
+     }
+
     public boolean isFolderish() {
         // in fact return if there are any children here
         if (children == null) {
