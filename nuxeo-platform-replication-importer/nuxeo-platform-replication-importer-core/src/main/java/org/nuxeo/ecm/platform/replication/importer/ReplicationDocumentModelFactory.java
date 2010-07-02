@@ -37,6 +37,7 @@ import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentModelList;
 import org.nuxeo.ecm.core.api.DocumentRef;
+import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.core.api.impl.blob.StreamingBlob;
 import org.nuxeo.ecm.core.api.security.ACE;
 import org.nuxeo.ecm.core.api.security.ACL;
@@ -193,7 +194,17 @@ public class ReplicationDocumentModelFactory implements
         boolean isProxy = ImporterDocumentCreator.isProxy(properties);
         if ((importProxies && !isProxy) || (!importProxies && isProxy)) {
             // not to import
-            return null;
+            if (importProxies) {
+                // must still return a folder for the recursion to continue
+                try {
+                    return session.getDocument(new IdRef(xdoc.getId()));
+                } catch (Exception e) {
+                    log.error("Couldn't refetch " + xdoc.getId(), e);
+                    return null;
+                }
+            } else {
+                return null;
+            }
         }
         // can't simply have it at the start of the method as the document
         // should not be to import because the mixed condition above
