@@ -83,12 +83,13 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
         }
     }
 
-    public void doSynchronImport(File root, boolean importProxies,
-            boolean useMultiThread) throws ClientException {
+    public void doSynchronImport(File root, boolean skipRoot,
+            boolean importProxies, boolean useMultiThread)
+            throws ClientException {
         try {
             ReplicationSourceNode sourceNode = new ReplicationSourceNode(root);
             GenericMultiThreadedImporter importer = new GenericMultiThreadedImporter(
-                    sourceNode, "/", 10, 5, getLogger());
+                    sourceNode, "/", skipRoot, 10, 5, getLogger());
             ReplicationDocumentModelFactory documentModelFactory = new ReplicationDocumentModelFactory(
                     listener, importProxies);
             // here is set the transformer
@@ -177,14 +178,14 @@ class ImportRunner implements Runnable {
             File usualDocumentsRoot = new File(path.getPath() + File.separator
                     + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
                     + USUAL_DOCUMENTS_LOCATION_NAME);
-            service.doSynchronImport(usualDocumentsRoot, false, useMultiThread);
+            service.doSynchronImport(usualDocumentsRoot, false, false, useMultiThread);
 
             File versionsRoot = new File(path.getPath() + File.separator
                     + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
                     + VERSIONS_LOCATION_NAME);
             if (versionsRoot.exists()) {
                 LOG.info("Second, version documents...");
-                service.doSynchronImport(versionsRoot, false, useMultiThread);
+                service.doSynchronImport(versionsRoot, true, false, useMultiThread);
             }
 
             File proxiesRoot = new File(path.getPath() + File.separator
@@ -192,7 +193,7 @@ class ImportRunner implements Runnable {
                     + USUAL_DOCUMENTS_LOCATION_NAME);
             if (proxiesRoot.exists()) {
                 LOG.info("Third, proxies documents...");
-                service.doSynchronImport(proxiesRoot, true, useMultiThread);
+                service.doSynchronImport(proxiesRoot, true, true, useMultiThread);
             }
             if (listener != null) {
                 listener.onUpdateStatus(StatusListener.DONE);
