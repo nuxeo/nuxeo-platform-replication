@@ -14,14 +14,27 @@
  */
 package org.nuxeo.ecm.platform.replication.exporter;
 
+import static org.nuxeo.ecm.core.api.CoreSession.IMPORT_BASE_VERSION_ID;
+import static org.nuxeo.ecm.core.api.CoreSession.IMPORT_CHECKED_IN;
+import static org.nuxeo.ecm.core.api.CoreSession.IMPORT_LIFECYCLE_POLICY;
+import static org.nuxeo.ecm.core.api.CoreSession.IMPORT_LIFECYCLE_STATE;
+import static org.nuxeo.ecm.core.api.CoreSession.IMPORT_LOCK;
+import static org.nuxeo.ecm.core.api.CoreSession.IMPORT_PROXY_TARGET_ID;
+import static org.nuxeo.ecm.core.api.CoreSession.IMPORT_PROXY_VERSIONABLE_ID;
+import static org.nuxeo.ecm.core.api.CoreSession.IMPORT_VERSION_CREATED;
+import static org.nuxeo.ecm.core.api.CoreSession.IMPORT_VERSION_DESCRIPTION;
+import static org.nuxeo.ecm.core.api.CoreSession.IMPORT_VERSION_LABEL;
+import static org.nuxeo.ecm.core.api.CoreSession.IMPORT_VERSION_MAJOR;
+import static org.nuxeo.ecm.core.api.CoreSession.IMPORT_VERSION_MINOR;
+import static org.nuxeo.ecm.core.api.CoreSession.IMPORT_VERSION_VERSIONABLE_ID;
 import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.DOCUMENTARY_BASE_LOCATION_NAME;
-import static org.nuxeo.ecm.core.api.CoreSession.*;
 import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.USUAL_DOCUMENTS_LOCATION_NAME;
 import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.VERSIONS_LOCATION_NAME;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -30,7 +43,9 @@ import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
+import org.nuxeo.common.utils.StringUtils;
 import org.nuxeo.ecm.core.api.Blob;
+import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentRef;
@@ -40,6 +55,7 @@ import org.nuxeo.ecm.core.api.facet.VersioningDocument;
 import org.nuxeo.ecm.core.io.DocumentTranslationMap;
 import org.nuxeo.ecm.core.io.ExportedDocument;
 import org.nuxeo.ecm.core.io.impl.plugins.XMLDirectoryWriter;
+import org.nuxeo.ecm.core.schema.FacetNames;
 import org.nuxeo.ecm.core.schema.types.primitives.DateType;
 import org.nuxeo.ecm.platform.replication.exporter.reporter.ExporterReporter;
 
@@ -66,7 +82,7 @@ public class ReplicationWriter extends XMLDirectoryWriter {
 
     @Override
     public DocumentTranslationMap write(ExportedDocument doc)
-            throws IOException {
+    throws IOException {
 
         File parent = new File(getDestination().toString(),
                 DOCUMENTARY_BASE_LOCATION_NAME);
@@ -74,7 +90,7 @@ public class ReplicationWriter extends XMLDirectoryWriter {
 
         try {
             DocumentModel document = session
-                    .getDocument(new IdRef(doc.getId()));
+            .getDocument(new IdRef(doc.getId()));
             OutputFormat format = OutputFormat.createPrettyPrint();
 
             if (!document.isVersion()) {
@@ -130,7 +146,7 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                     documentLocation);
             File metadataFile = new File(parent, "metadata.properties");
             metadata.store(new FileOutputStream(metadataFile),
-                    "Document Metadata");
+            "Document Metadata");
         } catch (Exception e) {
             String location = parent.getAbsolutePath();
             log.error(location + " missing!", e);
@@ -228,7 +244,7 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                 // listing and not direct introspection...
                 try {
                     List<VersionModel> versions = documentManager
-                            .getVersionsForDocument(liveDocument.getRef());
+                    .getVersionsForDocument(liveDocument.getRef());
                     for (VersionModel version : versions) {
                         if (!docLabel.equals(version.getLabel())) {
                             continue;
@@ -247,7 +263,7 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                     // can't list the versions of the live document
                     log.warn(
                             "Failure listing the versions on the same level with "
-                                    + documentLocation, e);
+                            + documentLocation, e);
                     // don't even bother to register as error: missing
                     // description and date is not big
                     props.setProperty(IMPORT_VERSION_DESCRIPTION, "");
@@ -256,7 +272,7 @@ public class ReplicationWriter extends XMLDirectoryWriter {
             }
 
             VersioningDocument docVer = document
-                    .getAdapter(VersioningDocument.class);
+            .getAdapter(VersioningDocument.class);
             String minorVer = null;
             try {
                 minorVer = docVer.getMinorVersion().toString();
@@ -302,7 +318,7 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                     props.setProperty(IMPORT_BASE_VERSION_ID, version.getId());
                 }
                 VersioningDocument docVer = document
-                        .getAdapter(VersioningDocument.class);
+                .getAdapter(VersioningDocument.class);
                 if (docVer != null) {
                     String minorVer = null;
                     try {
@@ -347,6 +363,27 @@ public class ReplicationWriter extends XMLDirectoryWriter {
         }
         props.setProperty(IMPORT_LIFECYCLE_POLICY, propValue == null ? ""
                 : propValue);
+
+        // added the order of the children  
+        if ( document.hasFacet(FacetNames.ORDERABLE)) {
+            try {
+                List<DocumentRef> list = documentManager.getChildrenRefs(document.getRef(), null);
+                if ( list != null) {
+                    int len = list.size();
+                    StringBuilder builder = new StringBuilder();
+                    if ( len > 0) {
+                        builder.append(list.get(0));
+                    }
+                    for ( int i=1; i < len ; i++) {
+                        builder.append(';').append(list.get(i));
+                    }
+                    props.put("ecm:childrenOrder", builder.toString());
+                }
+            } catch (ClientException e) {
+                log.warn("Can't get the children order for " + documentLocation, e);
+            }
+        }
+
         return props;
     }
 }

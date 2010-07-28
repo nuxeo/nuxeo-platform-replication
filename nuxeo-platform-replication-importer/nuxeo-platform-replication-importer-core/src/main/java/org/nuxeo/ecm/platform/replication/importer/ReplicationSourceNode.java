@@ -73,4 +73,12 @@ public class ReplicationSourceNode implements SourceNode {
         return !children.isEmpty();
     }
 
+    /* (non-Javadoc)
+     * @see org.nuxeo.ecm.platform.importer.source.SourceNode#getSourcePath()
+     */
+    public String getSourcePath() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

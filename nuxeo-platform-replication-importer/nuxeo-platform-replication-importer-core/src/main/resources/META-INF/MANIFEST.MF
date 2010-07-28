@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 1
 Bundle-Name: Nuxeo Platform Replication Importer Core
 Bundle-SymbolicName: org.nuxeo.ecm.platform.replication.importer.core;singleton:=true
-Require-Bundle: org.nuxeo.ecm.core.api,
-  org.nuxeo.ecm.platform.importer.core
 Export-Package: org.nuxeo.ecm.platform.replication.importer.core
 Nuxeo-Component: OSGI-INF/ImporterService.xml,
  OSGI-INF/replication-importer-listener-contrib.xml,
  OSGI-INF/management-contrib.xml
+Provide-Package: org.nuxeo.ecm.platform.replication.importer
+Require-Bundle: org.nuxeo.ecm.platform.replication.importer.api
