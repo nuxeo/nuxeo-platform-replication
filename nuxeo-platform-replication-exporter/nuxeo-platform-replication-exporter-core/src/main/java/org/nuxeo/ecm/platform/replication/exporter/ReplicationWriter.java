@@ -92,6 +92,7 @@ public class ReplicationWriter extends XMLDirectoryWriter {
             DocumentModel document = session
             .getDocument(new IdRef(doc.getId()));
             OutputFormat format = OutputFormat.createPrettyPrint();
+            format.setTrimText(false);
 
             if (!document.isVersion()) {
                 parent = new File(parent, USUAL_DOCUMENTS_LOCATION_NAME);
@@ -364,7 +365,7 @@ public class ReplicationWriter extends XMLDirectoryWriter {
         props.setProperty(IMPORT_LIFECYCLE_POLICY, propValue == null ? ""
                 : propValue);
 
-        // added the order of the children  
+        // added the order of the children
         if ( document.hasFacet(FacetNames.ORDERABLE)) {
             try {
                 List<DocumentRef> list = documentManager.getChildrenRefs(document.getRef(), null);

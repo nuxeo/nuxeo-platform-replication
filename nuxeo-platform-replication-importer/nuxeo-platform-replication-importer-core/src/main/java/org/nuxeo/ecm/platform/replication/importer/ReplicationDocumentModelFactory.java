@@ -325,12 +325,17 @@ public class ReplicationDocumentModelFactory implements
      */
     private Properties getPropertiesFile() {
         Properties properties = new Properties();
+        FileInputStream fis = null;
         try {
-            properties.load(new FileInputStream(fileNode.getName()
-                    + File.separator + METADATA_FILE_NAME));
+            fis = new FileInputStream(fileNode.getName() + File.separator + METADATA_FILE_NAME);
+			properties.load(fis);
         } catch (IOException e) {
             log.debug(String.format("Problems retrieving the %s file",
                     fileNode.getName() + METADATA_FILE_NAME));
+        } finally {
+        	if ( fis != null ) {
+        		try { fis.close(); } catch (IOException e) { }
+        	}
         }
         return properties;
     }
