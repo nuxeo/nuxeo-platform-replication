@@ -19,6 +19,8 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Properties;
 
@@ -213,11 +215,10 @@ public class ImporterDocumentCreator {
             document.putContextData(CoreSession.IMPORT_VERSION_DESCRIPTION,
                     propertyValue);
         }
-        propertyValue = new DateType().encode(properties.getProperty(CoreSession.IMPORT_VERSION_CREATED));
-        if (propertyValue != null) {
-            document.putContextData(CoreSession.IMPORT_VERSION_CREATED,
-                    propertyValue);
-        }
+
+        Calendar c  = (Calendar) new DateType().decode(properties.getProperty(CoreSession.IMPORT_VERSION_CREATED));
+        document.putContextData(CoreSession.IMPORT_VERSION_CREATED, c);
+
         document.putContextData(
                 CoreSession.IMPORT_VERSION_MAJOR,
                 Long.valueOf(properties.getProperty(CoreSession.IMPORT_VERSION_MAJOR)));
