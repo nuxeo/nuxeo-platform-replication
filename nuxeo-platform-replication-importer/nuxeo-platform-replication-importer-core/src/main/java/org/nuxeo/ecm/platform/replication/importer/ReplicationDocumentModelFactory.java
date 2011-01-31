@@ -238,7 +238,7 @@ public class ReplicationDocumentModelFactory implements
         // create document
         DocumentModel documentModel = null;
         if (!xdoc.getType().equals("Root")) {
-            Path path = new Path(((Element) xdoc.getDocument().selectNodes(
+        	Path path = new Path("/" + ((Element) xdoc.getDocument().selectNodes(
                     "//system/path").get(0)).getText());
             xdoc.setPath(new Path(path.lastSegment()));
             path = path.removeLastSegments(1);
