@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <component name="org.nuxeo.ecm.platform.replication.importer.core.DocumentaryBaseImporterService">
-  <implementation class="org.nuxeo.ecm.platform.replication.importer.DocumentaryBaseImpServiceImpl" />
+  <implementation class="org.nuxeo.ecm.platform.replication.importer.ImporterComponent" />
 
   <service>
     <provide interface="org.nuxeo.ecm.platform.replication.importer.DocumentaryBaseImporterService" />
@@ -10,4 +10,12 @@
   <documentation>
     Importer service used in the process of replication to perform the import process of the documents.
   </documentation>
+
+  <extension-point name="transformer">
+    <documentation>contribute default transformer that the importer will
+      use</documentation>
+    <object
+      class="org.nuxeo.ecm.platform.replication.importer.transformer.TransformerDescriptor" />
+  </extension-point>
+
 </component>

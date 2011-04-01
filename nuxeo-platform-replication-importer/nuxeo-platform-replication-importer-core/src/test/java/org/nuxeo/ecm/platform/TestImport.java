@@ -51,6 +51,8 @@ public class TestImport extends SQLRepositoryTestCase {
         deployBundle("org.nuxeo.ecm.platform.replication.importer.api");
         deployContrib("org.nuxeo.ecm.platform.replication.importer.core",
                 "OSGI-INF/ImporterService.xml");
+        deployContrib("org.nuxeo.ecm.platform.replication.importer.core",
+                "OSGI-INF/default-document-xml-transformer-contrib.xml");
         openSession();
     }
 
@@ -93,6 +95,7 @@ public class TestImport extends SQLRepositoryTestCase {
         File archiveDir = getArchiveFile();
         assertTrue(archiveDir.exists());
         assertTrue(archiveDir.list().length > 0);
+
         importer.importDocuments(null, archiveDir, false, true, true, false,
                 false);
         root = session.getRootDocument();
@@ -119,7 +122,16 @@ public class TestImport extends SQLRepositoryTestCase {
         assertEquals("File", doc.getType());
         assertEquals("file 1", doc.getTitle());
 
-        // check a version
+        // check usual document: note
+        ref = new IdRef("69803adb-1b6e-4658-a95d-52ed706f0548");
+        assertTrue(session.exists(ref));
+        doc = session.getDocument(ref);
+        assertEquals("Note", doc.getType());
+        assertEquals("domanu", doc.getTitle());
+        assertEquals("<p>Do the dew</p><p>Second dew </p>",
+                doc.getProperty("note", "note"));
+
+        // check a version - broken since 5.4
         // ref = new IdRef("e1e9b1fe-9f48-4408-afc1-f8f167524f4b");
         // assertTrue(session.exists(ref));
         // doc = session.getDocument(ref);

@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<component
+  name="org.nuxeo.ecm.platform.replication.importer.transformer.default">
+  <extension
+    target="org.nuxeo.ecm.platform.replication.importer.core.DocumentaryBaseImporterService"
+    point="transformer">
+    <transformer
+      class="org.nuxeo.ecm.platform.replication.importer.transformer.NoteDocumentXmlTransformer" />
+  </extension>
+</component>
