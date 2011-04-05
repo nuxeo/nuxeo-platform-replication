@@ -121,6 +121,7 @@ public class TestImport extends SQLRepositoryTestCase {
         doc = session.getDocument(ref);
         assertEquals("File", doc.getType());
         assertEquals("file 1", doc.getTitle());
+
         // testing lock. Document should be unlocked
         assertFalse(doc.isLocked());
         assertNull(doc.getLockInfo());
@@ -133,6 +134,10 @@ public class TestImport extends SQLRepositoryTestCase {
         assertEquals("domanu", doc.getTitle());
         assertEquals("<p>Do the dew</p><p>Second dew </p>",
                 doc.getProperty("note", "note"));
+
+        // testing lock. Document should be locked
+        assertTrue(doc.isLocked());
+        assertEquals("Administrator", doc.getLockInfo().getOwner());
 
         // check a version
         ref = new IdRef("e1e9b1fe-9f48-4408-afc1-f8f167524f4b");
