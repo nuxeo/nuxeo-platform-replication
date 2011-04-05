@@ -229,6 +229,8 @@ public class ImporterDocumentCreator {
                 properties.getProperty(CoreSession.IMPORT_LIFECYCLE_STATE));
         document.putContextData(CoreSession.IMPORT_LIFECYCLE_POLICY,
                 properties.getProperty(CoreSession.IMPORT_LIFECYCLE_POLICY));
+
+        document.putContextData(CoreSession.IMPORT_IS_VERSION, true);
         return document;
 
     }

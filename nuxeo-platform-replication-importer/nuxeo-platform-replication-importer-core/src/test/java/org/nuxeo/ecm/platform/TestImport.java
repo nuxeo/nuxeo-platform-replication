@@ -146,7 +146,7 @@ public class TestImport extends SQLRepositoryTestCase {
         assertEquals("Note", doc.getType());
         assertEquals("domanu", doc.getTitle());
         assertTrue(doc.isVersion());
-        assertEquals("2", doc.getVersionLabel());
+        assertEquals("1.1", doc.getVersionLabel());
 
         // check a proxy
         ref = new IdRef("23080819-2a78-410f-9323-d3938d52c044");
