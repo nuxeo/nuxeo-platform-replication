@@ -121,6 +121,9 @@ public class TestImport extends SQLRepositoryTestCase {
         doc = session.getDocument(ref);
         assertEquals("File", doc.getType());
         assertEquals("file 1", doc.getTitle());
+        // testing lock. Document should be unlocked
+        assertFalse(doc.isLocked());
+        assertNull(doc.getLockInfo());
 
         // check usual document: note
         ref = new IdRef("69803adb-1b6e-4658-a95d-52ed706f0548");
