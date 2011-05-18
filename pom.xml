@@ -15,7 +15,7 @@
   <packaging>pom</packaging>
 
   <properties>
-    <replication.version>5.4.2-SNAPSHOT</replication.version>
+    <nuxeo.replication.version>5.4.2-SNAPSHOT</nuxeo.replication.version>
   </properties>
 
   <modules>
@@ -36,27 +36,27 @@
       <dependency>
         <groupId>org.nuxeo.ecm.platform</groupId>
         <artifactId>nuxeo-platform-replication-common-api</artifactId>
-        <version>${replication.version}</version>
+        <version>${nuxeo.replication.version}</version>
       </dependency>
       <dependency>
         <groupId>org.nuxeo.ecm.platform</groupId>
         <artifactId>nuxeo-platform-replication-exporter-api</artifactId>
-        <version>${replication.version}</version>
+        <version>${nuxeo.replication.version}</version>
       </dependency>
       <dependency>
         <groupId>org.nuxeo.ecm.platform</groupId>
         <artifactId>nuxeo-platform-replication-exporter-core</artifactId>
-        <version>${replication.version}</version>
+        <version>${nuxeo.replication.version}</version>
       </dependency>
       <dependency>
         <groupId>org.nuxeo.ecm.platform</groupId>
         <artifactId>nuxeo-platform-replication-importer-api</artifactId>
-        <version>${replication.version}</version>
+        <version>${nuxeo.replication.version}</version>
       </dependency>
       <dependency>
         <groupId>org.nuxeo.ecm.platform</groupId>
         <artifactId>nuxeo-platform-replication-importer-core</artifactId>
-        <version>${replication.version}</version>
+        <version>${nuxeo.replication.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
