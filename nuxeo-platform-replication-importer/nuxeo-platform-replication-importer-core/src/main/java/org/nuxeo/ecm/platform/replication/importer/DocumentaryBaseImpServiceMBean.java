@@ -12,23 +12,19 @@
  * Lesser General Public License for more details.
  *
  */
-package org.nuxeo.ecm.platform.replication.exporter;
 
-import java.io.File;
+package org.nuxeo.ecm.platform.replication.importer;
 
 import org.nuxeo.ecm.core.api.ClientException;
 
 /**
- * MBean interface to act as a service.
+ * The MBean implementation.
  *
- * @author cpriceputu@nuxeo.com
+ * @author btatar
  *
  */
-public interface DocumentaryBaseExpServiceImplMBean extends
-        DocumentaryBaseExporterService {
+public interface DocumentaryBaseImpServiceMBean {
 
-    void export(String domain, File path, boolean showLog)
-            throws ClientException;
+    void importDocuments(String pathFile) throws ClientException;
 
-    void stop();
 }

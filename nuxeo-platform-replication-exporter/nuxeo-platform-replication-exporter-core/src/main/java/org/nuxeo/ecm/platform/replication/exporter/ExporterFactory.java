@@ -35,7 +35,7 @@ public class ExporterFactory extends AbstractResourceFactory {
         }
         service.registerResource("ExporterService",
                 ObjectNameFactory.formatQualifiedName("ExporterService"),
-                DocumentaryBaseExpServiceImplMBean.class, instance);
+                DocumentaryBaseExporterServiceMBean.class, instance);
     }
 
 }

@@ -32,7 +32,7 @@ import org.nuxeo.runtime.api.Framework;
  *
  */
 public class DocumentaryBaseExpServiceImpl // extends ServiceMBeanSupport
-        implements DocumentaryBaseExpServiceImplMBean, Runnable, StatusListener {
+        implements DocumentaryBaseExporterServiceMBean, DocumentaryBaseExporterService, Runnable, StatusListener {
     private static final Logger log = Logger.getLogger(DocumentaryBaseExpServiceImpl.class);
 
     private String domain;
@@ -107,13 +107,13 @@ public class DocumentaryBaseExpServiceImpl // extends ServiceMBeanSupport
         return path;
     }
 
-    public void export(String domain, File path, boolean showLog)
+    public void export(String domain, String path, boolean showLog)
             throws ClientException {
         Thread.currentThread().setContextClassLoader(
                 Framework.class.getClassLoader());
 
         listener = this;
-        export(domain, null, path, true, true, true);
+        export(domain, null, new File(path), true, true, true);
     }
 
     public void onUpdateStatus(Object... params) {
