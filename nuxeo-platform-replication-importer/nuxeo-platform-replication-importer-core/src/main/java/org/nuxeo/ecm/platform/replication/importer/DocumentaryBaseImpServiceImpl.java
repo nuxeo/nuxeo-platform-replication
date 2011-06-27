@@ -42,7 +42,7 @@ import org.nuxeo.runtime.api.Framework;
  *
  */
 public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
-        implements DocumentaryBaseImpServiceImplMBean {
+        implements DocumentaryBaseImpServiceMBean , DocumentaryBaseImporterService {
     private static final Log log = LogFactory.getLog(DocumentaryBaseImpServiceImpl.class);
 
     private StatusListener listener;
@@ -123,11 +123,11 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
 
     }
 
-    public void importDocuments(File path) throws ClientException {
+    public void importDocuments(String path) throws ClientException {
         Thread.currentThread().setContextClassLoader(
                 Framework.class.getClassLoader());
         typeSelector = new DefaultDocumentTypeSelector();
-        importDocuments(null, path, true, true, true, false, true);
+        importDocuments(null, new File(path), true, true, true, false, true);
     }
 }
 

@@ -35,7 +35,7 @@ public class ImporterFactory extends AbstractResourceFactory {
         }
         service.registerResource("ImporterService",
                 ObjectNameFactory.formatQualifiedName("ImporterService"),
-                DocumentaryBaseImpServiceImplMBean.class, instance);
+                DocumentaryBaseImpServiceMBean.class, instance);
     }
 
 }
