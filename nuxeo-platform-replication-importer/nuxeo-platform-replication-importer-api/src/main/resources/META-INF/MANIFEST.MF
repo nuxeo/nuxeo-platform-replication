@@ -1,5 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 1
-Bundle-Name: Nuxeo Platform Replication Exporter API
-Bundle-SymbolicName: org.nuxeo.ecm.platform.replication.importer.api;singleton:=true
-Export-Package: org.nuxeo.ecm.platform.replication.importer.api
