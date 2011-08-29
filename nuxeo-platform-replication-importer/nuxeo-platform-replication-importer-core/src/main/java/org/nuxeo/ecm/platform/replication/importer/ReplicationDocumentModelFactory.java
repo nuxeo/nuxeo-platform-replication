@@ -87,6 +87,7 @@ public class ReplicationDocumentModelFactory implements
         typeSelector = null;
     }
 
+    @Override
     public DocumentModel createFolderishNode(CoreSession session,
             DocumentModel parent, SourceNode node) throws Exception {
         if (node == null) {
@@ -101,11 +102,12 @@ public class ReplicationDocumentModelFactory implements
                     + node.getName());
             return null;
         }
-        this.fileNode = node;
+        fileNode = node;
         this.session = session;
         return importDocument();
     }
 
+    @Override
     public DocumentModel createLeafNode(CoreSession session,
             DocumentModel parent, SourceNode node) throws Exception {
         if (node == null) {
@@ -120,11 +122,12 @@ public class ReplicationDocumentModelFactory implements
                     + node.getName());
             return null;
         }
-        this.fileNode = node;
+        fileNode = node;
         this.session = session;
         return importDocument();
     }
 
+    @Override
     public boolean isTargetDocumentModelFolderish(SourceNode node) {
         if (node == null) {
             // kind of unexpected, but possible when the parent is not created
@@ -238,8 +241,10 @@ public class ReplicationDocumentModelFactory implements
         // create document
         DocumentModel documentModel = null;
         if (!xdoc.getType().equals("Root")) {
-        	Path path = new Path("/" + ((Element) xdoc.getDocument().selectNodes(
-                    "//system/path").get(0)).getText());
+            Path path = new Path(
+                    "/"
+                            + ((Element) xdoc.getDocument().selectNodes(
+                                    "//system/path").get(0)).getText());
             xdoc.setPath(new Path(path.lastSegment()));
             path = path.removeLastSegments(1);
             try {
@@ -277,6 +282,7 @@ public class ReplicationDocumentModelFactory implements
         DocumentWriter writer = new ReplicationDocumentModelWriter(session,
                 documentModel, 1);
         File[] blobFiles = new File(documentLocation).listFiles(new FilenameFilter() {
+            @Override
             public boolean accept(File dir, String name) {
                 return name.contains(".blob");
             }
@@ -327,15 +333,19 @@ public class ReplicationDocumentModelFactory implements
         Properties properties = new Properties();
         FileInputStream fis = null;
         try {
-            fis = new FileInputStream(fileNode.getName() + File.separator + METADATA_FILE_NAME);
-			properties.load(fis);
+            fis = new FileInputStream(fileNode.getName() + File.separator
+                    + METADATA_FILE_NAME);
+            properties.load(fis);
         } catch (IOException e) {
             log.debug(String.format("Problems retrieving the %s file",
                     fileNode.getName() + METADATA_FILE_NAME));
         } finally {
-        	if ( fis != null ) {
-        		try { fis.close(); } catch (IOException e) { }
-        	}
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                }
+            }
         }
         return properties;
     }
