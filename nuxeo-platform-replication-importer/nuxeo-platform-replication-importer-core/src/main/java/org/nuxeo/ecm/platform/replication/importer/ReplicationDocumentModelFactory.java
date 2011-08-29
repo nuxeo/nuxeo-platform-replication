@@ -175,7 +175,7 @@ public class ReplicationDocumentModelFactory implements
             // don't log twice: when proxies is twice
             if (!importProxies) {
                 ImporterReporter.getInstance().incrementDocumentNumber();
-                log.error("Didn't find xml for" + documentLocation);
+                log.error("Didn't find xml for" + documentLocation, e);
                 ImporterReporter.getInstance().logDocumentImport(
                         documentLocation, "xml file is missing or corrupt");
             }
