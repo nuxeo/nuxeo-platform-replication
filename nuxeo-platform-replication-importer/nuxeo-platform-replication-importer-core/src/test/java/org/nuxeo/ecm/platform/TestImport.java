@@ -25,6 +25,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.nuxeo.common.utils.FileUtils;
 import org.nuxeo.common.utils.Path;
 import org.nuxeo.ecm.core.api.DocumentModel;
@@ -35,6 +37,8 @@ import org.nuxeo.ecm.platform.replication.importer.DocumentaryBaseImporterServic
 import org.nuxeo.runtime.api.Framework;
 
 public class TestImport extends SQLRepositoryTestCase {
+
+    private static final Log log = LogFactory.getLog(TestImport.class);
 
     public TestImport(String name) {
         super(name);
@@ -68,15 +72,21 @@ public class TestImport extends SQLRepositoryTestCase {
         Enumeration entries = arch.entries();
         while (entries.hasMoreElements()) {
             ZipEntry entry = (ZipEntry) entries.nextElement();
-            InputStream in = arch.getInputStream(entry);
             File out = new File(basePath.append(entry.getName()).toString());
+            try {
+                out.getCanonicalPath();
+            } catch (IOException e) {
+                log.warn("Skipping invalid path for this platform: "+out.getPath());
+                continue;
+            }
             if (entry.isDirectory()) {
                 out.mkdirs();
             } else {
                 out.createNewFile();
+                InputStream in = arch.getInputStream(entry);
                 FileUtils.copyToFile(in, out);
+                in.close();
             }
-            in.close();
         }
         return new File(basePath.toString());
     }
