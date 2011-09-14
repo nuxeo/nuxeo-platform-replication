@@ -3,7 +3,7 @@
   <parent>
     <artifactId>nuxeo-platform-replication-exporter</artifactId>
     <groupId>org.nuxeo.ecm.platform</groupId>
-    <version>5.1.6</version>
+    <version>5.1.6.1</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -19,7 +19,7 @@
     <dependency>
       <groupId>org.nuxeo.ecm.platform</groupId>
       <artifactId>nuxeo-platform-replication-common-api</artifactId>
-      <version>5.1.6</version>
+      <version>5.1.6.1</version>
     </dependency>    
   </dependencies>
 </project>
