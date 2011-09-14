@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.nuxeo.ecm.platform</groupId>
     <artifactId>nuxeo-platform-replication-exporter</artifactId>
-    <version>5.1.6.1</version>
+    <version>5.1.6.2-SNAPSHOT</version>
   </parent>
   
   <artifactId>nuxeo-platform-replication-exporter-mbean</artifactId>
@@ -21,7 +21,7 @@
     <dependency>
       <groupId>org.nuxeo.ecm.platform</groupId>
       <artifactId>nuxeo-platform-replication-exporter-api</artifactId>
-      <version>5.1.6.1</version>
+      <version>5.1.6.2-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
