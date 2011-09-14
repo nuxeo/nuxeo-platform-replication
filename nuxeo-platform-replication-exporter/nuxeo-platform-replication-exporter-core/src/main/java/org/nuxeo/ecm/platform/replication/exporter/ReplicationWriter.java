@@ -87,7 +87,10 @@ public class ReplicationWriter extends XMLDirectoryWriter {
         try {
             DocumentModel document = session
                     .getDocument(new IdRef(doc.getId()));
-            OutputFormat format = OutputFormat.createPrettyPrint();
+            // Using our own pretty print format to avoid having text being
+            // trimed
+            // OutputFormat format = OutputFormat.createPrettyPrint();
+            OutputFormat format = createOutputFormat();
 
             if (!document.isVersion()) {
                 parent = new File(parent, USUAL_DOCUMENTS_LOCATION_NAME);
@@ -360,5 +363,16 @@ public class ReplicationWriter extends XMLDirectoryWriter {
         props.setProperty(IMPORT_LIFECYCLE_POLICY, propValue == null ? ""
                 : propValue);
         return props;
+    }
+
+    public OutputFormat createOutputFormat() {
+        return createPrettyPrint();
+    }
+
+    public static OutputFormat createPrettyPrint() {
+        OutputFormat format = new OutputFormat();
+        format.setIndentSize(2);
+        format.setNewlines(true);
+        return format;
     }
 }

@@ -18,6 +18,7 @@ import java.io.File;
 
 import org.apache.log4j.Logger;
 import org.nuxeo.ecm.core.api.ClientException;
+import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.UnrestrictedSessionRunner;
 import org.nuxeo.ecm.core.io.DocumentReader;
 import org.nuxeo.ecm.core.io.DocumentWriter;
@@ -38,6 +39,11 @@ public class UnrestrictedExporter extends UnrestrictedSessionRunner {
     private File path = null;
 
     private static final Logger log = Logger.getLogger(UnrestrictedExporter.class);
+
+    public UnrestrictedExporter(CoreSession session, File path) {
+        super(session);
+        setPath(path);
+    }
 
     public UnrestrictedExporter(String repositoryName, File path) {
         super(repositoryName);
@@ -68,8 +74,9 @@ public class UnrestrictedExporter extends UnrestrictedSessionRunner {
     }
 
     public void stop() {
-        if (pipe != null)
+        if (pipe != null) {
             pipe.stop();
+        }
     }
 
     public void setListener(StatusListener listener) {
