@@ -34,7 +34,6 @@ import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.VER
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -43,7 +42,6 @@ import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
-import org.nuxeo.common.utils.StringUtils;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
@@ -82,15 +80,14 @@ public class ReplicationWriter extends XMLDirectoryWriter {
 
     @Override
     public DocumentTranslationMap write(ExportedDocument doc)
-    throws IOException {
+            throws IOException {
 
         File parent = new File(getDestination().toString(),
                 DOCUMENTARY_BASE_LOCATION_NAME);
         ExporterReporter.getInstance().incrementDocumentNumber();
 
         try {
-            DocumentModel document = session
-            .getDocument(new IdRef(doc.getId()));
+            DocumentModel document = session.getDocument(new IdRef(doc.getId()));
             OutputFormat format = OutputFormat.createPrettyPrint();
             format.setTrimText(false);
 
@@ -135,8 +132,7 @@ public class ReplicationWriter extends XMLDirectoryWriter {
             }
 
             // write external documents
-            for (Map.Entry<String, Document> entry : doc.getDocuments()
-                    .entrySet()) {
+            for (Map.Entry<String, Document> entry : doc.getDocuments().entrySet()) {
                 writer = new XMLWriter(new FileOutputStream(new File(parent,
                         entry.getKey() + ".xml")), format);
                 writer.write(entry.getValue());
@@ -147,7 +143,7 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                     documentLocation);
             File metadataFile = new File(parent, "metadata.properties");
             metadata.store(new FileOutputStream(metadataFile),
-            "Document Metadata");
+                    "Document Metadata");
         } catch (Exception e) {
             String location = parent.getAbsolutePath();
             log.error(location + " missing!", e);
@@ -199,8 +195,7 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                         version.getId() == null ? "" : version.getId());
                 DocumentModel liveDocument = null;
                 try {
-                    liveDocument = documentManager.getSourceDocument(version
-                            .getRef());
+                    liveDocument = documentManager.getSourceDocument(version.getRef());
                 } catch (Exception e) {
                     // so, can't get to the live document of proxy
                     log.warn("Can't identify the source of the proxy "
@@ -209,8 +204,10 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                             documentLocation);
                 }
                 if (liveDocument != null) {
-                    props.setProperty(IMPORT_PROXY_VERSIONABLE_ID, liveDocument
-                            .getId() == null ? "" : liveDocument.getId());
+                    props.setProperty(
+                            IMPORT_PROXY_VERSIONABLE_ID,
+                            liveDocument.getId() == null ? ""
+                                    : liveDocument.getId());
                 } else {
                     props.setProperty(IMPORT_PROXY_VERSIONABLE_ID, "");
                 }
@@ -239,13 +236,14 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                 props.setProperty(IMPORT_VERSION_DESCRIPTION, "");
                 props.setProperty(IMPORT_VERSION_CREATED, "");
             } else {
-                props.setProperty(IMPORT_VERSION_VERSIONABLE_ID, liveDocument
-                        .getId() == null ? "" : liveDocument.getId());
+                props.setProperty(
+                        IMPORT_VERSION_VERSIONABLE_ID,
+                        liveDocument.getId() == null ? ""
+                                : liveDocument.getId());
                 // as the version related metadata are available only through
                 // listing and not direct introspection...
                 try {
-                    List<VersionModel> versions = documentManager
-                    .getVersionsForDocument(liveDocument.getRef());
+                    List<VersionModel> versions = documentManager.getVersionsForDocument(liveDocument.getRef());
                     for (VersionModel version : versions) {
                         if (!docLabel.equals(version.getLabel())) {
                             continue;
@@ -264,7 +262,7 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                     // can't list the versions of the live document
                     log.warn(
                             "Failure listing the versions on the same level with "
-                            + documentLocation, e);
+                                    + documentLocation, e);
                     // don't even bother to register as error: missing
                     // description and date is not big
                     props.setProperty(IMPORT_VERSION_DESCRIPTION, "");
@@ -272,8 +270,7 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                 }
             }
 
-            VersioningDocument docVer = document
-            .getAdapter(VersioningDocument.class);
+            VersioningDocument docVer = document.getAdapter(VersioningDocument.class);
             String minorVer = null;
             try {
                 minorVer = docVer.getMinorVersion().toString();
@@ -318,8 +315,7 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                         && version.getId().equals(document.getId())) {
                     props.setProperty(IMPORT_BASE_VERSION_ID, version.getId());
                 }
-                VersioningDocument docVer = document
-                .getAdapter(VersioningDocument.class);
+                VersioningDocument docVer = document.getAdapter(VersioningDocument.class);
                 if (docVer != null) {
                     String minorVer = null;
                     try {
@@ -366,22 +362,25 @@ public class ReplicationWriter extends XMLDirectoryWriter {
                 : propValue);
 
         // added the order of the children
-        if ( document.hasFacet(FacetNames.ORDERABLE)) {
+        if (document.hasFacet(FacetNames.ORDERABLE)) {
             try {
-                List<DocumentRef> list = documentManager.getChildrenRefs(document.getRef(), null);
-                if ( list != null) {
+                List<DocumentRef> list = documentManager.getChildrenRefs(
+                        document.getRef(), null);
+                if (list != null) {
                     int len = list.size();
                     StringBuilder builder = new StringBuilder();
-                    if ( len > 0) {
+                    if (len > 0) {
                         builder.append(list.get(0));
                     }
-                    for ( int i=1; i < len ; i++) {
+                    for (int i = 1; i < len; i++) {
                         builder.append(';').append(list.get(i));
                     }
                     props.put("ecm:childrenOrder", builder.toString());
                 }
             } catch (ClientException e) {
-                log.warn("Can't get the children order for " + documentLocation, e);
+                log.warn(
+                        "Can't get the children order for " + documentLocation,
+                        e);
             }
         }
 
