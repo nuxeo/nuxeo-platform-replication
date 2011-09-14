@@ -37,7 +37,7 @@ public class TestReplicationExporter extends RepositoryOSGITestCase {
      *
      * @throws Exception
      */
-    public void TestReplicationExporterWithoutTrim() throws Exception {
+    public void testReplicationExporterWithoutTrim() throws Exception {
         // create a File doc with a
         CoreSession session = getCoreSession();
         DocumentModel doc = session.createDocumentModel("/", "test", "File");
