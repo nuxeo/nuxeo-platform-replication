@@ -3,7 +3,7 @@
   <parent>
     <artifactId>nuxeo-platform-replication</artifactId>
     <groupId>org.nuxeo.ecm.platform</groupId>
-    <version>5.4.2.1-SNAPSHOT</version>
+    <version>5.4.2-HF09-NXP-7442-NXP-7751</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
