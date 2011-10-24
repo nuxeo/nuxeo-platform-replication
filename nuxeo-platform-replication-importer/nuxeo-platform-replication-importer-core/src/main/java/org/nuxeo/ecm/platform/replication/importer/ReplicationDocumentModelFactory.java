@@ -38,7 +38,6 @@ import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentModelList;
 import org.nuxeo.ecm.core.api.DocumentRef;
 import org.nuxeo.ecm.core.api.IdRef;
-import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.core.api.impl.blob.StreamingBlob;
 import org.nuxeo.ecm.core.api.security.ACE;
 import org.nuxeo.ecm.core.api.security.ACL;
@@ -80,15 +79,12 @@ public class ReplicationDocumentModelFactory implements
 
     protected DocumentTypeSelector typeSelector;
 
-    protected final boolean resume;
-
     public ReplicationDocumentModelFactory(StatusListener listener,
-            boolean importProxies, boolean resume) {
+            boolean importProxies) {
         this.listener = listener;
         this.importProxies = importProxies;
         xmlTransformer = null;
         typeSelector = null;
-        this.resume = resume;
     }
 
     @Override
@@ -242,7 +238,6 @@ public class ReplicationDocumentModelFactory implements
                         e.getMessage());
             }
         }
-
         // create document
         DocumentModel documentModel = null;
         if (!xdoc.getType().equals("Root")) {
@@ -250,16 +245,6 @@ public class ReplicationDocumentModelFactory implements
                     "/"
                             + ((Element) xdoc.getDocument().selectNodes(
                                     "//system/path").get(0)).getText());
-            PathRef pathRef = new PathRef(path.toString());
-            try {
-                if (resume && session.exists(pathRef)) {
-                    log.warn("Document " + path + " already exits, ignoring...");
-                    return session.getDocument(pathRef);
-                }
-            } catch (ClientException e1) {
-                log.error("An exception occured whild testing existance of "
-                        + path.lastSegment() + ". Continuing import ...");
-            }
             xdoc.setPath(new Path(path.lastSegment()));
             path = path.removeLastSegments(1);
             try {
@@ -280,14 +265,8 @@ public class ReplicationDocumentModelFactory implements
             }
         } else {
             try {
-                DocumentModel rootDocument = session.getRootDocument();
-                if (resume && session.exists(rootDocument.getRef())) {
-                    log.warn("Document Root " + rootDocument.getPathAsString()
-                            + " already exits, ignoring...");
-                    return rootDocument;
-                }
                 if (importProxies) {
-                    return rootDocument;
+                    return session.getRootDocument();
                 } else {
                     return cleanUpRoot();
                 }

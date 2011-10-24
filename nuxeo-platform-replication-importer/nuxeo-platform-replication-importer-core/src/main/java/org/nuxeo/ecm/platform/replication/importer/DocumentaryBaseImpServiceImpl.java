@@ -88,14 +88,14 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
     }
 
     public void doSynchronImport(File root, boolean skipRoot,
-            boolean importProxies, boolean useMultiThread, boolean resume)
+            boolean importProxies, boolean useMultiThread)
             throws ClientException {
         try {
             ReplicationSourceNode sourceNode = new ReplicationSourceNode(root);
             GenericMultiThreadedImporter importer = new GenericMultiThreadedImporter(
                     sourceNode, "/", skipRoot, 10, 5, getLogger());
             ReplicationDocumentModelFactory documentModelFactory = new ReplicationDocumentModelFactory(
-                    listener, importProxies, resume);
+                    listener, importProxies);
             // here is set the transformer
             documentModelFactory.setDocumentXmlTransformer(xmlTransformer);
             documentModelFactory.setDocumentTypeSelector(typeSelector);
@@ -134,25 +134,7 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
         Thread.currentThread().setContextClassLoader(
                 Framework.class.getClassLoader());
         typeSelector = new DefaultDocumentTypeSelector();
-        importDocuments(null, new File(path), false, true, true, false, true);
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.nuxeo.ecm.platform.replication.importer.DocumentaryBaseImpServiceMBean
-     * #importDocuments(java.lang.String, boolean)
-     */
-    @Override
-    public void resumeDocumentImport(String path, boolean resume)
-            throws ClientException {
-        Thread.currentThread().setContextClassLoader(
-                Framework.class.getClassLoader());
-        typeSelector = new DefaultDocumentTypeSelector();
-
-        importDocuments(null, new File(path), resume, true, true, false, true);
-
+        importDocuments(null, new File(path), true, true, true, false, true);
     }
 }
 
@@ -205,7 +187,7 @@ class ImportRunner implements Runnable {
                     + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
                     + USUAL_DOCUMENTS_LOCATION_NAME);
             service.doSynchronImport(usualDocumentsRoot, false, false,
-                    useMultiThread, resume);
+                    useMultiThread);
 
             File versionsRoot = new File(path.getPath() + File.separator
                     + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
@@ -213,7 +195,7 @@ class ImportRunner implements Runnable {
             if (versionsRoot.exists()) {
                 LOG.info("Second, version documents...");
                 service.doSynchronImport(versionsRoot, true, false,
-                        useMultiThread, resume);
+                        useMultiThread);
             }
 
             File proxiesRoot = new File(path.getPath() + File.separator
@@ -222,7 +204,7 @@ class ImportRunner implements Runnable {
             if (proxiesRoot.exists()) {
                 LOG.info("Third, proxies documents...");
                 service.doSynchronImport(proxiesRoot, true, true,
-                        useMultiThread, resume);
+                        useMultiThread);
             }
             if (listener != null) {
                 listener.onUpdateStatus(StatusListener.DONE);

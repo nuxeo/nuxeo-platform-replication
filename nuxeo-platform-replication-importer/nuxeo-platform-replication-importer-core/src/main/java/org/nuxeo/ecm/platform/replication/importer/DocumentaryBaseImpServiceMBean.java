@@ -25,23 +25,6 @@ import org.nuxeo.ecm.core.api.ClientException;
  */
 public interface DocumentaryBaseImpServiceMBean {
 
-    /**
-     * Default import.
-     *
-     * @param pathFile
-     * @throws ClientException
-     */
     void importDocuments(String pathFile) throws ClientException;
-
-    /**
-     * Import with resuming option. If a document to import already exists in
-     * the repository, it will be ignored.
-     *
-     * @param pathFile
-     * @param resume true to resume. false will run a normal import.
-     * @throws ClientException
-     */
-    void resumeDocumentImport(String pathFile, boolean resume)
-            throws ClientException;
 
 }
