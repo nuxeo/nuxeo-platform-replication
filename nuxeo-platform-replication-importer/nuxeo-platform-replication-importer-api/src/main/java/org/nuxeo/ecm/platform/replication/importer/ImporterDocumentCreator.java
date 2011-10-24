@@ -104,7 +104,7 @@ public class ImporterDocumentCreator {
             return new SAXReader().read(in);
         } catch (Exception e) {
             throw new ClientException("Failed to read schemes for "
-                    + file.getPath(), e);
+                    + file.getPath());
         } finally {
             if (in != null) {
                 try {
