@@ -4,19 +4,15 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>nuxeo-features-parent</artifactId>
-    <groupId>org.nuxeo.ecm.platform</groupId>
+    <groupId>org.nuxeo</groupId>
+    <artifactId>nuxeo-addons-parent</artifactId>
     <version>5.5-SNAPSHOT</version>
   </parent>
 
+  <groupId>org.nuxeo.ecm.platform</groupId>
   <artifactId>nuxeo-platform-replication</artifactId>
-  <name>nuxeo-platform-replication</name>
-
+  <name>Nuxeo Platform Replication</name>
   <packaging>pom</packaging>
-
-  <properties>
-    <nuxeo.replication.version>5.5-SNAPSHOT</nuxeo.replication.version>
-  </properties>
 
   <modules>
     <module>nuxeo-platform-replication-common-api</module>
@@ -25,41 +21,6 @@
     <module>nuxeo-platform-replication-exporter</module>
     <module>nuxeo-platform-replication-importer</module>
   </modules>
-
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.nuxeo.ecm.platform</groupId>
-        <artifactId>nuxeo-platform-importer-core</artifactId>
-        <version>${nuxeo.features.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.nuxeo.ecm.platform</groupId>
-        <artifactId>nuxeo-platform-replication-common-api</artifactId>
-        <version>${nuxeo.replication.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.nuxeo.ecm.platform</groupId>
-        <artifactId>nuxeo-platform-replication-exporter-api</artifactId>
-        <version>${nuxeo.replication.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.nuxeo.ecm.platform</groupId>
-        <artifactId>nuxeo-platform-replication-exporter-core</artifactId>
-        <version>${nuxeo.replication.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.nuxeo.ecm.platform</groupId>
-        <artifactId>nuxeo-platform-replication-importer-api</artifactId>
-        <version>${nuxeo.replication.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.nuxeo.ecm.platform</groupId>
-        <artifactId>nuxeo-platform-replication-importer-core</artifactId>
-        <version>${nuxeo.replication.version}</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
 
   <repositories>
     <repository>
@@ -79,9 +40,14 @@
         <enabled>false</enabled>
       </releases>
       <snapshots>
-        <updatePolicy>always</updatePolicy>
         <enabled>true</enabled>
       </snapshots>
     </repository>
   </repositories>
+
+  <scm>
+    <connection>scm:hg:http://hg.nuxeo.org/addons/nuxeo-platform-replication</connection>
+    <developerConnection>scm:hg:https://hg.nuxeo.org/addons/nuxeo-platform-replication</developerConnection>
+    <url>http://hg.nuxeo.org/addons/nuxeo-platform-replication</url>
+  </scm>
 </project>
