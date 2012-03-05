@@ -7,7 +7,7 @@ UI or through a MBean visible in JMX console.
 The UI is available only if the web component is also deployed.
 
 The feature code is currently located in sandbox project
-nuxeo-platform-replication (as also nuxeo-platform-importer feature, which is
+nuxeo-platform-replication (as also nuxeo-importer feature, which is
 used inside replication).
 
 In order to have it deployed the following jars needs to be deployed:
