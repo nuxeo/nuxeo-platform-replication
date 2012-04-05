@@ -21,6 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -49,7 +53,7 @@ public class ServiceTest extends SQLRepositoryTestCase {
         LOG.setLevel(Level.INFO);
     }
 
-    @Override
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         deployBundle("org.nuxeo.ecm.core.api");
@@ -111,7 +115,7 @@ public class ServiceTest extends SQLRepositoryTestCase {
         session.save();
     }
 
-    
+    @Test
     public void testService() throws Exception {
         createDataWarehouse();
         DocumentaryBaseExporterService srv = new DocumentaryBaseExpServiceImpl();
@@ -125,8 +129,8 @@ public class ServiceTest extends SQLRepositoryTestCase {
         //simple avoid closing session before test completes
         Thread.sleep(10000);
     }
-    
-    
+
+    @Test
     public void testDocumentOrder() throws Exception {
     	 // create the ordered folder
     	 DocumentModel folder = session.createDocumentModel("/", "0001", "OrderedFolder");
@@ -169,10 +173,4 @@ public class ServiceTest extends SQLRepositoryTestCase {
     	 assertEquals(StringUtils.join(ids, ";"), p);
     }
 
-    public static void main(String[] args) throws Exception {
-        ServiceTest st = new ServiceTest();
-        st.setUp();
-        st.testService();
-        st.tearDown();
-    }
 }

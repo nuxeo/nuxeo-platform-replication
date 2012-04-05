@@ -25,6 +25,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.nuxeo.common.utils.FileUtils;
@@ -40,11 +44,15 @@ public class TestImport extends SQLRepositoryTestCase {
 
     private static final Log log = LogFactory.getLog(TestImport.class);
 
+    public TestImport() {
+        super();
+    }
+
     public TestImport(String name) {
         super(name);
     }
 
-    @Override
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         deployBundle("org.nuxeo.ecm.core.api");
@@ -91,6 +99,7 @@ public class TestImport extends SQLRepositoryTestCase {
         return new File(basePath.toString());
     }
 
+    @Test
     public void testImport() throws Exception {
 
         DocumentModel root = session.getRootDocument();
@@ -168,6 +177,7 @@ public class TestImport extends SQLRepositoryTestCase {
 
     }
 
+    @Test
     public void testDoubleImport() throws Exception {
 
         testImport();

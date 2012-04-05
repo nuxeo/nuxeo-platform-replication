@@ -20,16 +20,18 @@ import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import junit.framework.TestCase;
-
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
+import org.junit.After;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.platform.replication.common.Reporter;
 import org.nuxeo.ecm.platform.replication.common.ReporterFactory;
 import org.nuxeo.ecm.platform.replication.common.ReporterFactoryService;
 
-public class ReporterTest extends TestCase {
+public class ReporterTest {
 
     private static final Logger LOG = Logger.getLogger(ReporterTest.class);
 
@@ -41,11 +43,7 @@ public class ReporterTest extends TestCase {
         new ReporterTest().testFileChannel();
     }
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
-
+    @Test
     public void testSingleFileChannel() throws Exception {
         ReporterFactoryService rfs = new ReporterFactory();
         Reporter rp = rfs.getReporter(new File(System.getProperty("user.home"),
@@ -57,6 +55,7 @@ public class ReporterTest extends TestCase {
         LOG.info("Size of documents: " + rp.getTotalSize());
     }
 
+    @Test
     public void testFileChannel() throws Exception {
         Executor exex = Executors.newCachedThreadPool();
         for (int i = 0; i < 130; i++) {
@@ -64,10 +63,6 @@ public class ReporterTest extends TestCase {
         }
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
 }
 
 class Runner implements Runnable {
