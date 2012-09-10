@@ -50,7 +50,7 @@ import org.nuxeo.ecm.core.io.ExportConstants;
 import org.nuxeo.ecm.core.io.ExportedDocument;
 import org.nuxeo.ecm.core.io.impl.ExportedDocumentImpl;
 import org.nuxeo.ecm.platform.importer.base.TxHelper;
-import org.nuxeo.ecm.platform.importer.factories.ImporterDocumentModelFactory;
+import org.nuxeo.ecm.platform.importer.factories.AbstractDocumentModelFactory;
 import org.nuxeo.ecm.platform.importer.source.SourceNode;
 import org.nuxeo.ecm.platform.replication.common.StatusListener;
 import org.nuxeo.ecm.platform.replication.importer.reporter.ImporterReporter;
@@ -63,8 +63,8 @@ import org.nuxeo.runtime.services.streaming.FileSource;
  * @author rux
  *
  */
-public class ReplicationDocumentModelFactory implements
-        ImporterDocumentModelFactory {
+public class ReplicationDocumentModelFactory extends
+        AbstractDocumentModelFactory {
 
     private static final Log log = LogFactory.getLog(ReplicationDocumentModelFactory.class);
 
