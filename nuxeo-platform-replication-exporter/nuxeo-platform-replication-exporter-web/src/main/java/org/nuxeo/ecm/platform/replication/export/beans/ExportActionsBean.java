@@ -20,7 +20,8 @@ package org.nuxeo.ecm.platform.replication.export.beans;
 import java.io.File;
 import java.io.Serializable;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jboss.seam.ScopeType;
 import org.jboss.seam.annotations.Create;
 import org.jboss.seam.annotations.In;
@@ -35,6 +36,7 @@ import org.nuxeo.ecm.platform.replication.exporter.DocumentaryBaseExporterServic
 import org.nuxeo.ecm.webapp.helpers.ResourcesAccessor;
 import org.nuxeo.runtime.api.Framework;
 
+
 /**
  * Export action bean
  *
@@ -45,7 +47,7 @@ import org.nuxeo.runtime.api.Framework;
 @Name("exportActions")
 public class ExportActionsBean implements Serializable, StatusListener {
 
-    private static final Logger log = Logger.getLogger(ExportActionsBean.class);
+    private static final Log log = LogFactory.getLog(ExportActionsBean.class);
 
     private static final long serialVersionUID = 1L;
 

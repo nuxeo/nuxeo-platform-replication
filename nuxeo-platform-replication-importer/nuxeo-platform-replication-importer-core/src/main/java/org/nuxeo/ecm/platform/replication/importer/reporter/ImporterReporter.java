@@ -17,7 +17,8 @@ package org.nuxeo.ecm.platform.replication.importer.reporter;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.nuxeo.ecm.platform.replication.summary.Reporter;
 import org.nuxeo.ecm.platform.replication.summary.ReporterEntry;
 import org.nuxeo.ecm.platform.replication.summary.ReporterEntryACLFailed;
@@ -35,7 +36,7 @@ import org.nuxeo.ecm.platform.replication.summary.ReporterEntryUnknownError;
  */
 public class ImporterReporter extends Reporter {
 
-    private static final Logger log = Logger.getLogger(ImporterReporter.class);
+    private static final Log log = LogFactory.getLog(ImporterReporter.class);
 
     private static Reporter reporter;
 

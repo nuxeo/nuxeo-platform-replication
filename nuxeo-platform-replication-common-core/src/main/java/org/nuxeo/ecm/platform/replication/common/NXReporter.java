@@ -19,7 +19,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.nuxeo.ecm.core.api.ClientException;
 
 /**
@@ -33,12 +34,12 @@ public class NXReporter implements Reporter {
 
     private RandomAccessFile rndFile;
 
-    private static final Logger LOG = Logger.getLogger(NXReporter.class);
+    private static final Log log = LogFactory.getLog(NXReporter.class);
 
     public NXReporter(File location) throws ClientException {
         try {
             setLocation(location);
-            LOG.info(rndFile.getChannel().size());
+            log.info(rndFile.getChannel().size());
         } catch (IOException e) {
             throw new ClientException("Failed to create logger.", e);
         }

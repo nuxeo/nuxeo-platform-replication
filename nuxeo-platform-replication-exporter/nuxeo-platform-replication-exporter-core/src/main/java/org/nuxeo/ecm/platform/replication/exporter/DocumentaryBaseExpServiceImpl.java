@@ -19,7 +19,8 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.io.ExportedDocument;
 import org.nuxeo.ecm.platform.replication.common.StatusListener;
@@ -33,7 +34,7 @@ import org.nuxeo.runtime.api.Framework;
  */
 public class DocumentaryBaseExpServiceImpl // extends ServiceMBeanSupport
         implements DocumentaryBaseExporterServiceMBean, DocumentaryBaseExporterService, Runnable, StatusListener {
-    private static final Logger log = Logger.getLogger(DocumentaryBaseExpServiceImpl.class);
+    private static final Log log = LogFactory.getLog(DocumentaryBaseExpServiceImpl.class);
 
     private String domain;
 

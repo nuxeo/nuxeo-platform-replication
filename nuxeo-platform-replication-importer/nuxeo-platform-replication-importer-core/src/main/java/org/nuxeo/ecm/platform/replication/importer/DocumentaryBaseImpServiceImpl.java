@@ -25,7 +25,6 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.Logger;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.platform.importer.base.GenericMultiThreadedImporter;
 import org.nuxeo.ecm.platform.importer.executor.AbstractImporterExecutor;
@@ -158,7 +157,7 @@ public class DocumentaryBaseImpServiceImpl extends AbstractImporterExecutor
 
 class ImportRunner implements Runnable {
 
-    private static final Logger LOG = Logger.getLogger(ImportRunner.class);
+    private static final Log log = LogFactory.getLog(ImportRunner.class);
 
     private Map<String, Serializable> parameter;
 
@@ -198,7 +197,7 @@ class ImportRunner implements Runnable {
     @Override
     public void run() {
         try {
-            LOG.info("Starting import. First, usual documents...");
+            log.info("Starting import. First, usual documents...");
             // we need to import the documentary base in order: usual documents,
             // versions, proxies
             File usualDocumentsRoot = new File(path.getPath() + File.separator
@@ -211,7 +210,7 @@ class ImportRunner implements Runnable {
                     + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
                     + VERSIONS_LOCATION_NAME);
             if (versionsRoot.exists()) {
-                LOG.info("Second, version documents...");
+                log.info("Second, version documents...");
                 service.doSynchronImport(versionsRoot, true, false,
                         useMultiThread, resume);
             }
@@ -220,7 +219,7 @@ class ImportRunner implements Runnable {
                     + DOCUMENTARY_BASE_LOCATION_NAME + File.separator
                     + USUAL_DOCUMENTS_LOCATION_NAME);
             if (proxiesRoot.exists()) {
-                LOG.info("Third, proxies documents...");
+                log.info("Third, proxies documents...");
                 service.doSynchronImport(proxiesRoot, true, true,
                         useMultiThread, resume);
             }
@@ -228,7 +227,7 @@ class ImportRunner implements Runnable {
                 listener.onUpdateStatus(StatusListener.DONE);
             }
         } catch (ClientException e) {
-            LOG.error("Error", e);
+            log.error("Error", e);
         } finally {
             ImporterReporter.getInstance().dumpLog();
         }

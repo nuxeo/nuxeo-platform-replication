@@ -21,14 +21,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.nuxeo.common.utils.StringUtils;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.IdRef;
@@ -47,11 +46,7 @@ public class ServiceTest extends SQLRepositoryTestCase {
         super("default");
     }
 
-    private static final Logger LOG = Logger.getLogger(ServiceTest.class);
-    static {
-        BasicConfigurator.configure();
-        LOG.setLevel(Level.INFO);
-    }
+    private static final Log log = LogFactory.getLog(ServiceTest.class);
 
     @Before
     public void setUp() throws Exception {
@@ -121,7 +116,7 @@ public class ServiceTest extends SQLRepositoryTestCase {
         DocumentaryBaseExporterService srv = new DocumentaryBaseExpServiceImpl();
         srv.setListener(new StatusListener() {
             public void onUpdateStatus(Object... params) {
-                LOG.info(params[0]);
+                log.info(params[0]);
             }
         });
         srv.export("test", null, new File(System.getProperty("user.home"),

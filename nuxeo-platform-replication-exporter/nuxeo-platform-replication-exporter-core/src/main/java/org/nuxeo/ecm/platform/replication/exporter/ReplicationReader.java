@@ -21,7 +21,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
@@ -44,7 +45,7 @@ import org.nuxeo.ecm.platform.replication.exporter.reporter.ExporterReporter;
  */
 public class ReplicationReader extends DocumentModelReader {
 
-    private static final Logger log = Logger.getLogger(ReplicationReader.class);
+    private static final Log log = LogFactory.getLog(ReplicationReader.class);
 
     /**
      * The usual document list. It goes through the documents base following the

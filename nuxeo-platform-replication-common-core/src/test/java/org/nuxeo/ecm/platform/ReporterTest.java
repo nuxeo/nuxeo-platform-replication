@@ -20,8 +20,9 @@ import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -33,8 +34,7 @@ import org.nuxeo.ecm.platform.replication.common.ReporterFactoryService;
 
 public class ReporterTest {
 
-    private static final Logger LOG = Logger.getLogger(ReporterTest.class);
-
+    private static final Log log = LogFactory.getLog(ReporterTest.class);
     static {
         BasicConfigurator.configure();
     }
@@ -51,8 +51,8 @@ public class ReporterTest {
 
         rp.writeEntry(UUID.randomUUID().toString(), 3000);
 
-        LOG.info(rp.getLastEntry());
-        LOG.info("Size of documents: " + rp.getTotalSize());
+        log.info(rp.getLastEntry());
+        log.info("Size of documents: " + rp.getTotalSize());
     }
 
     @Test
@@ -64,12 +64,10 @@ public class ReporterTest {
     }
 
 }
-
 class Runner implements Runnable {
 
     private static final ReporterFactoryService rfs = new ReporterFactory();
-
-    private static final Logger LOG = Logger.getLogger(Runner.class);
+    private static final Log log = LogFactory.getLog(Runner.class);
 
     public Runner() {}
 
@@ -80,7 +78,7 @@ class Runner implements Runnable {
             rp.writeEntry(UUID.randomUUID().toString(),
                     (int) System.currentTimeMillis());
         } catch (ClientException e) {
-            LOG.error(e);
+            log.error(e);
         }
     }
 

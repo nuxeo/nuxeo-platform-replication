@@ -38,7 +38,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
@@ -67,7 +68,7 @@ public class ReplicationWriter extends XMLDirectoryWriter {
 
     public static final String FAKE_BLOB_BODY = "The original blob could not be found, this is a fake replacement one.";
 
-    private static final Logger log = Logger.getLogger(ReplicationWriter.class);
+    private static final Log log = LogFactory.getLog(ReplicationWriter.class);
 
     private static final Object mutex = new Object();
 

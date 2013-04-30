@@ -24,7 +24,8 @@ import static org.nuxeo.ecm.platform.replication.common.ReplicationConstants.STA
 
 import java.io.File;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.core.event.EventContext;
@@ -41,7 +42,7 @@ import org.nuxeo.runtime.api.Framework;
  */
 public class ReplicationImportListener implements EventListener {
 
-    private static final Logger log = Logger.getLogger(ReplicationImportListener.class);
+    private static final Log log = LogFactory.getLog(ReplicationImportListener.class);
 
     private DocumentaryBaseImporterService importService;
 

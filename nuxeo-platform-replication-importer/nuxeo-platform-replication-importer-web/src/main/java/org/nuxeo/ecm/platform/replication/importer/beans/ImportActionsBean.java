@@ -20,7 +20,8 @@ package org.nuxeo.ecm.platform.replication.importer.beans;
 import java.io.File;
 import java.io.Serializable;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jboss.seam.ScopeType;
 import org.jboss.seam.annotations.Create;
 import org.jboss.seam.annotations.Name;
@@ -43,7 +44,7 @@ import org.nuxeo.runtime.api.Framework;
 @Name("importActions")
 public class ImportActionsBean implements Serializable, StatusListener {
 
-    private static final Logger log = Logger.getLogger(ImportActionsBean.class);
+    private static final Log log = LogFactory.getLog(ImportActionsBean.class);
 
     private static final long serialVersionUID = 1L;
 

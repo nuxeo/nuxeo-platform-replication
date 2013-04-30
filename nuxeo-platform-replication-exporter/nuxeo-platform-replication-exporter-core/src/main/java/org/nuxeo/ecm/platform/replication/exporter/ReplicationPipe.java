@@ -23,7 +23,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.nuxeo.ecm.core.io.DocumentTranslationMap;
 import org.nuxeo.ecm.core.io.ExportedDocument;
 import org.nuxeo.ecm.core.io.impl.DocumentPipeImpl;
@@ -37,7 +38,7 @@ import org.nuxeo.ecm.platform.replication.common.StatusListener;
  *
  */
 public class ReplicationPipe extends DocumentPipeImpl {
-    private static final Logger log = Logger.getLogger(ReplicationPipe.class);
+    private static final Log log = LogFactory.getLog(ReplicationPipe.class);
 
     private StatusListener listener;
 
@@ -145,7 +146,7 @@ public class ReplicationPipe extends DocumentPipeImpl {
 
 class MultipleRunner extends Runner {
 
-    private static final Logger LOG = Logger.getLogger(MultipleRunner.class);
+    private static final Log log = LogFactory.getLog(MultipleRunner.class);
 
     private ExportedDocument[] docs;
 
@@ -180,7 +181,7 @@ class MultipleRunner extends Runner {
                 sendStatus(StatusListener.DOC_PROCESS_SUCCESS, docs);
             }
         } catch (Exception e) {
-            LOG.error(e);
+            log.error(e);
             sendStatus(StatusListener.ERROR, e);
         }
 
@@ -198,7 +199,7 @@ class Runner implements Runnable {
 
     private StatusListener listener;
 
-    private static final Logger LOG = Logger.getLogger(Runner.class);
+    private static final Log log = LogFactory.getLog(Runner.class);
 
     public Runner(ReplicationPipe pipe, ExportedDocument doc,
             List<DocumentTranslationMap> maps) {
@@ -218,7 +219,7 @@ class Runner implements Runnable {
             maps.add(map);
             sendStatus(StatusListener.DOC_PROCESS_SUCCESS, doc);
         } catch (Exception e) {
-            LOG.error(e);
+            log.error(e);
             sendStatus(StatusListener.ERROR, e);
         }
     }
