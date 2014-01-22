@@ -89,7 +89,7 @@ public class ReplicationPipe extends DocumentPipeImpl {
     }
 
     protected void readAndWriteDocs(List<DocumentTranslationMap> maps)
-            throws IOException, InterruptedException {
+            throws IOException{
         ExecutorService executor = Executors.newFixedThreadPool(pageSize < 1 ? 1
                 : pageSize);
         if (pageSize == 0) {
@@ -123,13 +123,17 @@ public class ReplicationPipe extends DocumentPipeImpl {
         }
 
         executor.shutdown();
-        boolean done = executor.awaitTermination(1, TimeUnit.SECONDS);
-        while (!done) {
-            if (!running) {
-                executor.shutdownNow();
-                break;
+	try {
+            boolean done = executor.awaitTermination(1, TimeUnit.SECONDS);
+            while (!done) {
+                if (!running) {
+                    executor.shutdownNow();
+                    break;
+                }
+                done = executor.awaitTermination(1, TimeUnit.SECONDS);
             }
-            done = executor.awaitTermination(1, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            log.error(e);
         }
         log.info("Multithread export finished...");
     }
